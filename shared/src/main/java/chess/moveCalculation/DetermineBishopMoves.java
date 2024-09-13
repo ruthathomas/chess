@@ -13,9 +13,38 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
         return getValidBishopMoves(board, myPosition);
     }
-    //FIXME: >:) implement the methods from DeterminePieceMoves here
 
     private ArrayList<ChessMove> getValidBishopMoves(ChessBoard board, ChessPosition myPosition) {
-        return null;
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        //FIXME: this feels incredibly inefficient, but should do for now;
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+        while(r < 8 && c > 1) {
+            r++;
+            c--;
+            validMoves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+        }
+        r = myPosition.getRow();
+        c = myPosition.getColumn();
+        while(r < 8 && c < 8) {
+            r++;
+            c++;
+            validMoves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+        }
+        r = myPosition.getRow();
+        c = myPosition.getColumn();
+        while(r > 1 && c > 1) {
+            r--;
+            c--;
+            validMoves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+        }
+        r = myPosition.getRow();
+        c = myPosition.getColumn();
+        while(r > 1 && c < 8) {
+            r--;
+            c++;
+            validMoves.add(new ChessMove(myPosition, new ChessPosition(r, c), null));
+        }
+        return validMoves;
     }
 }
