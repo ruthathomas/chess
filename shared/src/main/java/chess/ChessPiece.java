@@ -76,6 +76,9 @@ public class ChessPiece {
         if(type == PieceType.BISHOP) {
             DetermineBishopMoves bishopMoves = new DetermineBishopMoves();
             return bishopMoves.getValidMoves(board, myPosition);
+        } else if(type == PieceType.ROOK) {
+            DetermineRookMoves rookMoves = new DetermineRookMoves();
+            return rookMoves.getValidMoves(board, myPosition);
         } else {
             return new ArrayList<>();
         }
