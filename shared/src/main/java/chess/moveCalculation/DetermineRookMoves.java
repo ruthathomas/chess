@@ -16,14 +16,14 @@ public class DetermineRookMoves implements DeterminePieceMoves {
     }
 
     private ArrayList<ChessMove> getValidRookMoves(ChessBoard board, ChessPosition myPosition) {
-        int r = myPosition.getRow();
-        int c = myPosition.getColumn();
-        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
         // Add available moves forward
-        while(r < 8) {
-            r++;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row < 8) {
+            row++;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -36,11 +36,11 @@ public class DetermineRookMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        r = myPosition.getRow();
+        row = myPosition.getRow();
         // Add available moves backward
-        while(r > 1) {
-            r--;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row > 1) {
+            row--;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -53,11 +53,11 @@ public class DetermineRookMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        r = myPosition.getRow();
+        row = myPosition.getRow();
         // Add available moves to the left
-        while(c > 1) {
-            c--;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(col > 1) {
+            col--;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -70,11 +70,11 @@ public class DetermineRookMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        c = myPosition.getColumn();
+        col = myPosition.getColumn();
         // Add available moves to the right
-        while(c < 8) {
-            c++;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(col < 8) {
+            col++;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {

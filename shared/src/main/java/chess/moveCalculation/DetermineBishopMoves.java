@@ -16,16 +16,16 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
     }
 
     private ArrayList<ChessMove> getValidBishopMoves(ChessBoard board, ChessPosition myPosition) {
-        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
         //FIXME: this MUST be refactored, with some functions extracted, but should do for now;
-        int r = myPosition.getRow();
-        int c = myPosition.getColumn();
+        int row = myPosition.getRow();
+        int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
         // Add available moves to the upper left
-        while(r < 8 && c > 1) {
-            r++;
-            c--;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row < 8 && col > 1) {
+            row++;
+            col--;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -38,13 +38,13 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        r = myPosition.getRow();
-        c = myPosition.getColumn();
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
         // Add available moves to the upper right
-        while(r < 8 && c < 8) {
-            r++;
-            c++;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row < 8 && col < 8) {
+            row++;
+            col++;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -57,13 +57,13 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        r = myPosition.getRow();
-        c = myPosition.getColumn();
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
         // Add available moves to the lower left
-        while(r > 1 && c > 1) {
-            r--;
-            c--;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row > 1 && col > 1) {
+            row--;
+            col--;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
@@ -76,13 +76,13 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             }
             validMoves.add(new ChessMove(myPosition, endPos, null));
         }
-        r = myPosition.getRow();
-        c = myPosition.getColumn();
+        row = myPosition.getRow();
+        col = myPosition.getColumn();
         // Add available moves to the lower right
-        while(r > 1 && c < 8) {
-            r--;
-            c++;
-            ChessPosition endPos = new ChessPosition(r, c);
+        while(row > 1 && col < 8) {
+            row--;
+            col++;
+            ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
