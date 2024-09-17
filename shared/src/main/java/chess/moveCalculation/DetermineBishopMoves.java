@@ -12,10 +12,6 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
 
     @Override
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
-        return getValidBishopMoves(board, myPosition);
-    }
-
-    private ArrayList<ChessMove> getValidBishopMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         //FIXME: this MUST be refactored, with some functions extracted, but should do for now;
         int row = myPosition.getRow();
@@ -30,7 +26,7 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
                     break;
-                // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
+                    // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
                 } else {
                     validMoves.add(new ChessMove(myPosition, endPos, null));
                     break;

@@ -12,10 +12,6 @@ public class DetermineRookMoves implements DeterminePieceMoves {
 
     @Override
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
-        return getValidRookMoves(board, myPosition);
-    }
-
-    private ArrayList<ChessMove> getValidRookMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
@@ -28,7 +24,7 @@ public class DetermineRookMoves implements DeterminePieceMoves {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
                 if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
                     break;
-                // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
+                    // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
                 } else {
                     validMoves.add(new ChessMove(myPosition, endPos, null));
                     break;
@@ -89,4 +85,5 @@ public class DetermineRookMoves implements DeterminePieceMoves {
         }
         return validMoves;
     }
+
 }

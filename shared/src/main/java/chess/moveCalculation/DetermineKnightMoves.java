@@ -12,10 +12,6 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
 
     @Override
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
-        return getValidKnightMoves(board, myPosition);
-    }
-
-    private ArrayList<ChessMove> getValidKnightMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
@@ -23,4 +19,5 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
         //FIXME add the moves stuff here
         return null;
     }
+    
 }
