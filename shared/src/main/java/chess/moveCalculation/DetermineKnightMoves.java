@@ -21,7 +21,7 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
         validMoves.add(validateKnightMove(row, col, -1, -2, board, myPiece, myPosition));
         validMoves.add(validateKnightMove(row, col, -2, 1, board, myPiece, myPosition));
         validMoves.add(validateKnightMove(row, col, -2, -1, board, myPiece, myPosition));
-        for(int i = 0; i < validMoves.size(); i++) {
+        for(int i = validMoves.size() - 1; i >= 0; i--) {
             if(validMoves.get(i) == null) {
                 validMoves.remove(i);
             }
