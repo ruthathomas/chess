@@ -79,6 +79,9 @@ public class ChessPiece {
         } else if(type == PieceType.ROOK) {
             DetermineRookMoves rookMoves = new DetermineRookMoves();
             return rookMoves.getValidMoves(board, myPosition);
+        } else if(type == PieceType.KNIGHT) {
+            DetermineKnightMoves knightMoves = new DetermineKnightMoves();
+            return knightMoves.getValidMoves(board, myPosition);
         } else {
             return new ArrayList<>();
         }
