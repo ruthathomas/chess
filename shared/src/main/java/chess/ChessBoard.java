@@ -65,4 +65,15 @@ public class ChessBoard {
     public void resetBoard() {
         throw new RuntimeException("Not implemented");
     }
+
+    /**
+     * Returns whether a tile is occupied or not
+     *
+     * @param position The position to check
+     * @return A boolean indicating occupation status
+     */
+    public boolean isTileOccupied(ChessPosition position) {
+        // If the tile is not empty, return true; otherwise, return false
+        return tiles[position.getRow() - 1][position.getColumn() - 1] != null;
+    }
 }
