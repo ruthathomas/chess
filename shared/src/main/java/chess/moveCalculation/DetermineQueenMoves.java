@@ -15,7 +15,7 @@ public class DetermineQueenMoves implements DeterminePieceMoves {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
-
+        //FIXME CONTINUE
         return null;
     }
 

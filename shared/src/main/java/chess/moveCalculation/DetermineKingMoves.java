@@ -28,22 +28,18 @@ public class DetermineKingMoves implements DeterminePieceMoves {
         return validMoves;
     }
 
+    // This one is the same as the validateKnightMove function; could be good to make an abstract class
     private ChessMove validateKingMove(int row, int col, int rowModify, int colModify, ChessBoard board, ChessPiece myPiece, ChessPosition myPosition) {
         int newRow = row + rowModify;
         int newCol = col + colModify;
+        ChessPosition newPos = new ChessPosition(newRow, newCol);
         if(newRow > 0 && newRow < 9) {
             if(newCol > 0 && newCol < 9) {
-                try {
-                    ChessGame.TeamColor color = board.getPiece(new ChessPosition(newRow, newCol)).getTeamColor();
-                    if(color == myPiece.getTeamColor()) {
-                        // lambda; the position is blocked by a piece of the same team
-                    } else {
-                        // the blocking piece may be captured
-                        return new ChessMove(myPosition, new ChessPosition(newRow, newCol), null);
-                    }
-                } catch (Exception e) {
-                    // the position is unblocked
-                    return new ChessMove(myPosition, new ChessPosition(newRow, newCol), null);
+                if(board.isTileOccupied(newPos) && board.getPiece(newPos).getTeamColor() == myPiece.getTeamColor()) {
+                    // there is a blocking piece of the same team
+                } else {
+                    // there is either no blockage, or a capturable piece
+                    return new ChessMove(myPosition, newPos, null);
                 }
             }
         }
