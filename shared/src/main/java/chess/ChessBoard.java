@@ -45,6 +45,9 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         tiles[position.getRow() - 1][position.getColumn() - 1] = piece;
+        if(!piece.isHasMoved()) {
+            piece.moved();
+        }
     }
 
     /**
