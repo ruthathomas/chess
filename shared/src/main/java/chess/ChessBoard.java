@@ -45,9 +45,9 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         tiles[position.getRow() - 1][position.getColumn() - 1] = piece;
-        if(!piece.isHasMoved()) {
-            piece.moved();
-        }
+//        if(!piece.isHasMoved()) {
+//            piece.moved();
+//        }
     }
 
     /**
@@ -62,13 +62,27 @@ public class ChessBoard {
     }
 
     /**
+     * Checks if a position on the board is occupied
+     *
+     * @param position The position to check occupation on
+     * @return Whether the tile is occupied or not
+     */
+    public boolean isOccupied(ChessPosition position) {
+        if(getPiece(position) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        int firstRow = 0;
+        int secondRow = 0;
         for(var color : ChessGame.TeamColor.values()) {
-            int firstRow = 0;
-            int secondRow = 0;
             if(color == ChessGame.TeamColor.WHITE) {
                 firstRow = 1;
                 secondRow = 2;

@@ -89,26 +89,34 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        if(type == PieceType.BISHOP) {
-            DetermineBishopMoves bishopMoves = new DetermineBishopMoves();
-            return bishopMoves.getValidMoves(board, myPosition);
-        } else if(type == PieceType.ROOK) {
-            DetermineRookMoves rookMoves = new DetermineRookMoves();
-            return rookMoves.getValidMoves(board, myPosition);
-        } else if(type == PieceType.KNIGHT) {
-            DetermineKnightMoves knightMoves = new DetermineKnightMoves();
-            return knightMoves.getValidMoves(board, myPosition);
-        } else if(type == PieceType.KING){
-            DetermineKingMoves kingMoves = new DetermineKingMoves();
-            return kingMoves.getValidMoves(board, myPosition);
-        } else if(type == PieceType.QUEEN) {
-            DetermineQueenMoves queenMoves = new DetermineQueenMoves();
-            return queenMoves.getValidMoves(board, myPosition);
-        } else if(type == PieceType.PAWN) {
-            DeterminePawnMoves pawnMoves = new DeterminePawnMoves();
-            return pawnMoves.getValidMoves(board, myPosition);
-        } else {
-            return new ArrayList<>();
+        switch(type = board.getPiece(myPosition).getPieceType()) {
+            case KING -> {
+                DetermineKingMoves kingMoves = new DetermineKingMoves();
+                return kingMoves.getValidMoves(board, myPosition);
+            }
+            case QUEEN -> {
+                DetermineQueenMoves queenMoves = new DetermineQueenMoves();
+                return queenMoves.getValidMoves(board, myPosition);
+            }
+            case BISHOP -> {
+                DetermineBishopMoves bishopMoves = new DetermineBishopMoves();
+                return bishopMoves.getValidMoves(board, myPosition);
+            }
+            case KNIGHT -> {
+                DetermineKnightMoves knightMoves = new DetermineKnightMoves();
+                return knightMoves.getValidMoves(board, myPosition);
+            }
+            case ROOK -> {
+                DetermineRookMoves rookMoves = new DetermineRookMoves();
+                return rookMoves.getValidMoves(board, myPosition);
+            }
+            case PAWN -> {
+                DeterminePawnMoves pawnMoves = new DeterminePawnMoves();
+                return pawnMoves.getValidMoves(board, myPosition);
+            }
+            case null, default -> {
+                return new ArrayList<>();
+            }
         }
     }
 }
