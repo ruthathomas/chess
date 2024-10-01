@@ -1,5 +1,6 @@
 package chess;
 
+import java.io.Console;
 import java.util.Collection;
 
 /**
@@ -63,7 +64,23 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-
+        //FIXME this is a work in progress
+        if(!validMoves(move.getStartPosition()).contains(move)) {
+            // The move is not valid
+            throw new InvalidMoveException("This is a warning (FIXME; improve).");
+        } else {
+            // do something
+            ChessPosition start = move.getStartPosition();
+            ChessPosition end = move.getEndPosition();
+            // creation of these chesspiece variables isn't strictly necessary, but improves clarity
+            ChessPiece movePiece = gameBoard.getPiece(start);
+            if(move.getPromotionPiece() != null) {
+                ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
+                gameBoard.movePiece(start, end, promoPiece);
+            } else {
+                gameBoard.movePiece(start, end, movePiece);
+            }
+        }
         throw new RuntimeException("Not implemented");
     }
 
@@ -74,6 +91,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+
         throw new RuntimeException("Not implemented");
     }
 
@@ -84,6 +102,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+
         throw new RuntimeException("Not implemented");
     }
 
@@ -95,6 +114,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+
         throw new RuntimeException("Not implemented");
     }
 

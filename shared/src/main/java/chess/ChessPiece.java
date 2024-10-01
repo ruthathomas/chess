@@ -15,12 +15,12 @@ public class ChessPiece {
 
     private ChessGame.TeamColor pieceColor;
     private ChessPiece.PieceType type;
-    private boolean hasMoved;
+//    private boolean hasMoved;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
-        hasMoved = false;
+//        hasMoved = false;
     }
 
     @Override
@@ -67,19 +67,19 @@ public class ChessPiece {
         return type;
     }
 
-    /**
-     * @return hasMoved
-     */
-    public boolean isHasMoved() {
-        return hasMoved;
-    }
-
-    /**
-     * Update hasMoved after movement; only called if hasMoved is false
-     */
-    public void moved() {
-        hasMoved = true;
-    }
+//    /**
+//     * @return hasMoved
+//     */
+//    public boolean isHasMoved() {
+//        return hasMoved;
+//    }
+//
+//    /**
+//     * Update hasMoved after movement; only called if hasMoved is false
+//     */
+//    public void moved() {
+//        hasMoved = true;
+//    }
 
     /**
      * Calculates all the positions a chess piece can move to

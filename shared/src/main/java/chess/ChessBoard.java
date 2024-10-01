@@ -50,6 +50,20 @@ public class ChessBoard {
 //        }
     }
 
+    public void movePiece(ChessPosition currentPosition, ChessPosition newPosition, ChessPiece piece) {
+        //FIXME: make a function to move a piece here >:(
+
+        // It isn't movePiece's job to check if a move is allowed or not; it just moves.
+        // However, it will check if the tile it's moving to is occupied, and free space
+        if(isOccupied(newPosition)) {
+            //FIXME: this will probably need fixing, but for now is as simple as saying BYE to the old piece
+            // this might cause memory leaks in some way. improve if possible
+            tiles[newPosition.getRow() - 1][newPosition.getColumn() - 1] = null;
+        }
+        tiles[newPosition.getRow() - 1][newPosition.getColumn() - 1] = piece;
+        tiles[currentPosition.getRow() - 1][currentPosition.getColumn() - 1] = null;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
