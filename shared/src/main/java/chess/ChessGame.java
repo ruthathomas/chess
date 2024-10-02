@@ -81,8 +81,18 @@ public class ChessGame {
                     // pawn must be promoted
                     ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
                     gameBoard.movePiece(start, end, promoPiece);
+                    //FIXME HOT GARBAGE
+                    if(isInCheck(movePiece.getTeamColor())) {
+                        gameBoard.movePiece(end, start, movePiece);
+                        throw new InvalidMoveException();
+                    }
                 } else {
                     gameBoard.movePiece(start, end, movePiece);
+                    //FIXME HOT GARBAGE
+                    if(isInCheck(movePiece.getTeamColor())) {
+                        gameBoard.movePiece(end, start, movePiece);
+                        throw new InvalidMoveException();
+                    }
                 }
             } else {
                 throw new InvalidMoveException();
@@ -102,21 +112,28 @@ public class ChessGame {
         //FIXME find a way to know where the king be??
         //FIXME THIS IS HOT TRASH
         //or where the other ones are?? >:((
-        ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).getFirst();
+        if(gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).isEmpty()) {
+            return false;
+        }
+        ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).get(0);
         // opposing color defaults to WHITE, but is switched to black if teamColor is WHITE
         TeamColor opposingColor = TeamColor.WHITE;
         if(teamColor == TeamColor.WHITE) {
             opposingColor = TeamColor.BLACK;
         }
-        ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
+        // ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
         ArrayList<ChessMove> opposingMoves = new ArrayList<>();
-        for(var piece : opposingPieces) {
-            for(var p : gameBoard.findPiece(piece.getPieceType(), opposingColor)) {
+        for(var type : ChessPiece.PieceType.values()) {
+            for(var p : gameBoard.findPiece(type, opposingColor)) {
+                var piece = gameBoard.getPiece(p);
                 opposingMoves.addAll(piece.pieceMoves(gameBoard, new ChessPosition(p.getRow(), p.getColumn())));
             }
         }
         for(var move : opposingMoves) {
-            if(move.getEndPosition() == kingPosition) { return true; }
+//            System.out.println(move.getEndPosition());
+//            System.out.println(kingPosition);
+//            System.out.println(move.getEndPosition() == kingPosition);
+            if(move.getEndPosition().getRow() == kingPosition.getRow() && move.getEndPosition().getColumn() == kingPosition.getColumn()) { return true; }
         }
         return false;
     }

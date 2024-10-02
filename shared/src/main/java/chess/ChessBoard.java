@@ -86,10 +86,17 @@ public class ChessBoard {
     public ArrayList<ChessPosition> findPiece(ChessPiece.PieceType piece, ChessGame.TeamColor color) {
         //THIS DOESN'T WORK AND HAS TO BE FIXED
         ArrayList<ChessPosition> piecePositions = new ArrayList<>();
-        for(int i = 1; i < 9; i++) {
-            for(int j = 1; j < 9; j++) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(tiles[i][j] == null) {
+                    continue;
+                }
                 if(tiles[i][j].getPieceType() == piece && tiles[i][j].getTeamColor() == color) {
-                    piecePositions.add(new ChessPosition(i, j));
+                    piecePositions.add(new ChessPosition(i+1, j+1));
+                    // if king, return
+                    if(piece == ChessPiece.PieceType.KING) {
+                        return piecePositions;
+                    }
                 }
             }
         }
@@ -103,9 +110,9 @@ public class ChessBoard {
      */
     public ArrayList<ChessPiece> getTeamPieces(ChessGame.TeamColor team) {
         ArrayList<ChessPiece> teamPieces = new ArrayList<>();
-        for(int i = 1; i < 9; i++) {
-            for(int j = 1; j < 9; j++) {
-                if(tiles[i][j].getTeamColor() == team) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(tiles[i][j] != null && tiles[i][j].getTeamColor() == team) {
                     teamPieces.add(tiles[i][j]);
                 }
             }
