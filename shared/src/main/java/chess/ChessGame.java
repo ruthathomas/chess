@@ -1,6 +1,7 @@
 package chess;
 
 import java.io.Console;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -99,9 +100,25 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         //FIXME find a way to know where the king be??
+        //FIXME THIS IS HOT TRASH
+        //FIXME THE FIND PIECE FUNCTION DOESN'T WORK
         //or where the other ones are?? >:((
         ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor);
-        throw new RuntimeException("Not implemented");
+        // opposing color defaults to WHITE, but is switched to black if teamColor is WHITE
+        TeamColor opposingColor = TeamColor.WHITE;
+        if(teamColor == TeamColor.WHITE) {
+            opposingColor = TeamColor.BLACK;
+        }
+        ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
+        ArrayList<ChessMove> opposingMoves = new ArrayList<>();
+        for(var piece : opposingPieces) {
+            opposingMoves.addAll(piece.pieceMoves(gameBoard, gameBoard.findPiece(piece.getPieceType(), opposingColor)));
+        }
+        if(opposingMoves.contains(kingPosition)) {
+            return true;
+        }
+        throw new RuntimeException("Not Implemented");
+        // return false;
     }
 
     /**
@@ -111,7 +128,6 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-
         throw new RuntimeException("Not implemented");
     }
 
@@ -123,7 +139,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
+        ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
+        ArrayList<ChessMove> teamMoves = new ArrayList<>();
+        for(var piece : teamPieces) {
+            teamMoves.addAll(piece.pieceMoves(gameBoard, gameBoard.findPiece(piece.getPieceType(), teamColor)));
+        }
         throw new RuntimeException("Not implemented");
     }
 

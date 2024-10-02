@@ -84,6 +84,8 @@ public class ChessBoard {
      * @return Either the position of the found piece, or null if the piece is not found
      */
     public ChessPosition findPiece(ChessPiece.PieceType piece, ChessGame.TeamColor color) {
+        //FIXME IT HAS JUST OCCURRED TO ME THAT THERE ARE MULTIPLES OF PIECES WITH THE SAME TYPE AND COLOR
+        //THIS DOESN'T WORK AND HAS TO BE FIXED
         for(int i = 1; i < 9; i++) {
             for(int j = 1; j < 9; j++) {
                 if(tiles[i][j].getPieceType() == piece && tiles[i][j].getTeamColor() == color) {
