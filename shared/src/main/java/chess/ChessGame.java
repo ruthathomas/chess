@@ -101,9 +101,8 @@ public class ChessGame {
     public boolean isInCheck(TeamColor teamColor) {
         //FIXME find a way to know where the king be??
         //FIXME THIS IS HOT TRASH
-        //FIXME THE FIND PIECE FUNCTION DOESN'T WORK
         //or where the other ones are?? >:((
-        ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor);
+        ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).getFirst();
         // opposing color defaults to WHITE, but is switched to black if teamColor is WHITE
         TeamColor opposingColor = TeamColor.WHITE;
         if(teamColor == TeamColor.WHITE) {
@@ -112,13 +111,14 @@ public class ChessGame {
         ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
         ArrayList<ChessMove> opposingMoves = new ArrayList<>();
         for(var piece : opposingPieces) {
-            opposingMoves.addAll(piece.pieceMoves(gameBoard, gameBoard.findPiece(piece.getPieceType(), opposingColor)));
+            for(var p : gameBoard.findPiece(piece.getPieceType(), opposingColor)) {
+                opposingMoves.addAll(piece.pieceMoves(gameBoard, new ChessPosition(p.getRow(), p.getColumn())));
+            }
         }
-        if(opposingMoves.contains(kingPosition)) {
-            return true;
+        for(var move : opposingMoves) {
+            if(move.getEndPosition() == kingPosition) { return true; }
         }
-        throw new RuntimeException("Not Implemented");
-        // return false;
+        return false;
     }
 
     /**
@@ -142,9 +142,11 @@ public class ChessGame {
         ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
         for(var piece : teamPieces) {
-            teamMoves.addAll(piece.pieceMoves(gameBoard, gameBoard.findPiece(piece.getPieceType(), teamColor)));
+            for(var p : gameBoard.findPiece(piece.getPieceType(), teamColor)) {
+                teamMoves.addAll(piece.pieceMoves(gameBoard, new ChessPosition(p.getRow(), p.getColumn())));
+            }
         }
-        throw new RuntimeException("Not implemented");
+        return teamMoves.isEmpty();
     }
 
     /**
