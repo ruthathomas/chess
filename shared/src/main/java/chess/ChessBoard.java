@@ -1,5 +1,7 @@
 package chess;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -73,6 +75,40 @@ public class ChessBoard {
      */
     public ChessPiece getPiece(ChessPosition position) {
         return tiles[position.getRow() - 1][position.getColumn() - 1];
+    }
+
+    /**
+     * Searches for a chess piece on the chessboard
+     *
+     * @param piece The piece to locate
+     * @return Either the position of the found piece, or null if the piece is not found
+     */
+    public ChessPosition findPiece(ChessPiece.PieceType piece, ChessGame.TeamColor color) {
+        for(int i = 1; i < 9; i++) {
+            for(int j = 1; j < 9; j++) {
+                if(tiles[i][j].getPieceType() == piece && tiles[i][j].getTeamColor() == color) {
+                    return new ChessPosition(i,j);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param team
+     * @return an ArrayList of ChessPieces
+     */
+    public ArrayList<ChessPiece> getTeamPieces(ChessGame.TeamColor team) {
+        ArrayList<ChessPiece> teamPieces = new ArrayList<>();
+        for(int i = 1; i < 9; i++) {
+            for(int j = 1; j < 9; j++) {
+                if(tiles[i][j].getTeamColor() == team) {
+                    teamPieces.add(tiles[i][j]);
+                }
+            }
+        }
+        return teamPieces;
     }
 
     /**

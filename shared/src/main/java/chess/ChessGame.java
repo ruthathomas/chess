@@ -65,23 +65,30 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //FIXME this is a work in progress
-        if(!validMoves(move.getStartPosition()).contains(move)) {
-            // The move is not valid
-            throw new InvalidMoveException("This is a warning (FIXME; improve).");
-        } else {
-            // do something
-            ChessPosition start = move.getStartPosition();
-            ChessPosition end = move.getEndPosition();
-            // creation of these chesspiece variables isn't strictly necessary, but improves clarity
-            ChessPiece movePiece = gameBoard.getPiece(start);
-            if(move.getPromotionPiece() != null) {
-                ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
-                gameBoard.movePiece(start, end, promoPiece);
+        //FIXME - ensure it's YOUR TURN
+        //FIXME - ensure no moving INTO check
+        //FIXME - ensure no moving (if in check) that doesn't take you out of check
+        if(gameBoard.getPiece(move.getStartPosition()) != null) {
+            // tile contains a piece
+            if(validMoves(move.getStartPosition()).contains(move)) {
+                // the move is valid
+                ChessPosition start = move.getStartPosition();
+                ChessPosition end = move.getEndPosition();
+                // creation of these ChessPiece variables isn't strictly necessary, but improves clarity
+                ChessPiece movePiece = gameBoard.getPiece(start);
+                if(move.getPromotionPiece() != null) {
+                    // pawn must be promoted
+                    ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
+                    gameBoard.movePiece(start, end, promoPiece);
+                } else {
+                    gameBoard.movePiece(start, end, movePiece);
+                }
             } else {
-                gameBoard.movePiece(start, end, movePiece);
+                throw new InvalidMoveException();
             }
+        } else {
+            throw new InvalidMoveException();
         }
-        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -91,7 +98,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
+        //FIXME find a way to know where the king be??
+        //or where the other ones are?? >:((
+        ChessPosition kingPosition = gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor);
         throw new RuntimeException("Not implemented");
     }
 
