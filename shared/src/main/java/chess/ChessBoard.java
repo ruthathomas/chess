@@ -1,5 +1,6 @@
 package chess;
 
+import java.lang.reflect.Type;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +35,62 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "tiles=" + Arrays.toString(tiles) +
-                '}';
+        // THIS CURRENTLY PRINTS IT UPSIDE DOWN RIP
+        String boardString = "|";
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(tiles[i][j] == null) {
+                    boardString += " |";
+                } else {
+                    switch(tiles[i][j].getPieceType()) {
+                        case KING -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "K|";
+                            } else {
+                                boardString += "k|";
+                            }
+                        }
+                        case QUEEN -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "Q|";
+                            } else {
+                                boardString += "q|";
+                            }
+                        }
+                        case BISHOP -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "B|";
+                            } else {
+                                boardString += "b|";
+                            }
+                        }
+                        case KNIGHT -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "N|";
+                            } else {
+                                boardString += "n|";
+                            }
+                        }
+                        case ROOK -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "R|";
+                            } else {
+                                boardString += "r|";
+                            }
+                        }
+                        case PAWN -> {
+                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
+                                boardString += "P|";
+                            } else {
+                                boardString += "p|";
+                            }
+                        }
+                    }
+                }
+            }
+            boardString += "\n|";
+        }
+        return boardString;
     }
 
     /**

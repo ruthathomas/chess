@@ -89,7 +89,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch(type = board.getPiece(myPosition).getPieceType()) {
+        switch(type) {
             case KING -> {
                 DetermineKingMoves kingMoves = new DetermineKingMoves();
                 return kingMoves.getValidMoves(board, myPosition);

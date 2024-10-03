@@ -202,8 +202,8 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
-        for(var piece : teamPieces) {
-            for(var p : gameBoard.findPiece(piece.getPieceType(), teamColor)) {
+        for(var type : ChessPiece.PieceType.values()) {
+            for(var p : gameBoard.findPiece(type, teamColor)) {
                 teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
             }
         }
@@ -224,8 +224,12 @@ public class ChessGame {
     public boolean isInStalemate(TeamColor teamColor) {
         ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
-        for(var piece : teamPieces) {
-            for(var p : gameBoard.findPiece(piece.getPieceType(), teamColor)) {
+        // stalemate occurs when you are NOT in check, but cannot move
+        if(isInCheck(teamColor)) {
+            return false;
+        }
+        for(var type : ChessPiece.PieceType.values()) {
+            for(var p : gameBoard.findPiece(type, teamColor)) {
                 teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
             }
         }
