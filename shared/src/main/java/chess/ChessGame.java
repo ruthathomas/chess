@@ -67,38 +67,43 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         //FIXME this is a work in progress
         //FIXME - ensure it's YOUR TURN
-        //FIXME - ensure no moving INTO check
-        //FIXME - ensure no moving (if in check) that doesn't take you out of check
-        if(gameBoard.getPiece(move.getStartPosition()) != null) {
-            // tile contains a piece
-            if(validMoves(move.getStartPosition()).contains(move)) {
-                // the move is valid
-                ChessPosition start = move.getStartPosition();
-                ChessPosition end = move.getEndPosition();
-                // creation of these ChessPiece variables isn't strictly necessary, but improves clarity
-                ChessPiece movePiece = gameBoard.getPiece(start);
-                if(move.getPromotionPiece() != null) {
-                    // pawn must be promoted
-                    ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
-                    gameBoard.movePiece(start, end, promoPiece);
-                    //FIXME HOT GARBAGE
-                    if(isInCheck(movePiece.getTeamColor())) {
-                        gameBoard.movePiece(end, start, movePiece);
-                        throw new InvalidMoveException();
-                    }
-                } else {
-                    gameBoard.movePiece(start, end, movePiece);
-                    //FIXME HOT GARBAGE
-                    if(isInCheck(movePiece.getTeamColor())) {
-                        gameBoard.movePiece(end, start, movePiece);
-                        throw new InvalidMoveException();
-                    }
+        if(gameBoard.getPiece(move.getStartPosition()) == null) {
+            // no piece on selected start position
+            throw new InvalidMoveException();
+        }
+        if(gameBoard.getPiece(move.getStartPosition()).getTeamColor() != teamTurn) {
+            throw new InvalidMoveException();
+        }
+        if(!validMoves(move.getStartPosition()).contains(move)) {
+            throw new InvalidMoveException();
+        } else {
+            // the move is valid
+            ChessPosition start = move.getStartPosition();
+            ChessPosition end = move.getEndPosition();
+            // creation of these ChessPiece variables isn't strictly necessary, but improves clarity
+            ChessPiece movePiece = gameBoard.getPiece(start);
+            if(move.getPromotionPiece() != null) {
+                // pawn must be promoted
+                ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
+                gameBoard.movePiece(start, end, promoPiece);
+                //FIXME HOT GARBAGE
+                if(isInCheck(movePiece.getTeamColor())) {
+                    gameBoard.movePiece(end, start, movePiece);
+                    throw new InvalidMoveException();
                 }
             } else {
-                throw new InvalidMoveException();
+                gameBoard.movePiece(start, end, movePiece);
+                //FIXME HOT GARBAGE
+                if(isInCheck(movePiece.getTeamColor())) {
+                    gameBoard.movePiece(end, start, movePiece);
+                    throw new InvalidMoveException();
+                }
             }
+        }
+        if(teamTurn == TeamColor.WHITE) {
+            teamTurn = TeamColor.BLACK;
         } else {
-            throw new InvalidMoveException();
+            teamTurn = TeamColor.WHITE;
         }
     }
 
