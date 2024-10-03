@@ -200,7 +200,18 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
+        ArrayList<ChessMove> teamMoves = new ArrayList<>();
+        for(var piece : teamPieces) {
+            for(var p : gameBoard.findPiece(piece.getPieceType(), teamColor)) {
+                teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
+            }
+        }
+        for(var move : teamMoves) {
+            // if a single move removes check, we can return false
+            if(!doesMoveCheck(move)) { return false; }
+        }
+        return true;
     }
 
     /**
