@@ -226,7 +226,7 @@ public class ChessGame {
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
         for(var piece : teamPieces) {
             for(var p : gameBoard.findPiece(piece.getPieceType(), teamColor)) {
-                teamMoves.addAll(piece.pieceMoves(gameBoard, new ChessPosition(p.getRow(), p.getColumn())));
+                teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
             }
         }
         return teamMoves.isEmpty();
