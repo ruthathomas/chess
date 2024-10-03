@@ -59,24 +59,12 @@ public class ChessGame {
         Collection<ChessMove> pieceCollection = piece.pieceMoves(gameBoard, startPosition);
         ArrayList<ChessMove> pieceMoves = (ArrayList<ChessMove>) pieceCollection;
         //can't move anywhere that causes check
-        //pieceMoves.removeIf(this::doesMoveCheck);
-        //FIXME :((( idk what's going wrong here ; how do you work with collections??
         for(int i = pieceMoves.size() - 1; i >= 0; i--) {
             if(doesMoveCheck(pieceMoves.get(i))) {
                 pieceMoves.remove(i);
             }
         }
         return pieceMoves;
-        //FIXME ensure that the piece moves are all valid (i.e. don't put in check, etc)
-        /*
-            FIXME TEST 1: CHECK FORCES MOVEMENT
-            FIXME TEST 2: PIECE PARTIALLY TRAPPED (some moves induce check)
-            FIXME TEST 3: PIECE COMPLETELY TRAPPED (all moves induce check)
-            FIXME TEST 4: PIECES CANNOT ELIMINATE CHECK
-            FIXME TEST 5: KING CANNOT MOVE INTO CHECK
-         */
-
-        //return null;
     }
 
     /**
@@ -106,20 +94,9 @@ public class ChessGame {
             if(move.getPromotionPiece() != null) {
                 // pawn must be promoted
                 ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
-                // FIXME YOU CAN'T DO THIS!! may get rid of another piece bc of how movePiece is coded
                 gameBoard.movePiece(start, end, promoPiece);
-                //FIXME HOT GARBAGE
-                if(isInCheck(movePiece.getTeamColor())) {
-                    gameBoard.movePiece(end, start, movePiece);
-                    throw new InvalidMoveException();
-                }
             } else {
                 gameBoard.movePiece(start, end, movePiece);
-                //FIXME HOT GARBAGE
-                if(isInCheck(movePiece.getTeamColor())) {
-                    gameBoard.movePiece(end, start, movePiece);
-                    throw new InvalidMoveException();
-                }
             }
         }
         if(teamTurn == TeamColor.WHITE) {
