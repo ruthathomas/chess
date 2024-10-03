@@ -1,8 +1,8 @@
 package chess;
 
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -55,7 +55,28 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = gameBoard.getPiece(startPosition);
-        return piece.pieceMoves(gameBoard, startPosition);
+        TeamColor color = piece.getTeamColor();
+        Collection<ChessMove> pieceCollection = piece.pieceMoves(gameBoard, startPosition);
+        ArrayList<ChessMove> pieceMoves = (ArrayList<ChessMove>) pieceCollection;
+        //can't move anywhere that causes check
+        //pieceMoves.removeIf(this::doesMoveCheck);
+        //FIXME :((( idk what's going wrong here ; how do you work with collections??
+        for(int i = pieceMoves.size() - 1; i >= 0; i--) {
+            if(doesMoveCheck(pieceMoves.get(i))) {
+                pieceMoves.remove(i);
+            }
+        }
+        return pieceMoves;
+        //FIXME ensure that the piece moves are all valid (i.e. don't put in check, etc)
+        /*
+            FIXME TEST 1: CHECK FORCES MOVEMENT
+            FIXME TEST 2: PIECE PARTIALLY TRAPPED (some moves induce check)
+            FIXME TEST 3: PIECE COMPLETELY TRAPPED (all moves induce check)
+            FIXME TEST 4: PIECES CANNOT ELIMINATE CHECK
+            FIXME TEST 5: KING CANNOT MOVE INTO CHECK
+         */
+
+        //return null;
     }
 
     /**
@@ -85,6 +106,7 @@ public class ChessGame {
             if(move.getPromotionPiece() != null) {
                 // pawn must be promoted
                 ChessPiece promoPiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
+                // FIXME YOU CAN'T DO THIS!! may get rid of another piece bc of how movePiece is coded
                 gameBoard.movePiece(start, end, promoPiece);
                 //FIXME HOT GARBAGE
                 if(isInCheck(movePiece.getTeamColor())) {
@@ -105,6 +127,30 @@ public class ChessGame {
         } else {
             teamTurn = TeamColor.WHITE;
         }
+    }
+
+    /**
+     * @param move the ChessMove to investigate
+     * @return a boolean indicating whether the move produces check
+     */
+    public boolean doesMoveCheck(ChessMove move) {
+        ChessBoard tempBoard = new ChessBoard();
+        for(int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                if(gameBoard.isTileOccupied(new ChessPosition(i,j))) {
+                    tempBoard.addPiece(new ChessPosition(i, j), gameBoard.getPiece(new ChessPosition(i, j)));
+                }
+            }
+        }
+        ChessPiece piece = tempBoard.getPiece(move.getStartPosition());
+        tempBoard.movePiece(move.getStartPosition(), move.getEndPosition(), piece);
+        if(piece == null) {
+            return false;
+        }
+        if(isInCheck(piece.getTeamColor(), tempBoard)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -138,6 +184,33 @@ public class ChessGame {
 //            System.out.println(move.getEndPosition());
 //            System.out.println(kingPosition);
 //            System.out.println(move.getEndPosition() == kingPosition);
+            if(move.getEndPosition().getRow() == kingPosition.getRow() && move.getEndPosition().getColumn() == kingPosition.getColumn()) { return true; }
+        }
+        return false;
+    }
+
+    /**
+     * Overload of isInCheck for use in the doesMoveCheck function
+     */
+    public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
+        if(board.findPiece(ChessPiece.PieceType.KING, teamColor).isEmpty()) {
+            return false;
+        }
+        ChessPosition kingPosition = board.findPiece(ChessPiece.PieceType.KING, teamColor).get(0);
+        // opposing color defaults to WHITE, but is switched to black if teamColor is WHITE
+        TeamColor opposingColor = TeamColor.WHITE;
+        if(teamColor == TeamColor.WHITE) {
+            opposingColor = TeamColor.BLACK;
+        }
+        // ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
+        ArrayList<ChessMove> opposingMoves = new ArrayList<>();
+        for(var type : ChessPiece.PieceType.values()) {
+            for(var p : board.findPiece(type, opposingColor)) {
+                var piece = board.getPiece(p);
+                opposingMoves.addAll(piece.pieceMoves(board, new ChessPosition(p.getRow(), p.getColumn())));
+            }
+        }
+        for(var move : opposingMoves) {
             if(move.getEndPosition().getRow() == kingPosition.getRow() && move.getEndPosition().getColumn() == kingPosition.getColumn()) { return true; }
         }
         return false;
