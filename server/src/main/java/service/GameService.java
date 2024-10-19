@@ -8,4 +8,7 @@ public class GameService {
 //    public GameData listGames() {}
 //    public GameData createGame() {}
 //    public void joinGame() {}
+//    public void deleteGameData() {
+//
+//    }
 }
