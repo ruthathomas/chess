@@ -13,6 +13,7 @@ public class MemoryDataAccess implements DataAccessInterface {
     private ArrayList<UserData> userDataArrayList = new ArrayList<>();
 
     // First runthrough: not caring about exceptions
+    // OKAY THIS COULD BE BETTER BUT I'M GONNA COME BACK TO THAT
 
     @Override
     public UserData getUser(String username) {
