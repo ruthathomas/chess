@@ -90,10 +90,12 @@ public class MemoryDataAccess implements DataAccessInterface {
 
     @Override
     public void clearData() throws DataAccessException {
-        authDataArrayList.clear();
-        gameDataArrayList.clear();
-        userDataArrayList.clear();
-        if(!authDataArrayList.isEmpty() || !gameDataArrayList.isEmpty() || !userDataArrayList.isEmpty()) {
+        // clear() should not fail; however, if an issue is encountered, an error will be thrown
+        try {
+            authDataArrayList.clear();
+            gameDataArrayList.clear();
+            userDataArrayList.clear();
+        } catch (Exception e) {
             throw new DataAccessException("Test; data clearing failed.");
         }
     }

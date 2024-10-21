@@ -11,11 +11,15 @@ public class AuthService {
 
     /**
      * Creates a new AuthData object for the indicated user and passes it to the DAO.
-     * @param username //fixme
+     * @param username username of the user for which to create the AuthData.
      * @return The newly created AuthData object.
      */
     public AuthData createAuth(String username) {
         String authToken = generateToken();
+        // If the unlikely occurs and the authToken already exists, generate a new one
+        while(getAuth(authToken) != null) {
+            authToken = generateToken();
+        }
         AuthData newAuth = new AuthData(authToken, username);
         authMemory.addAuth(newAuth);
         return newAuth;
@@ -42,12 +46,14 @@ public class AuthService {
         authMemory.delAuth(authToken);
     }
 
-    public void clearData() {
+    //FIXME change the try-catch block
+    public String clearData() {
         try {
             authMemory.clearData();
         } catch (dataaccess.DataAccessException e) {
-            throw new RuntimeException(e);
+            return "EXCEPTION CAUGHT; FIXME";
         }
+        return null;
     }
 
     private static String generateToken() {

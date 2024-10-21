@@ -31,23 +31,40 @@ public class ServiceTests {
 //    }
 
     @Test
+    public void createNewAuth() {
+        AuthData testAuth = authService.createAuth("testUser");
+        assertNotNull(testAuth.authToken());
+        assertEquals("testUser", testAuth.username());
+    }
+    
+    @Test
+    public void delExistingAuth() {
+        authService.addAuth(existingAuth);
+        assertNotNull(authService.getAuth("testToken"));
+        authService.delAuth("testToken");
+        assertNull(authService.getAuth("testToken"));
+    }
+
+    @Test
     public void getExistingAuth() {
         authService.addAuth(existingAuth);
         AuthData testAuth = authService.getAuth("testToken");
         assertNotNull(testAuth);
-        assertEquals(testAuth.username(), "existingUser");
+        assertEquals("existingUser", testAuth.username());
     }
 
     @Test
     public void getNonexistentAuth() {
-        //FIXME
+        assertNull(authService.getAuth("testToken"));
+        authService.addAuth(existingAuth);
+        assertNull(authService.getAuth("testToken2"));
     }
 
     @Test
     public void clear() {
-
+        authService.addAuth(existingAuth);
+        assertNull(authService.clearData());
         //FIXME add a part to clear for game and user data
-
     }
 
 }
