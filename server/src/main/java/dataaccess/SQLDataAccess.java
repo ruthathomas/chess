@@ -25,7 +25,7 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addAuth(AuthData authData) {
-        return null;
+        //
     }
 
     @Override
@@ -40,11 +40,11 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addGame(GameData gameData) {
-        return null;
+        //
     }
 
     @Override
-    public GameData updateGame(int gameID, GameData gameData) {
+    public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
         return null;
     }
 
@@ -54,7 +54,7 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void clearData() {
+    public void clearData() throws DataAccessException {
         //
     }
 

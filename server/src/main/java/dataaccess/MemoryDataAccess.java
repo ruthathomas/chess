@@ -71,9 +71,13 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public GameData updateGame(int gameID, GameData gameData) {
+    public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
         //FIXME this is probably not the best way to do this
-        gameDataArrayList.remove(getGame(gameID));
+        GameData gameToUpdate = getGame(gameID);
+        if(gameToUpdate == null) {
+            throw new DataAccessException("TEST ERROR");
+        }
+        gameDataArrayList.remove(gameToUpdate);
         gameDataArrayList.add(gameData);
         //FIXME why are we returning here??
         return gameData;
@@ -85,10 +89,13 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void clearData() {
+    public void clearData() throws DataAccessException {
         authDataArrayList.clear();
         gameDataArrayList.clear();
         userDataArrayList.clear();
+        if(!authDataArrayList.isEmpty() || !gameDataArrayList.isEmpty() || !userDataArrayList.isEmpty()) {
+            throw new DataAccessException("Test; data clearing failed.");
+        }
     }
 
 }

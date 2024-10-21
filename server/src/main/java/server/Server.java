@@ -1,8 +1,16 @@
 package server;
 
+import org.eclipse.jetty.server.Authentication;
+import service.AuthService;
+import service.GameService;
+import service.UserService;
 import spark.*;
 
 public class Server {
+
+    private AuthService authService = new AuthService();
+    private GameService gameService = new GameService();
+    private UserService userService = new UserService();
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

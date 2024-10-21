@@ -17,9 +17,9 @@ public interface DataAccessInterface {
 
     public GameData getGame(int gameID);
     public void addGame(GameData gameData);
-    public GameData updateGame(int gameID, GameData gameData);
+    public GameData updateGame(int gameID, GameData gameData) throws DataAccessException;
     public ArrayList<GameData> listGames();
 
-    public void clearData();
+    public void clearData() throws DataAccessException;
 
 }
