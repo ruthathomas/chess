@@ -5,104 +5,81 @@ import model.GameData;
 import model.UserData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class MemoryDataAccess implements DataAccessInterface {
 
-    private ArrayList<AuthData> authDataArrayList = new ArrayList<>();
+    private Map<String, AuthData> authDataMap = new HashMap<>();
+    private Map<Integer, GameData> gameDataMap = new HashMap<>();
+    private Map<String, UserData> userDataMap = new HashMap<>();
+    //FIXME I'd like to change these to maps
     private ArrayList<GameData> gameDataArrayList = new ArrayList<>();
-    private ArrayList<UserData> userDataArrayList = new ArrayList<>();
 
     // First runthrough: not caring about exceptions
     // OKAY THIS COULD BE BETTER BUT I'M GONNA COME BACK TO THAT
 
     @Override
     public UserData getUser(String username) {
-        for(var user : userDataArrayList) {
-            if(user.username() == username) {
-                return user;
-            }
-        }
-        return null;
+        return userDataMap.get(username);
     }
 
     @Override
     public void addUser(UserData userData) {
-        userDataArrayList.add(userData);
+        userDataMap.put(userData.username(), userData);
     }
 
     @Override
     public AuthData getAuth(String authToken) {
-        for(var auth : authDataArrayList) {
-            if(auth.authToken() == authToken) {
-                return auth;
-            }
-        }
-        return null;
+        return authDataMap.get(authToken);
     }
 
     @Override
     public void addAuth(AuthData authData) {
-        authDataArrayList.add(authData);
+        authDataMap.put(authData.authToken(), authData);
     }
 
     @Override
+    //FIXME I think I'm going to change this so it doesn't throw an exception
     public void delAuth(String authToken) throws DataAccessException {
-        boolean tokenExists = false;
-        for(var auth : authDataArrayList) {
-            if(auth.authToken() == authToken) {
-                tokenExists = true;
-                authDataArrayList.remove(auth);
-                break;
-            }
-        }
-        if(!tokenExists) {
+        if(authDataMap.containsKey(authToken)) {
+            authDataMap.remove(authToken);
+        } else {
             throw new DataAccessException("AuthToken did not exist in list");
         }
     }
 
     @Override
     public GameData getGame(int gameID) {
-        for(var game : gameDataArrayList) {
-            if(game.gameID() == gameID) {
-                return game;
-            }
-        }
-        return null;
+        return gameDataMap.get(gameID);
     }
 
     @Override
     public void addGame(GameData gameData) {
-        gameDataArrayList.add(gameData);
+        //fixme this might overwrite data
+        gameDataMap.put(gameData.gameID(), gameData);
     }
 
     @Override
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
-        //FIXME this is probably not the best way to do this
-        GameData gameToUpdate = getGame(gameID);
-        if(gameToUpdate == null) {
+        if(gameDataMap.get(gameID) == null) {
             throw new DataAccessException("TEST ERROR");
         }
-        gameDataArrayList.remove(gameToUpdate);
-        gameDataArrayList.add(gameData);
-        //FIXME why are we returning here??
+        gameDataMap.put(gameID, gameData);
         return gameData;
     }
 
     @Override
-    public ArrayList<GameData> getGames() {
-        return gameDataArrayList;
+    public Map<Integer, GameData> getGames() {
+        return gameDataMap;
     }
 
     @Override
     public void clearData() throws DataAccessException {
-        // clear() should not fail; however, if an issue is encountered, an error will be thrown
-        try {
-            authDataArrayList.clear();
-            gameDataArrayList.clear();
-            userDataArrayList.clear();
-        } catch (Exception e) {
-            throw new DataAccessException("Test; data clearing failed.");
-        }
+        authDataMap.clear();
+        gameDataMap.clear();
+        userDataMap.clear();
     }
 
 }

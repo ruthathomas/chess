@@ -5,7 +5,7 @@ import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class GameService {
 
@@ -15,9 +15,9 @@ public class GameService {
         memoryDataAccess = memDA;
     }
 
-    public ArrayList<GameData> listGames(String authToken) throws ServiceException {
-        AuthData authData = memoryDataAccess.getAuth(authToken);
-        if(authData == null) {
+    //FIXME resolve with map<integer, gameData>
+    public Map<Integer, GameData> listGames(String authToken) throws ServiceException {
+        if(memoryDataAccess.getAuth(authToken) == null) {
             throw new ServiceException("FIXME unauthorized");
         }
         return memoryDataAccess.getGames();
@@ -85,9 +85,9 @@ public class GameService {
     //FIXME this is slapdash garbage
     private int generateGameID() {
         int currID = 0;
-        for(var game : memoryDataAccess.getGames()) {
-            if(game.gameID() > currID) {
-                currID = game.gameID() + 1;
+        for(var key : memoryDataAccess.getGames().keySet()) {
+            if(key > currID) {
+                currID = key + 1;
             }
         }
         return currID;

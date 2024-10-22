@@ -2,15 +2,15 @@ package passoff.server;
 
 import chess.ChessGame;
 import dataaccess.MemoryDataAccess;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.AuthService;
-import service.GameService;
-import service.ServiceException;
-import service.UserService;
+import service.*;
+
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,8 +109,13 @@ public class ServiceTests {
     @Test
     public void listGamesTest() {
         // there are games to be listed
-            
+        //FIXME you need to change this so that your available games and your resulting games match??
+        //assertEquals(availableGames, gameService.listGames(existingAuth.authToken()));
+        System.out.println(gameService.listGames(existingAuth.authToken()));
         // there are no available games
+        //gameService.clearData();
+        //availableGames.clear();
+        //assertEquals(availableGames, gameService.listGames(existingAuth.authToken()));
     }
 
     @Test
