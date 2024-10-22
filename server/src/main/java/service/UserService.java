@@ -3,7 +3,9 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.*;
+import server.ResponseException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {
@@ -15,21 +17,21 @@ public class UserService {
     }
 
     //FIXME needs some more error stuff; maybe stop throwing errors? idk
-     public AuthData register(UserData newUser) throws ServiceException {
+     public AuthData register(UserData newUser) throws ResponseException {
         if(memoryDataAccess.getUser(newUser.username()) == null) {
-            if(newUser.username().isEmpty() || newUser.password().isEmpty() || newUser.email().isEmpty()) {
-                throw new ServiceException("FIXME bad request");
+            if (newUser.username() == "" || newUser.password() == "" || newUser.email() == "") {
+                throw new ResponseException(400, "Error: bad request");
             }
             memoryDataAccess.addUser(newUser);
             AuthData newAuth = new AuthData(generateToken(), newUser.username());
             memoryDataAccess.addAuth(newAuth);
             return newAuth;
         } else {
-            throw new ServiceException("[403] Error: already taken");
+            throw new ResponseException(403, "Error: already taken");
         }
     }
 
-    public AuthData login(String username, String password) throws ServiceException{
+    public AuthData login(String username, String password) throws ResponseException{
         if(memoryDataAccess.getUser(username) != null) {
             if(matchPassword(username, password)){
                 AuthData newAuth = new AuthData(generateToken(), username);
@@ -37,23 +39,22 @@ public class UserService {
                 return newAuth;
             } else {
                 // if matchPassword returns false, throw an error
-                throw new ServiceException("[401] Error: unauthorized");
+                throw new ResponseException(401, "Error: unauthorized");
             }
         } else {
             // throw an error because the user doesn't exist
-            throw new ServiceException("[401] Error: unauthorized");
+            throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
     //FIXME this doesn't account for 500? idk if it needs to
-    public void logout(AuthData authData) throws ServiceException {
-        memoryDataAccess.getAuth(authData.authToken());
+    public void logout(String authToken) throws ServiceException {
+        memoryDataAccess.getAuth(authToken);
         try {
-            memoryDataAccess.delAuth(authData.authToken());
+            memoryDataAccess.delAuth(authToken);
         } catch (DataAccessException e) {
             throw new ServiceException("FIXME I'm WORKING ON ITT");
         }
-
     }
 
     public void clearData() throws ServiceException {
@@ -81,7 +82,7 @@ public class UserService {
      */
     private boolean matchPassword(String username, String password) {
         UserData currentUser = memoryDataAccess.getUser(username);
-        if(currentUser.password() == password) {
+        if(Objects.equals(currentUser.password(), password)) {
             return true;
         } else {
             return false;

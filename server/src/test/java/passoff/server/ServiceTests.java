@@ -5,6 +5,7 @@ import dataaccess.MemoryDataAccess;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.ResponseException;
 import service.*;
 
 
@@ -131,21 +132,21 @@ public class ServiceTests {
 
     @Test
     public void loginValidData() {
-        assertNotNull(userService.login("existingUser", "existingPassword"));
+        assertDoesNotThrow(()->{userService.login("existingUser", "existingPassword");});
     }
 
     @Test
     public void loginInvalidData() {
         // invalid username
-        assertThrows(ServiceException.class, ()->{userService.login("testUser", "testPassword");} );
+        assertThrows(ResponseException.class, ()->{userService.login("testUser", "testPassword");} );
         // invalid password
-        assertThrows(ServiceException.class, ()->{userService.login("existingUser", "testPassword");} );
+        assertThrows(ResponseException.class, ()->{userService.login("existingUser", "testPassword");} );
     }
 
 
     @Test
     public void registerValidUser() {
-        assertNotNull(userService.register(new UserData("testUser", "testPassword", "test@email.com")));
+        assertDoesNotThrow(()->{userService.register(new UserData("testUser", "testPassword", "test@email.com"));});
     }
 
     @Test
@@ -154,25 +155,25 @@ public class ServiceTests {
         String samplePassword = "samplePassword";
         String sampleEmail = "sample@email.com";
         // Register a user that already exists
-        assertThrows(ServiceException.class, ()->{userService.register(existingUser);});
+        assertThrows(ResponseException.class, ()->{userService.register(existingUser);});
         // Register a user without a username
-        assertThrows(ServiceException.class, ()->{userService.register(new UserData("", samplePassword, sampleEmail));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData("", samplePassword, sampleEmail));});
         // Register a user without a password
-        assertThrows(ServiceException.class, ()->{userService.register(new UserData(sampleName, "", sampleEmail));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, "", sampleEmail));});
         // Register a user without an email
-        assertThrows(ServiceException.class, ()->{userService.register(new UserData(sampleName, samplePassword, ""));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, samplePassword, ""));});
     }
 
     @Test
     public void logoutValid() {
-        assertDoesNotThrow(()->{userService.logout(existingAuth);});
+        assertDoesNotThrow(()->{userService.logout(existingAuth.authToken());});
     }
 
     @Test
     public void logoutInvalid() {
-        assertThrows(ServiceException.class, ()->{userService.logout(new AuthData("newToken", "thisUser"));});
-        userService.logout(existingAuth);
-        assertThrows(ServiceException.class, ()->{userService.logout(existingAuth);});
+        assertThrows(ServiceException.class, ()->{userService.logout("badToken");});
+        userService.logout(existingAuth.authToken());
+        assertThrows(ServiceException.class, ()->{userService.logout(existingAuth.authToken());});
     }
 
     @Test

@@ -13,8 +13,6 @@ public class MemoryDataAccess implements DataAccessInterface {
     private Map<String, AuthData> authDataMap = new HashMap<>();
     private Map<Integer, GameData> gameDataMap = new HashMap<>();
     private Map<String, UserData> userDataMap = new HashMap<>();
-    //FIXME I'd like to change these to maps
-    private ArrayList<GameData> gameDataArrayList = new ArrayList<>();
 
     // First runthrough: not caring about exceptions
     // OKAY THIS COULD BE BETTER BUT I'M GONNA COME BACK TO THAT

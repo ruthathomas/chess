@@ -1,11 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonNull;
 import dataaccess.MemoryDataAccess;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
+import server.requests.LoginRequest;
 import service.AuthService;
 import service.GameService;
+import service.ServiceException;
 import service.UserService;
 import spark.*;
 
@@ -30,15 +33,17 @@ public class Server {
         // Register User Endpoint
         Spark.post("/user", this::registerUser);
         // Login Endpoint
-        // Spark.post("/session", "FIXME");
+        Spark.post("/session", this::loginUser);
         // Logout Endpoint
-        // Spark.delete("/session", "FIXME");
+        Spark.delete("/session", this::logoutUser);
         // List Games Endpoint
         // Spark.get("/game", "FIXME");
         // Create Game Endpoint
         // Spark.post("/game", "FIXME");
         // Join Game Endpoint
         // Spark.put("/game", "FIXME");
+        //Exception Handler
+        Spark.exception(ResponseException.class, this::exceptionHandler);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -53,29 +58,49 @@ public class Server {
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
-        //FIXME
+        res.status(ex.GetStatus());
+        //Stubbing
+        System.out.println(ex.GetStatus());
         System.out.println("Exception caught; fixme");
     }
     //throw exceptions on these?
 
     //fixme these throw exceptions in the example so probably I should do that
-    private Object registerUser(Request req, Response res) {
+    private Object registerUser(Request req, Response res) throws ResponseException {
         var newUser = serializer.fromJson(req.body(), UserData.class);
         var result = userService.register(newUser);
         return serializer.toJson(result);
     }
 
-    private Object loginUser(Request req, Response res) {
+    private Object loginUser(Request req, Response res) throws ResponseException {
+        try {
+            var loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
+//        System.out.println("Successful creation of login request item");
+            var result = userService.login(loginRequest.username(), loginRequest.password());
+//        System.out.println("successful return from login");
+            return serializer.toJson(result);
+        } catch (ResponseException e) {
+            throw e;
+        }
+    }
+
+    private Object logoutUser(Request req, Response res) throws ResponseException {
+        var logoutRequest = serializer.fromJson(req.headers("authorization"), String.class);
+        userService.logout(logoutRequest);
+        return serializer.toJson(new JsonNull());
+    }
+
+    private Object listGames(Request req, Response res) throws ResponseException {
 
         return null;
     }
 
-    private Object logoutUser(Request req, Response res) {
+    private Object createGame(Request req, Response res) throws ResponseException {
 
         return null;
     }
 
-    private Object joinGame(Request req, Response res) {
+    private Object joinGame(Request req, Response res) throws ResponseException {
 
         return null;
     }
