@@ -23,16 +23,22 @@ public class ServiceTests {
 
     // Sample values for pre-existing data in the memory (database has not yet been set up)
     private AuthData existingAuth = new AuthData("testToken", "existingUser");
-    private GameData existingGame = new GameData(1234, "existingUser", "me", "existingGame", new ChessGame());
+    private GameData fullGame = new GameData(1234, "existingUser", "me", "fullGame", new ChessGame());
+    private GameData availableGameWhite = new GameData(4321, "", "testingUser", "availableGame", new ChessGame());
+    private GameData availableGameBlack = new GameData(2, "whiteUser", "", "availableGame", new ChessGame());
     private UserData existingUser = new UserData("existingUser", "existingPassword", "existing@email.com");
 
     @BeforeEach
     public void init() {
         authService.clearData();
         authService.addAuth(existingAuth);
+        gameService.addGame(fullGame);
+        gameService.addGame(availableGameBlack);
+        gameService.addGame(availableGameWhite);
         userService.addUser(existingUser);
-        //FIXME add a thing to add game for testing
     }
+
+    // Set of tests for AuthService
 
     @Test
     public void createNewAuth() {
@@ -60,6 +66,63 @@ public class ServiceTests {
         assertNull(authService.getAuth("testToken2"));
     }
 
+    // Set of tests for GameService
+
+    @Test
+    public void joinValidGame() {
+        assertDoesNotThrow(()-> {gameService.joinGame(availableGameWhite.gameID(), "white", existingAuth.authToken());});
+        assertDoesNotThrow(()-> {gameService.joinGame(availableGameBlack.gameID(), "black", existingAuth.authToken());});
+    }
+
+    @Test
+    public void joinAvailableGameColorTaken() {
+        //FIXME 2: should we prevent someone from being part of multiple games at once?
+        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameWhite.gameID(), "black", existingAuth.authToken());});
+        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "white", existingAuth.authToken());});
+    }
+
+    @Test
+    public void joinGameColorNotLowercase() {
+        //FIXME : in future, I'd like to make the colors into an enum
+        assertDoesNotThrow(()-> {gameService.joinGame(availableGameWhite.gameID(), "WHITE", existingAuth.authToken());});
+        assertThrows(ServiceException.class, ()-> {gameService.joinGame(availableGameWhite.gameID(), "WhITe", existingAuth.authToken());});
+        assertDoesNotThrow(()-> {gameService.joinGame(availableGameBlack.gameID(), "Black", existingAuth.authToken());});
+        assertThrows(ServiceException.class, ()-> {gameService.joinGame(availableGameBlack.gameID(), "BLaCk", existingAuth.authToken());});
+    }
+
+    @Test
+    public void joinInvalidGame() {
+        // invalid ID
+        assertThrows(ServiceException.class, ()->{gameService.joinGame(0, "white", existingAuth.authToken());});
+        // unjoinable game (full)
+        assertThrows(ServiceException.class, ()-> {gameService.joinGame(fullGame.gameID(), "white", existingAuth.authToken());});
+        assertThrows(ServiceException.class, ()-> {gameService.joinGame(fullGame.gameID(), "black", existingAuth.authToken());});
+    }
+
+    @Test
+    public void createGameValid() {
+        assertDoesNotThrow(()-> {gameService.createGame("gameName", existingAuth.authToken());});
+    }
+
+    //FIXME I feel like I should include at least one more for createGame
+
+    @Test
+    public void listGamesTest() {
+        // there are games to be listed
+            
+        // there are no available games
+    }
+
+    @Test
+    public void gameServiceInvalidToken() {
+        // for join, create, and list
+        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "black", "invalidToken");});
+        assertThrows(ServiceException.class, ()->{gameService.createGame("gameName", "invalidToken");});
+        assertThrows(ServiceException.class, ()->{gameService.listGames("invalidToken");});
+    }
+
+
+
 //    @Test
 //    public void createNewGame() {
 //        assertNotNull(gameService.createGame("testGame", ));
@@ -70,19 +133,19 @@ public class ServiceTests {
 //        assertEquals(new ArrayList<>(), gameService.listGames());
 //    }
 
-    //Something here is problematic; it runs on its own, but when the whole thing goes, it doesn't
+
+    // Set of tests for UserService
+
     @Test
-    public void loginValidUsername() {
+    public void loginValidData() {
         assertNotNull(userService.login("existingUser", "existingPassword"));
     }
 
     @Test
-    public void loginInvalidUsername() {
+    public void loginInvalidData() {
+        // invalid username
         assertThrows(ServiceException.class, ()->{userService.login("testUser", "testPassword");} );
-    }
-
-    @Test
-    public void loginInvalidPassword() {
+        // invalid password
         assertThrows(ServiceException.class, ()->{userService.login("existingUser", "testPassword");} );
     }
 

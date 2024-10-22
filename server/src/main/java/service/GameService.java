@@ -48,14 +48,14 @@ public class GameService {
         }
         playerColor = playerColor.toLowerCase();
         try {
-            if(playerColor == "white") {
-                if(currGame.whiteUsername() == "") {
+            if(playerColor.equals("white")) {
+                if(currGame.whiteUsername().isEmpty()) {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(), currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ServiceException("FIXME already taken");
                 }
             } else {
-                if(currGame.blackUsername() == "") {
+                if(currGame.blackUsername().isEmpty()) {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), authData.username(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ServiceException("FIXME already taken");
@@ -72,6 +72,14 @@ public class GameService {
         } catch (dataaccess.DataAccessException e) {
             throw new ServiceException("FIXME");
         }
+    }
+
+    /**
+     * To be used only in testing for the adding of "pre-existing" data to the server
+     * @param gameData the data to add
+     */
+    public void addGame(GameData gameData) {
+        memoryDataAccess.addGame(gameData);
     }
 
     //FIXME this is slapdash garbage
