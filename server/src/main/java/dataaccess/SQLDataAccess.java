@@ -19,7 +19,7 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         return null;
     }
 
@@ -49,7 +49,7 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public ArrayList<GameData> listGames() {
+    public ArrayList<GameData> getGames() {
         return null;
     }
 

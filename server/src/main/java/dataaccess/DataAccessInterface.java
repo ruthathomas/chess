@@ -11,14 +11,14 @@ public interface DataAccessInterface {
     public UserData getUser(String username);
     public void addUser(UserData userData);
 
-    public AuthData getAuth(String authToken);
+    public AuthData getAuth(String authToken) throws DataAccessException;
     public void addAuth(AuthData authData);
     public void delAuth(String authToken);
 
     public GameData getGame(int gameID);
     public void addGame(GameData gameData);
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException;
-    public ArrayList<GameData> listGames();
+    public ArrayList<GameData> getGames();
 
     public void clearData() throws DataAccessException;
 

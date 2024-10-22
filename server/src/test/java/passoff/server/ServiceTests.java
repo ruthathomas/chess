@@ -12,6 +12,8 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
@@ -36,7 +38,7 @@ public class ServiceTests {
         assertNotNull(testAuth.authToken());
         assertEquals("testUser", testAuth.username());
     }
-    
+
     @Test
     public void delExistingAuth() {
         authService.addAuth(existingAuth);
@@ -59,6 +61,16 @@ public class ServiceTests {
         authService.addAuth(existingAuth);
         assertNull(authService.getAuth("testToken2"));
     }
+
+    @Test
+    public void createNewGame() {
+        assertNotNull(gameService.createGame("testGame"));
+    }
+
+//    @Test
+//    public void listAllGamesEmpty() {
+//        assertEquals(new ArrayList<>(), gameService.listGames());
+//    }
 
     @Test
     public void clear() {

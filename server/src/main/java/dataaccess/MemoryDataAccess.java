@@ -31,7 +31,7 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         for(var auth : authDataArrayList) {
             if(auth.authToken() == authToken) {
                 return auth;
@@ -84,7 +84,7 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public ArrayList<GameData> listGames() {
+    public ArrayList<GameData> getGames() {
         return gameDataArrayList;
     }
 

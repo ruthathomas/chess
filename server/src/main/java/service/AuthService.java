@@ -39,7 +39,12 @@ public class AuthService {
 
     // It feels dumb to have this function that just calls another function, but
     public AuthData getAuth(String authToken) {
-        return authMemory.getAuth(authToken);
+        try {
+            return authMemory.getAuth(authToken);
+        } catch (dataaccess.DataAccessException e) {
+            //FIXME RIGHT HERE CREATE A NEW KIND OF EXCEPTION
+            throw new RuntimeException(e);
+        }
     }
 
     public void delAuth(String authToken) {
