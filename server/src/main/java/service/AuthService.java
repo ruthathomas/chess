@@ -54,13 +54,9 @@ public class AuthService {
         }
     }
 
-    //FIXME change the try-catch block
+    //FIXME maybe stop throwing exceptions
     public void clearData() throws ServiceException {
-        try {
-            memoryDataAccess.clearData();
-        } catch (dataaccess.DataAccessException e) {
-            throw new ServiceException("FIXME");
-        }
+        memoryDataAccess.clearAuthData();
     }
 
     private static String generateToken() {

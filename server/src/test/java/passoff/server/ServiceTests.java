@@ -8,9 +8,7 @@ import org.junit.jupiter.api.Test;
 import service.*;
 
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,11 +29,14 @@ public class ServiceTests {
     @BeforeEach
     public void init() {
         authService.clearData();
+        gameService.clearData();
+        userService.clearData();
         authService.addAuth(existingAuth);
         gameService.addGame(fullGame);
         gameService.addGame(availableGameBlack);
         gameService.addGame(availableGameWhite);
         userService.addUser(existingUser);
+
     }
 
     // Set of tests for AuthService
@@ -100,22 +101,22 @@ public class ServiceTests {
     }
 
     @Test
-    public void createGameValid() {
+    public void createValidGame() {
         assertDoesNotThrow(()-> {gameService.createGame("gameName", existingAuth.authToken());});
     }
-
-    //FIXME I feel like I should include at least one more for createGame
 
     @Test
     public void listGamesTest() {
         // there are games to be listed
-        //FIXME you need to change this so that your available games and your resulting games match??
-        //assertEquals(availableGames, gameService.listGames(existingAuth.authToken()));
-        System.out.println(gameService.listGames(existingAuth.authToken()));
+        Map<Integer, GameData> expectedData = new HashMap<>();
+        expectedData.put(fullGame.gameID(), fullGame);
+        expectedData.put(availableGameWhite.gameID(), availableGameWhite);
+        expectedData.put(availableGameBlack.gameID(), availableGameBlack);
+        assertEquals(expectedData, gameService.listGames(existingAuth.authToken()));
         // there are no available games
-        //gameService.clearData();
-        //availableGames.clear();
-        //assertEquals(availableGames, gameService.listGames(existingAuth.authToken()));
+        gameService.clearData();
+        expectedData.clear();
+        assertEquals(expectedData, gameService.listGames(existingAuth.authToken()));
     }
 
     @Test
@@ -125,19 +126,6 @@ public class ServiceTests {
         assertThrows(ServiceException.class, ()->{gameService.createGame("gameName", "invalidToken");});
         assertThrows(ServiceException.class, ()->{gameService.listGames("invalidToken");});
     }
-
-
-
-//    @Test
-//    public void createNewGame() {
-//        assertNotNull(gameService.createGame("testGame", ));
-//    }
-
-//    @Test
-//    public void listAllGamesEmpty() {
-//        assertEquals(new ArrayList<>(), gameService.listGames());
-//    }
-
 
     // Set of tests for UserService
 
@@ -162,7 +150,17 @@ public class ServiceTests {
 
     @Test
     public void registerInvalidUser() {
+        String sampleName = "sampleUser";
+        String samplePassword = "samplePassword";
+        String sampleEmail = "sample@email.com";
+        // Register a user that already exists
         assertThrows(ServiceException.class, ()->{userService.register(existingUser);});
+        // Register a user without a username
+        assertThrows(ServiceException.class, ()->{userService.register(new UserData("", samplePassword, sampleEmail));});
+        // Register a user without a password
+        assertThrows(ServiceException.class, ()->{userService.register(new UserData(sampleName, "", sampleEmail));});
+        // Register a user without an email
+        assertThrows(ServiceException.class, ()->{userService.register(new UserData(sampleName, samplePassword, ""));});
     }
 
     @Test
@@ -179,9 +177,9 @@ public class ServiceTests {
 
     @Test
     public void clear() {
-        authService.addAuth(existingAuth);
         assertDoesNotThrow(()->{authService.clearData();});
-        //FIXME add a part to clear for game and user data
+        assertDoesNotThrow(()->{gameService.clearData();});
+        assertDoesNotThrow(()->{userService.clearData();});
     }
 
 }

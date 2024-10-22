@@ -7,7 +7,6 @@ import model.UserData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class MemoryDataAccess implements DataAccessInterface {
 
@@ -76,9 +75,17 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void clearData() throws DataAccessException {
+    public void clearAuthData() {
         authDataMap.clear();
+    }
+
+    @Override
+    public void clearGameData() {
         gameDataMap.clear();
+    }
+
+    @Override
+    public void clearUserData() {
         userDataMap.clear();
     }
 

@@ -67,11 +67,8 @@ public class GameService {
     }
 
     public void clearData() throws ServiceException {
-        try {
-            memoryDataAccess.clearData();
-        } catch (dataaccess.DataAccessException e) {
-            throw new ServiceException("FIXME");
-        }
+        memoryDataAccess.clearGameData();
+        // Throws an exception if something wonky happens
     }
 
     /**

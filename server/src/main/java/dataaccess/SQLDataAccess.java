@@ -4,7 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class SQLDataAccess implements DataAccessInterface {
 
@@ -49,13 +49,23 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public ArrayList<GameData> getGames() {
+    public Map<Integer, GameData> getGames() {
         return null;
     }
 
     @Override
-    public void clearData() throws DataAccessException {
+    public void clearAuthData() {
         //
+    }
+
+    @Override
+    public void clearGameData() {
+
+    }
+
+    @Override
+    public void clearUserData() {
+
     }
 
 }

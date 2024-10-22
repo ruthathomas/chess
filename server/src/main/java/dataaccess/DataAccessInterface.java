@@ -2,7 +2,7 @@ package dataaccess;
 
 import model.*;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public interface DataAccessInterface {
 
@@ -18,8 +18,10 @@ public interface DataAccessInterface {
     public GameData getGame(int gameID);
     public void addGame(GameData gameData);
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException;
-    public ArrayList<GameData> getGames();
+    public Map<Integer, GameData> getGames();
 
-    public void clearData() throws DataAccessException;
+    public void clearAuthData();
+    public void clearGameData();
+    public void clearUserData();
 
 }

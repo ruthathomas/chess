@@ -14,9 +14,12 @@ public class UserService {
         memoryDataAccess = memDA;
     }
 
-    //FIXME needs some more error stuff
+    //FIXME needs some more error stuff; maybe stop throwing errors? idk
      public AuthData register(UserData newUser) throws ServiceException {
         if(memoryDataAccess.getUser(newUser.username()) == null) {
+            if(newUser.username().isEmpty() || newUser.password().isEmpty() || newUser.email().isEmpty()) {
+                throw new ServiceException("FIXME bad request");
+            }
             memoryDataAccess.addUser(newUser);
             AuthData newAuth = new AuthData(generateToken(), newUser.username());
             memoryDataAccess.addAuth(newAuth);
@@ -51,6 +54,10 @@ public class UserService {
             throw new ServiceException("FIXME I'm WORKING ON ITT");
         }
 
+    }
+
+    public void clearData() throws ServiceException {
+        memoryDataAccess.clearUserData();
     }
 
     /**
