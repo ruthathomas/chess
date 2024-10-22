@@ -3,7 +3,6 @@ package service;
 import java.util.UUID;
 
 import dataaccess.MemoryDataAccess;
-import dataaccess.SQLDataAccess;
 import model.AuthData;
 
 public class AuthService {
@@ -52,8 +51,12 @@ public class AuthService {
         }
     }
 
-    public void delAuth(String authToken) {
-        memoryDataAccess.delAuth(authToken);
+    public void delAuth(String authToken) throws ServiceException {
+        try {
+            memoryDataAccess.delAuth(authToken);
+        } catch (dataaccess.DataAccessException e) {
+            throw new ServiceException("FIXME this is an error bc bad data");
+        }
     }
 
     //FIXME change the try-catch block

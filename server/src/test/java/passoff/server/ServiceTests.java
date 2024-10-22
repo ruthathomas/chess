@@ -7,12 +7,15 @@ import model.GameData;
 import model.UserData;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Server;
 import service.AuthService;
 import service.GameService;
+import service.ServiceException;
 import service.UserService;
 
+import java.lang.reflect.Executable;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,10 +32,13 @@ public class ServiceTests {
     private GameData existingGame = new GameData(1234, "existingUser", "me", "existingGame", new ChessGame());
     private UserData existingUser = new UserData("existingUser", "existingPassword", "existing@email.com");
 
-//    @BeforeAll
-//    public static void init() {
-//
-//    }
+    @BeforeEach
+    public void init() {
+        authService.clearData();
+        authService.addAuth(existingAuth);
+        userService.addUser(existingUser);
+        //FIXME add a thing to add game for testing
+    }
 
     @Test
     public void createNewAuth() {
@@ -43,7 +49,6 @@ public class ServiceTests {
 
     @Test
     public void delExistingAuth() {
-        authService.addAuth(existingAuth);
         assertNotNull(authService.getAuth("testToken"));
         authService.delAuth("testToken");
         assertNull(authService.getAuth("testToken"));
@@ -51,7 +56,6 @@ public class ServiceTests {
 
     @Test
     public void getExistingAuth() {
-        authService.addAuth(existingAuth);
         AuthData testAuth = authService.getAuth("testToken");
         assertNotNull(testAuth);
         assertEquals("existingUser", testAuth.username());
@@ -59,8 +63,6 @@ public class ServiceTests {
 
     @Test
     public void getNonexistentAuth() {
-        assertNull(authService.getAuth("testToken"));
-        authService.addAuth(existingAuth);
         assertNull(authService.getAuth("testToken2"));
     }
 
@@ -73,6 +75,45 @@ public class ServiceTests {
 //    public void listAllGamesEmpty() {
 //        assertEquals(new ArrayList<>(), gameService.listGames());
 //    }
+
+    //Something here is problematic; it runs on its own, but when the whole thing goes, it doesn't
+    @Test
+    public void loginValidUsername() {
+        assertNotNull(userService.login("existingUser", "existingPassword"));
+    }
+
+    @Test
+    public void loginInvalidUsername() {
+        assertThrows(ServiceException.class, ()->{userService.login("testUser", "testPassword");} );
+    }
+
+    @Test
+    public void loginInvalidPassword() {
+        assertThrows(ServiceException.class, ()->{userService.login("existingUser", "testPassword");} );
+    }
+
+
+    @Test
+    public void registerValidUser() {
+        assertNotNull(userService.register(new UserData("testUser", "testPassword", "test@email.com")));
+    }
+
+    @Test
+    public void registerInvalidUser() {
+        assertThrows(ServiceException.class, ()->{userService.register(existingUser);});
+    }
+
+    @Test
+    public void logoutValid() {
+        assertDoesNotThrow(()->{userService.logout(existingAuth);});
+    }
+
+    @Test
+    public void logoutInvalid() {
+        assertThrows(ServiceException.class, ()->{userService.logout(new AuthData("newToken", "thisUser"));});
+        userService.logout(existingAuth);
+        assertThrows(ServiceException.class, ()->{userService.logout(existingAuth);});
+    }
 
     @Test
     public void clear() {

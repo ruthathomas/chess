@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import dataaccess.SQLDataAccess;
 import model.*;
 
 import java.util.UUID;
@@ -15,43 +14,55 @@ public class UserService {
         memoryDataAccess = memDA;
     }
 
-     public AuthData register(UserData newUser) {
+    //FIXME needs some more error stuff
+     public AuthData register(UserData newUser) throws ServiceException {
         if(memoryDataAccess.getUser(newUser.username()) == null) {
             memoryDataAccess.addUser(newUser);
             AuthData newAuth = new AuthData(generateToken(), newUser.username());
             memoryDataAccess.addAuth(newAuth);
             return newAuth;
         } else {
-            //fixme give a bad request error
+            throw new ServiceException("[403] Error: already taken");
         }
-        return null;
     }
 
-    public AuthData login(String username, String password) {
+    public AuthData login(String username, String password) throws ServiceException{
         if(memoryDataAccess.getUser(username) != null) {
             if(matchPassword(username, password)){
                 AuthData newAuth = new AuthData(generateToken(), username);
                 memoryDataAccess.addAuth(newAuth);
                 return newAuth;
+            } else {
+                // if matchPassword returns false, throw an error
+                throw new ServiceException("[401] Error: unauthorized");
             }
-            //catch error from match password; fixme
-            // basically if match password is false, throw something
         } else {
-            //return error bc the user doesn't exist
+            // throw an error because the user doesn't exist
+            throw new ServiceException("[401] Error: unauthorized");
         }
-
-        return null;
     }
 
-    public void logout(AuthData authData) {
+    //FIXME this doesn't account for 500? idk if it needs to
+    public void logout(AuthData authData) throws ServiceException {
         try {
             memoryDataAccess.getAuth(authData.authToken());
+        } catch (DataAccessException e) {
+            throw new ServiceException("[401] Error: unauthorized");
+        }
+        try {
             memoryDataAccess.delAuth(authData.authToken());
         } catch (DataAccessException e) {
-            //FIXME do something here
-            throw new RuntimeException(e);
+            throw new ServiceException("FIXME I'm WORKING ON ITT");
         }
-        
+
+    }
+
+    /**
+     * For testing use only; the testing suite calls this to add "existing" data before running tests.
+     * @param userData data to add
+     */
+    public void addUser(UserData userData) {
+        memoryDataAccess.addUser(userData);
     }
 
     private static String generateToken() {
@@ -70,9 +81,8 @@ public class UserService {
         if(currentUser.password() == password) {
             return true;
         } else {
-            //FIXME have an unauthorized error
+            return false;
         }
-        return false;
     }
 
 }

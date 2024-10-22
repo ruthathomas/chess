@@ -29,7 +29,7 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void delAuth(String authToken) {
+    public void delAuth(String authToken) throws DataAccessException {
 
     }
 

@@ -13,7 +13,7 @@ public interface DataAccessInterface {
 
     public AuthData getAuth(String authToken) throws DataAccessException;
     public void addAuth(AuthData authData);
-    public void delAuth(String authToken);
+    public void delAuth(String authToken) throws DataAccessException;
 
     public GameData getGame(int gameID);
     public void addGame(GameData gameData);

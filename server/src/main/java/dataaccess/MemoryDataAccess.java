@@ -46,12 +46,17 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void delAuth(String authToken) {
+    public void delAuth(String authToken) throws DataAccessException {
+        boolean tokenExists = false;
         for(var auth : authDataArrayList) {
             if(auth.authToken() == authToken) {
+                tokenExists = true;
                 authDataArrayList.remove(auth);
                 break;
             }
+        }
+        if(!tokenExists) {
+            throw new DataAccessException("AuthToken did not exist in list");
         }
     }
 
