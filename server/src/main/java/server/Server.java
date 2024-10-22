@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.MemoryDataAccess;
 import org.eclipse.jetty.server.Authentication;
 import service.AuthService;
 import service.GameService;
@@ -8,9 +9,10 @@ import spark.*;
 
 public class Server {
 
-    private AuthService authService = new AuthService();
-    private GameService gameService = new GameService();
-    private UserService userService = new UserService();
+    private MemoryDataAccess localMemory = new MemoryDataAccess();
+    private AuthService authService = new AuthService(localMemory);
+    private GameService gameService = new GameService(localMemory);
+    private UserService userService = new UserService(localMemory);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

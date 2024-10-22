@@ -1,6 +1,7 @@
 package passoff.server;
 
 import chess.ChessGame;
+import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -18,9 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
 
-    private AuthService authService = new AuthService();
-    private GameService gameService = new GameService();
-    private UserService userService = new UserService();
+    private MemoryDataAccess memory = new MemoryDataAccess();
+    private AuthService authService = new AuthService(memory);
+    private GameService gameService = new GameService(memory);
+    private UserService userService = new UserService(memory);
 
     // Sample values for pre-existing data in the memory (database has not yet been set up)
     private AuthData existingAuth = new AuthData("testToken", "existingUser");

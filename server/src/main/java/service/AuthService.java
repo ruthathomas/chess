@@ -3,11 +3,16 @@ package service;
 import java.util.UUID;
 
 import dataaccess.MemoryDataAccess;
+import dataaccess.SQLDataAccess;
 import model.AuthData;
 
 public class AuthService {
 
-    private MemoryDataAccess authMemory = new MemoryDataAccess();
+    private MemoryDataAccess memoryDataAccess;
+
+    public AuthService(MemoryDataAccess memDA) {
+        memoryDataAccess = memDA;
+    }
 
     /**
      * Creates a new AuthData object for the indicated user and passes it to the DAO.
@@ -21,7 +26,7 @@ public class AuthService {
             authToken = generateToken();
         }
         AuthData newAuth = new AuthData(authToken, username);
-        authMemory.addAuth(newAuth);
+        memoryDataAccess.addAuth(newAuth);
         return newAuth;
     }
 
@@ -33,14 +38,14 @@ public class AuthService {
      * @return provided AuthData object.
      */
     public AuthData addAuth(AuthData authData) {
-        authMemory.addAuth(authData);
+        memoryDataAccess.addAuth(authData);
         return authData;
     }
 
     // It feels dumb to have this function that just calls another function, but
     public AuthData getAuth(String authToken) {
         try {
-            return authMemory.getAuth(authToken);
+            return memoryDataAccess.getAuth(authToken);
         } catch (dataaccess.DataAccessException e) {
             //FIXME RIGHT HERE CREATE A NEW KIND OF EXCEPTION
             throw new RuntimeException(e);
@@ -48,13 +53,13 @@ public class AuthService {
     }
 
     public void delAuth(String authToken) {
-        authMemory.delAuth(authToken);
+        memoryDataAccess.delAuth(authToken);
     }
 
     //FIXME change the try-catch block
     public String clearData() {
         try {
-            authMemory.clearData();
+            memoryDataAccess.clearData();
         } catch (dataaccess.DataAccessException e) {
             return "EXCEPTION CAUGHT; FIXME";
         }
