@@ -4,11 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import dataaccess.MemoryDataAccess;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
+import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
 import service.AuthService;
 import service.GameService;
-import service.ServiceException;
 import service.UserService;
 import spark.*;
 
@@ -37,11 +36,11 @@ public class Server {
         // Logout Endpoint
         Spark.delete("/session", this::logoutUser);
         // List Games Endpoint
-        // Spark.get("/game", "FIXME");
+        Spark.get("/game", this::listGames);
         // Create Game Endpoint
-        // Spark.post("/game", "FIXME");
+        Spark.post("/game", this::createGame);
         // Join Game Endpoint
-        // Spark.put("/game", "FIXME");
+        Spark.put("/game", this::joinGame);
         //Exception Handler
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
@@ -91,18 +90,23 @@ public class Server {
     }
 
     private Object listGames(Request req, Response res) throws ResponseException {
-
-        return null;
+        var listGamesRequest = serializer.fromJson(req.headers("authorization"), String.class);
+        var result = gameService.listGames(listGamesRequest);
+        return serializer.toJson(result);
     }
 
     private Object createGame(Request req, Response res) throws ResponseException {
-
-        return null;
+        var authToken = serializer.fromJson(req.headers("authorization"), String.class);
+        var requestedName = serializer.fromJson(req.body(), String.class);
+        var result = gameService.createGame(requestedName, authToken);
+        return serializer.toJson(result);
     }
 
     private Object joinGame(Request req, Response res) throws ResponseException {
-
-        return null;
+        var authToken = serializer.fromJson(req.headers("authorization"), String.class);
+        var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
+        gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);
+        return serializer.toJson(new JsonNull());
     }
 
     private Object clear(Request req, Response res) throws ResponseException {
