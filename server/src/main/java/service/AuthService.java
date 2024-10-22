@@ -43,12 +43,7 @@ public class AuthService {
 
     // It feels dumb to have this function that just calls another function, but
     public AuthData getAuth(String authToken) {
-        try {
-            return memoryDataAccess.getAuth(authToken);
-        } catch (dataaccess.DataAccessException e) {
-            //FIXME RIGHT HERE CREATE A NEW KIND OF EXCEPTION
-            throw new RuntimeException(e);
-        }
+        return memoryDataAccess.getAuth(authToken);
     }
 
     public void delAuth(String authToken) throws ServiceException {
@@ -60,13 +55,12 @@ public class AuthService {
     }
 
     //FIXME change the try-catch block
-    public String clearData() {
+    public void clearData() throws ServiceException {
         try {
             memoryDataAccess.clearData();
         } catch (dataaccess.DataAccessException e) {
-            return "EXCEPTION CAUGHT; FIXME";
+            throw new ServiceException("FIXME");
         }
-        return null;
     }
 
     private static String generateToken() {

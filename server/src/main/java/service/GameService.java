@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.MemoryDataAccess;
+import model.AuthData;
 import model.GameData;
 
 import java.util.ArrayList;
@@ -14,44 +15,62 @@ public class GameService {
         memoryDataAccess = memDA;
     }
 
-    public ArrayList<GameData> listGames() {
+    public ArrayList<GameData> listGames(String authToken) throws ServiceException {
+        AuthData authData = memoryDataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new ServiceException("FIXME unauthorized");
+        }
         return memoryDataAccess.getGames();
+        //FIXME do we still return like this if there are no games to be had?
     }
 
-    public GameData createGame(String gameName) {
+    public GameData createGame(String gameName, String authToken) throws ServiceException {
+        AuthData authData = memoryDataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new ServiceException("FIXME unauthorized");
+        }
+        //FIXME should this assign the player that created it to be white?
+        //FIXME this is also supposed to have a bad request error
         GameData newGame = new GameData(generateGameID(), "", "", gameName, new ChessGame());
         memoryDataAccess.addGame(newGame);
         return newGame;
     }
 
     //FIXME
-    public void joinGame(int gameID, String playerColor, String username) {
+    public void joinGame(int gameID, String playerColor, String authToken) throws ServiceException {
+        AuthData authData = memoryDataAccess.getAuth(authToken);
+        if(authData == null) {
+            throw new ServiceException("FIXME unauthorized");
+        }
         GameData currGame = memoryDataAccess.getGame(gameID);
+        if(currGame == null) {
+            throw new ServiceException("FIXME bad request");
+        }
         playerColor = playerColor.toLowerCase();
         try {
             if(playerColor == "white") {
                 if(currGame.whiteUsername() == "") {
-                    memoryDataAccess.updateGame(gameID, new GameData(gameID, username, currGame.blackUsername(), currGame.gameName(), currGame.game()));
+                    memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(), currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
-                    //fixme throw an error for bad request
+                    throw new ServiceException("FIXME already taken");
                 }
             } else {
                 if(currGame.blackUsername() == "") {
-                    memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), username, currGame.gameName(), currGame.game()));
+                    memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), authData.username(), currGame.gameName(), currGame.game()));
                 } else {
-                    //fixme throw an error for bad request
+                    throw new ServiceException("FIXME already taken");
                 }
             }
         } catch (dataaccess.DataAccessException e) {
-            //FIXME DO A SERVICE ERROR HERE;
+            throw new ServiceException("FIXME something else happened and it failed");
         }
     }
 
-    public void clearData() {
+    public void clearData() throws ServiceException {
         try {
             memoryDataAccess.clearData();
         } catch (dataaccess.DataAccessException e) {
-            //FIXME do something with the error
+            throw new ServiceException("FIXME");
         }
     }
 

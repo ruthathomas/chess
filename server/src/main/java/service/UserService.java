@@ -44,11 +44,7 @@ public class UserService {
 
     //FIXME this doesn't account for 500? idk if it needs to
     public void logout(AuthData authData) throws ServiceException {
-        try {
-            memoryDataAccess.getAuth(authData.authToken());
-        } catch (DataAccessException e) {
-            throw new ServiceException("[401] Error: unauthorized");
-        }
+        memoryDataAccess.getAuth(authData.authToken());
         try {
             memoryDataAccess.delAuth(authData.authToken());
         } catch (DataAccessException e) {

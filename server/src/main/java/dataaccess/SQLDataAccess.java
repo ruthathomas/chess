@@ -19,7 +19,7 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public AuthData getAuth(String authToken) {
         return null;
     }
 
