@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class Server {
 
-    //FIXME this feels more coupled than I would like it to be. Server layer shouldn't
-    // know about Data Layer. I want to come back later and rework, if possible.
+    //FIXME this feels more coupled than I would like it to be (server layer shouldn't
+    // know about data layer). I want to come back later and rework, if possible.
     private MemoryDataAccess localMemory = new MemoryDataAccess();
     private AuthService authService = new AuthService(localMemory);
     private GameService gameService = new GameService(localMemory);
@@ -34,25 +34,16 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        // Clear Endpoint
         Spark.delete("/db", this::clear);
-        // Register User Endpoint
         Spark.post("/user", this::registerUser);
-        // Login Endpoint
         Spark.post("/session", this::loginUser);
-        // Logout Endpoint
         Spark.delete("/session", this::logoutUser);
-        // List Games Endpoint
         Spark.get("/game", this::listGames);
-        // Create Game Endpoint
         Spark.post("/game", this::createGame);
-        // Join Game Endpoint
         Spark.put("/game", this::joinGame);
-        //Exception Handler
-
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
-        Spark.init();
+        //Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -63,7 +54,6 @@ public class Server {
         Spark.awaitStop();
     }
 
-    //fixme these throw exceptions in the example so probably I should do that
     private Object registerUser(Request req, Response res) {
         AuthData result;
         try {
@@ -80,10 +70,7 @@ public class Server {
         AuthData result;
         try {
             var loginRequest = serializer.fromJson(req.body(), LoginRequest.class);
-//        System.out.println("Successful creation of login request item");
             result = userService.login(loginRequest.username(), loginRequest.password());
-//        System.out.println("successful return from login");
-
         } catch (ResponseException e) {
             res.status(e.getStatus());
             return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
@@ -131,6 +118,7 @@ public class Server {
     private Object joinGame(Request req, Response res) {
         try {
             var authToken = req.headers("authorization");
+            //fixme: the below code gave an error when used here, but nowhere else; investigate
             //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
             var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);

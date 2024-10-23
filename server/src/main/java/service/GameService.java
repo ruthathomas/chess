@@ -33,7 +33,6 @@ public class GameService {
         return newGame;
     }
 
-    //FIXME
     public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException {
         AuthData authData = memoryDataAccess.getAuth(authToken);
         if(authData == null) {
@@ -68,18 +67,14 @@ public class GameService {
 
     public void clearData() throws ResponseException {
         memoryDataAccess.clearGameData();
-        // Throws an exception if something wonky happens
     }
 
-    /**
-     * To be used only in testing for the adding of "pre-existing" data to the server
-     * @param gameData the data to add
-     */
+    // To be used only in testing for the adding of "pre-existing" data to the server
     public void addGame(GameData gameData) {
         memoryDataAccess.addGame(gameData);
     }
 
-    //FIXME this is slapdash garbage
+    //TODO: I think I'd like to change this in future
     private int generateGameID() {
         int currID = 1;
         for(var key : memoryDataAccess.getGames().keySet()) {

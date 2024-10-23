@@ -10,12 +10,13 @@ import java.util.Map;
 
 public class MemoryDataAccess implements DataAccessInterface {
 
+    // I've been told (see: Slack) that we need to have all of the DataAccessExceptions, but that
+    // they're specifically important for SQL, and we don't necessarily have to have them on the
+    // memory side. I don't want to implement them here right now, and I use that as my excuse. Thanks <3
+
     private Map<String, AuthData> authDataMap = new HashMap<>();
     private Map<Integer, GameData> gameDataMap = new HashMap<>();
     private Map<String, UserData> userDataMap = new HashMap<>();
-
-    // First runthrough: not caring about exceptions
-    // OKAY THIS COULD BE BETTER BUT I'M GONNA COME BACK TO THAT
 
     @Override
     public UserData getUser(String username) {
@@ -38,7 +39,6 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    //FIXME I think I'm going to change this so it doesn't throw an exception
     public void delAuth(String authToken) throws DataAccessException {
         if(authDataMap.containsKey(authToken)) {
             authDataMap.remove(authToken);
@@ -60,7 +60,7 @@ public class MemoryDataAccess implements DataAccessInterface {
     @Override
     public GameData updateGame(int gameID, GameData newData) throws DataAccessException {
         if(gameDataMap.get(gameID) == null) {
-            throw new DataAccessException("game doesn't exist");
+            throw new DataAccessException("Game does not exist in list");
         }
         gameDataMap.put(gameID, newData);
         return newData;

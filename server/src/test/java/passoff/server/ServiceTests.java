@@ -15,12 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
 
-    /*
-    Private member functions of the services are not tested here.
-    Each public method on your Service classes has two test cases, one positive test and one negative test
-        clearData
-     */
+    // Private member functions of the services are not tested here.
 
+    // Initiation of memory access
     private MemoryDataAccess memory = new MemoryDataAccess();
     private AuthService authService = new AuthService(memory);
     private GameService gameService = new GameService(memory);

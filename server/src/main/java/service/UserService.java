@@ -16,10 +16,10 @@ public class UserService {
         memoryDataAccess = memDA;
     }
 
-    //FIXME needs some more error stuff; maybe stop throwing errors? idk
      public AuthData register(UserData newUser) throws ResponseException {
         if(memoryDataAccess.getUser(newUser.username()) == null) {
-            if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
+            if (newUser.username() == null || newUser.password() == null || newUser.email() == null ||
+                    newUser.username() == "" || newUser.password() == "" || newUser.email() == "") {
                 throw new ResponseException(400, "Error: bad request");
             }
             memoryDataAccess.addUser(newUser);
@@ -60,10 +60,7 @@ public class UserService {
         memoryDataAccess.clearUserData();
     }
 
-    /**
-     * For testing use only; the testing suite calls this to add "existing" data before running tests.
-     * @param userData data to add
-     */
+    // For testing use only; the testing suite calls this to add "existing" data before running tests.
     public void addUser(UserData userData) {
         memoryDataAccess.addUser(userData);
     }
@@ -72,13 +69,8 @@ public class UserService {
         return UUID.randomUUID().toString();
     }
 
-    /**
-     * This function is only called if it has been verified that getUser returns non-null;
-     * this is why there is no verification within this function.
-     * @param username input username
-     * @param password input password
-     * @return a boolean indicating whether the input password matches that of the input username
-     */
+    //This function is only called if it has been verified that getUser returns non-null;
+    //     this is why there is no verification within this function.
     private boolean matchPassword(String username, String password) {
         UserData currentUser = memoryDataAccess.getUser(username);
         if(Objects.equals(currentUser.password(), password)) {

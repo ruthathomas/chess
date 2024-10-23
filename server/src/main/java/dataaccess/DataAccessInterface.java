@@ -6,7 +6,8 @@ import java.util.Map;
 
 public interface DataAccessInterface {
 
-    // These may be changed as necessary moving forward; for now, I'm adding them as a reminder for myself
+    // It seems like a lot to me to have all of these throw exceptions, but I've been told it's required.
+    // This is a note to self to remind me not to delete them.
 
     public UserData getUser(String username) throws DataAccessException;
     public void addUser(UserData userData) throws DataAccessException;

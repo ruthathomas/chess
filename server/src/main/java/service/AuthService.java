@@ -14,11 +14,7 @@ public class AuthService {
         memoryDataAccess = memDA;
     }
 
-    /**
-     * Creates a new AuthData object for the indicated user and passes it to the DAO.
-     * @param username username of the user for which to create the AuthData.
-     * @return The newly created AuthData object.
-     */
+    // Creates a new AuthData object for the indicated user and passes it to the DAO
     public AuthData createAuth(String username) throws ResponseException {
         if(username == null) {
             throw new ResponseException(400, "Error: bad request");
@@ -29,19 +25,12 @@ public class AuthService {
         return newAuth;
     }
 
-    /**
-     * A function for testing purposes, used to add an authData object with a known authToken.
-     * In actual execution of the program, no one will need to know the authToken except for
-     * the data layer.
-     * @param authData provided AuthData object.
-     * @return provided AuthData object.
-     */
+    // Only used for testing purposes; adds an auth object directly to memory.
     public AuthData addAuth(AuthData authData){
         memoryDataAccess.addAuth(authData);
         return authData;
     }
 
-    // It feels dumb to have this function that just calls another function, but
     public AuthData getAuth(String authToken) {
         return memoryDataAccess.getAuth(authToken);
     }
