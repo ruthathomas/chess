@@ -1,11 +1,10 @@
-package chess.moveCalculation;
+package chess.movecalculation;
 
 import chess.ChessBoard;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class DetermineRookMoves implements DeterminePieceMoves {
