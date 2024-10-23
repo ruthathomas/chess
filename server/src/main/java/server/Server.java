@@ -101,7 +101,7 @@ public class Server {
         return serializer.toJson(new JsonNull());
     }
 
-    private Object listGames(Request req, Response res) throws ResponseException {
+    private Object listGames(Request req, Response res) {
         Map<Integer, GameData> result;
         try {
             var listGamesRequest = serializer.fromJson(req.headers("authorization"), String.class);
@@ -113,18 +113,30 @@ public class Server {
         return serializer.toJson(new GameListRecord(result.values()));
     }
 
-    private Object createGame(Request req, Response res) throws ResponseException {
-        
-        var authToken = serializer.fromJson(req.headers("authorization"), String.class);
-        var requestedName = serializer.fromJson(req.body(), LinkedTreeMap.class).get("gameName");
-        var result = gameService.createGame(requestedName.toString(), authToken);
+    private Object createGame(Request req, Response res) {
+        GameData result;
+        try {
+            var authToken = serializer.fromJson(req.headers("authorization"), String.class);
+            var requestedName = serializer.fromJson(req.body(), LinkedTreeMap.class).get("gameName");
+            result = gameService.createGame(requestedName.toString(), authToken);
+        } catch (ResponseException e) {
+            res.status(e.getStatus());
+            return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
+        }
+
         return serializer.toJson(result);
     }
 
     private Object joinGame(Request req, Response res) throws ResponseException {
-        var authToken = serializer.fromJson(req.headers("authorization"), String.class);
-        var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
-        gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);
+        try {
+            var authToken = req.headers("authorization");
+            //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
+            var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
+            gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);
+        } catch (ResponseException e) {
+            res.status(e.getStatus());
+            return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
+        }
         return serializer.toJson(new JsonNull());
     }
 

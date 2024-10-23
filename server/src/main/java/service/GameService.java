@@ -44,6 +44,9 @@ public class GameService {
         if(currGame == null) {
             throw new ResponseException(400, "Error: bad request");
         }
+        if (playerColor == null) {
+            throw new ResponseException(400, "Error: bad request");
+        }
         playerColor = playerColor.toLowerCase();
         try {
             if(playerColor.equals("white")) {
