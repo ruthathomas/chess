@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class Server {
 
-    //FIXME this feels more coupled than I would like it to be (server layer shouldn't
+    // This feels more coupled than I would like it to be (server layer shouldn't
     // know about data layer). I want to come back later and rework, if possible.
     private MemoryDataAccess localMemory = new MemoryDataAccess();
     private AuthService authService = new AuthService(localMemory);
@@ -118,7 +118,7 @@ public class Server {
     private Object joinGame(Request req, Response res) {
         try {
             var authToken = req.headers("authorization");
-            //fixme: the below code gave an error when used here, but nowhere else; investigate
+            //HEY, LISTEN: the below code gave an error when used here, but nowhere else; investigate
             //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
             var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);

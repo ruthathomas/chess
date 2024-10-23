@@ -49,13 +49,15 @@ public class GameService {
         try {
             if(playerColor.equals("white")) {
                 if(currGame.whiteUsername() == null || currGame.whiteUsername() == "") {
-                    memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(), currGame.blackUsername(), currGame.gameName(), currGame.game()));
+                    memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(),
+                            currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
             } else {
                 if(currGame.blackUsername() == null || currGame.blackUsername() == "") {
-                    memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), authData.username(), currGame.gameName(), currGame.game()));
+                    memoryDataAccess.updateGame (gameID, new GameData(gameID, currGame.whiteUsername(),
+                            authData.username(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
@@ -74,7 +76,7 @@ public class GameService {
         memoryDataAccess.addGame(gameData);
     }
 
-    //TODO: I think I'd like to change this in future
+    // I think I'd like to change this in future
     private int generateGameID() {
         int currID = 1;
         for(var key : memoryDataAccess.getGames().keySet()) {

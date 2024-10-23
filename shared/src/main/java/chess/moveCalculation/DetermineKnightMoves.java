@@ -12,7 +12,7 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
-        //FIXME ;^; you know what you've done
+        // HEY: ;^; you know what you've done
         validMoves.add(validateKnightMove(row, col, 1, 2, board, myPiece, myPosition));
         validMoves.add(validateKnightMove(row, col, 1, -2, board, myPiece, myPosition));
         validMoves.add(validateKnightMove(row, col, 2, 1, board, myPiece, myPosition));
@@ -29,7 +29,8 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
         return validMoves;
     }
 
-    public ChessMove validateKnightMove(int row, int col, int rowModify, int colModify, ChessBoard board, ChessPiece myPiece, ChessPosition myPosition) {
+    public ChessMove validateKnightMove(int row, int col, int rowModify, int colModify, ChessBoard board,
+                                        ChessPiece myPiece, ChessPosition myPosition) {
         // :(
         int newRow = row + rowModify;
         int newCol = col + colModify;

@@ -74,8 +74,8 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        //FIXME this is a work in progress
-        //FIXME - ensure it's YOUR TURN
+        // work in progress;
+        // do I still need to ensure it's your turn, or have I handled that elsewhere?
         if(gameBoard.getPiece(move.getStartPosition()) == null) {
             // no piece on selected start position
             throw new InvalidMoveException();
@@ -137,8 +137,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        //FIXME find a way to know where the king be??
-        //FIXME THIS IS HOT TRASH
+        // do you need to find a way to know where the king is?
+        // I feel like this is hot garbage :')
         //or where the other ones are?? >:((
         if(gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).isEmpty()) {
             return false;
@@ -158,10 +158,10 @@ public class ChessGame {
             }
         }
         for(var move : opposingMoves) {
-//            System.out.println(move.getEndPosition());
-//            System.out.println(kingPosition);
-//            System.out.println(move.getEndPosition() == kingPosition);
-            if(move.getEndPosition().getRow() == kingPosition.getRow() && move.getEndPosition().getColumn() == kingPosition.getColumn()) { return true; }
+            if(move.getEndPosition().getRow() == kingPosition.getRow()
+                    && move.getEndPosition().getColumn() == kingPosition.getColumn()) {
+                return true;
+            }
         }
         return false;
     }
@@ -188,7 +188,10 @@ public class ChessGame {
             }
         }
         for(var move : opposingMoves) {
-            if(move.getEndPosition().getRow() == kingPosition.getRow() && move.getEndPosition().getColumn() == kingPosition.getColumn()) { return true; }
+            if(move.getEndPosition().getRow() == kingPosition.getRow()
+                    && move.getEndPosition().getColumn() == kingPosition.getColumn()) {
+                return true;
+            }
         }
         return false;
     }

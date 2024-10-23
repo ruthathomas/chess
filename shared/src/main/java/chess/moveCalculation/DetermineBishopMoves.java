@@ -9,12 +9,12 @@ import java.util.ArrayList;
 
 public class DetermineBishopMoves implements DeterminePieceMoves {
 
-    //TODO: refactor completely; this is incredibly long and inefficient
+    //HEY: refactor completely; this is incredibly long and inefficient
 
     @Override
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        //FIXME: this MUST be refactored, with some functions extracted, but should do for now;
+        //HEY: this MUST be refactored, with some functions extracted, but should do for now;
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);

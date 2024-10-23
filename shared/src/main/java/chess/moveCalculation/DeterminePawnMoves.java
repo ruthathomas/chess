@@ -29,7 +29,8 @@ public class DeterminePawnMoves implements DeterminePieceMoves {
         return validMoves;
     }
 
-    public ArrayList<ChessMove> validatePawnMove(int row, int col, int direction, ChessBoard board, ChessPosition myPosition, ChessGame.TeamColor myColor) {
+    public ArrayList<ChessMove> validatePawnMove(int row, int col, int direction, ChessBoard board,
+                                                 ChessPosition myPosition, ChessGame.TeamColor myColor) {
         // direction is indicated by a positive or negative 1; positive for WHITE, negative for BLACK
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         if(row + direction == 1 || row + direction == 8) {
@@ -67,7 +68,7 @@ public class DeterminePawnMoves implements DeterminePieceMoves {
             }
         } else if(row + direction > 1 && row + direction < 8) {
             // piece can move forward, but not into promotion zone
-            //FIXME >:(
+            //HEY: >:(
             ChessPosition fwd = new ChessPosition(row + direction, col);
             if(!board.isTileOccupied(fwd)) {
                 // forward movement is not blocked

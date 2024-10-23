@@ -66,7 +66,8 @@ public class DetermineQueenMoves implements DeterminePieceMoves {
         return validMoves;
     }
 
-    private ArrayList<ChessMove> validateQueenMove(int row, int col, int verticalDirection, int horizontalDirection, ChessBoard board, ChessPiece myPiece, ChessPosition myPosition) {
+    private ArrayList<ChessMove> validateQueenMove(int row, int col, int verticalDirection, int horizontalDirection,
+                                                   ChessBoard board, ChessPiece myPiece, ChessPosition myPosition) {
         // for 'Direction' variables, 1 indicates up or right, 0 indicates no change, and -1 indicates down or left
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         int startRow = row + verticalDirection;

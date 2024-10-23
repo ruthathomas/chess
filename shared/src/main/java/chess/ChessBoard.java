@@ -105,18 +105,14 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         tiles[position.getRow() - 1][position.getColumn() - 1] = piece;
-//        if(!piece.isHasMoved()) {
-//            piece.moved();
-//        }
     }
 
     public void movePiece(ChessPosition currentPosition, ChessPosition newPosition, ChessPiece piece) {
-        //FIXME: make a function to move a piece here >:(
 
         // It isn't movePiece's job to check if a move is allowed or not; it just moves.
         // However, it will check if the tile it's moving to is occupied, and free space
         if(isTileOccupied(newPosition)) {
-            //FIXME: this will probably need fixing, but for now is as simple as saying BYE to the old piece
+            // this will probably need fixing, but for now is as simple as saying BYE to the old piece
             // this might cause memory leaks in some way. improve if possible
             tiles[newPosition.getRow() - 1][newPosition.getColumn() - 1] = null;
         }
@@ -178,19 +174,8 @@ public class ChessBoard {
         return teamPieces;
     }
 
-    /**
-     * Checks if a position on the board is occupied
-     *
-     * @param position The position to check occupation on
-     * @return Whether the tile is occupied or not
-     */
-    public boolean isOccupied(ChessPosition position) {
-        if(getPiece(position) != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    // This space used to house the "isOccupied" function.
+    // This is a reminder in case I want it again.
 
     /**
      * Sets the board to the default starting board

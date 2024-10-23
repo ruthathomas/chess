@@ -71,20 +71,6 @@ public class ChessPiece {
         return type;
     }
 
-//    /**
-//     * @return hasMoved
-//     */
-//    public boolean isHasMoved() {
-//        return hasMoved;
-//    }
-//
-//    /**
-//     * Update hasMoved after movement; only called if hasMoved is false
-//     */
-//    public void moved() {
-//        hasMoved = true;
-//    }
-
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in

@@ -29,7 +29,8 @@ public class DetermineKingMoves implements DeterminePieceMoves {
     }
 
     // This one is the same as the validateKnightMove function; could be good to make an abstract class
-    private ChessMove validateKingMove(int row, int col, int rowModify, int colModify, ChessBoard board, ChessPiece myPiece, ChessPosition myPosition) {
+    private ChessMove validateKingMove(int row, int col, int rowModify, int colModify, ChessBoard board,
+                                       ChessPiece myPiece, ChessPosition myPosition) {
         int newRow = row + rowModify;
         int newCol = col + colModify;
         ChessPosition newPos = new ChessPosition(newRow, newCol);

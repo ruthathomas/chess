@@ -103,14 +103,14 @@ public class ServiceTests {
 
     @Test
     public void joinAvailableGameColorTaken() {
-        //FIXME 2: should we prevent someone from being part of multiple games at once?
+        //HEY: should we prevent someone from being part of multiple games at once?
         assertThrows(ResponseException.class, ()->{gameService.joinGame(availableGameWhite.gameID(), "black", existingAuth.authToken());});
         assertThrows(ResponseException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "white", existingAuth.authToken());});
     }
 
     @Test
     public void joinGameColorNotLowercase() {
-        //FIXME : in future, I'd like to make the colors into an enum
+        //HEY: in future, I'd like to make the colors into an enum
         assertDoesNotThrow(()-> {gameService.joinGame(availableGameWhite.gameID(), "WHITE", existingAuth.authToken());});
         assertThrows(ResponseException.class, ()-> {gameService.joinGame(availableGameWhite.gameID(), "WhITe", existingAuth.authToken());});
         assertDoesNotThrow(()-> {gameService.joinGame(availableGameBlack.gameID(), "Black", existingAuth.authToken());});
