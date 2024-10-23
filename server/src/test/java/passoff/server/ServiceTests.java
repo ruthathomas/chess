@@ -107,7 +107,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void listGamesTest() {
+    public void listGamesTest() throws ResponseException {
         // there are games to be listed
         Map<Integer, GameData> expectedData = new HashMap<>();
         expectedData.put(fullGame.gameID(), fullGame);

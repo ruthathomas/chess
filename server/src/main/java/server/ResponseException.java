@@ -16,7 +16,7 @@ public class ResponseException extends Exception {
     this.statusCode = statusCode;
   }
 
-  public int GetStatus() {
+  public int getStatus() {
     return statusCode;
   }
 

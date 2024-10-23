@@ -54,17 +54,16 @@ public class MemoryDataAccess implements DataAccessInterface {
 
     @Override
     public void addGame(GameData gameData) {
-        //fixme this might overwrite data
         gameDataMap.put(gameData.gameID(), gameData);
     }
 
     @Override
-    public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
+    public GameData updateGame(int gameID, GameData newData) throws DataAccessException {
         if(gameDataMap.get(gameID) == null) {
-            throw new DataAccessException("TEST ERROR");
+            throw new DataAccessException("game doesn't exist");
         }
-        gameDataMap.put(gameID, gameData);
-        return gameData;
+        gameDataMap.put(gameID, newData);
+        return newData;
     }
 
     @Override

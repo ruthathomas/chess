@@ -4,6 +4,7 @@ import chess.ChessGame;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
+import server.ResponseException;
 
 import java.util.Map;
 
@@ -15,13 +16,11 @@ public class GameService {
         memoryDataAccess = memDA;
     }
 
-    //FIXME resolve with map<integer, gameData>
-    public Map<Integer, GameData> listGames(String authToken) throws ServiceException {
+    public Map<Integer, GameData> listGames(String authToken) throws ResponseException {
         if(memoryDataAccess.getAuth(authToken) == null) {
-            throw new ServiceException("FIXME unauthorized");
+            throw new ResponseException(401, "Error: unauthorized");
         }
         return memoryDataAccess.getGames();
-        //FIXME do we still return like this if there are no games to be had?
     }
 
     public GameData createGame(String gameName, String authToken) throws ServiceException {

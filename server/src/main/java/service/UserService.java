@@ -19,7 +19,7 @@ public class UserService {
     //FIXME needs some more error stuff; maybe stop throwing errors? idk
      public AuthData register(UserData newUser) throws ResponseException {
         if(memoryDataAccess.getUser(newUser.username()) == null) {
-            if (newUser.username() == "" || newUser.password() == "" || newUser.email() == "") {
+            if (newUser.username() == null || newUser.password() == null || newUser.email() == null) {
                 throw new ResponseException(400, "Error: bad request");
             }
             memoryDataAccess.addUser(newUser);
@@ -31,7 +31,7 @@ public class UserService {
         }
     }
 
-    public AuthData login(String username, String password) throws ResponseException{
+    public AuthData login(String username, String password) throws ResponseException {
         if(memoryDataAccess.getUser(username) != null) {
             if(matchPassword(username, password)){
                 AuthData newAuth = new AuthData(generateToken(), username);
@@ -48,12 +48,12 @@ public class UserService {
     }
 
     //FIXME this doesn't account for 500? idk if it needs to
-    public void logout(String authToken) throws ServiceException {
+    public void logout(String authToken) throws ResponseException {
         memoryDataAccess.getAuth(authToken);
         try {
             memoryDataAccess.delAuth(authToken);
         } catch (DataAccessException e) {
-            throw new ServiceException("FIXME I'm WORKING ON ITT");
+            throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
