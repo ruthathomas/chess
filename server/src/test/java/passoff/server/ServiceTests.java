@@ -170,10 +170,10 @@ public class ServiceTests {
     }
 
     @Test
-    public void logoutInvalid() {
-        assertThrows(ServiceException.class, ()->{userService.logout("badToken");});
+    public void logoutInvalid() throws ResponseException {
+        assertThrows(ResponseException.class, ()->{userService.logout("badToken");});
         userService.logout(existingAuth.authToken());
-        assertThrows(ServiceException.class, ()->{userService.logout(existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()->{userService.logout(existingAuth.authToken());});
     }
 
     @Test

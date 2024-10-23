@@ -23,44 +23,44 @@ public class GameService {
         return memoryDataAccess.getGames();
     }
 
-    public GameData createGame(String gameName, String authToken) throws ServiceException {
+    public GameData createGame(String gameName, String authToken) throws ResponseException {
         AuthData authData = memoryDataAccess.getAuth(authToken);
         if(authData == null) {
-            throw new ServiceException("FIXME unauthorized");
+            throw new ResponseException(401, "Error: unauthorized");
         }
-        //FIXME should this assign the player that created it to be white?
         //FIXME this is also supposed to have a bad request error
-        GameData newGame = new GameData(generateGameID(), "", "", gameName, new ChessGame());
+        GameData newGame = new GameData(generateGameID(), null, null, gameName, new ChessGame());
         memoryDataAccess.addGame(newGame);
         return newGame;
     }
 
     //FIXME
-    public void joinGame(int gameID, String playerColor, String authToken) throws ServiceException {
+    public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException {
         AuthData authData = memoryDataAccess.getAuth(authToken);
         if(authData == null) {
-            throw new ServiceException("FIXME unauthorized");
+            throw new ResponseException(401, "Error: unauthorized");
         }
         GameData currGame = memoryDataAccess.getGame(gameID);
         if(currGame == null) {
-            throw new ServiceException("FIXME bad request");
+            throw new ResponseException(400, "Error: bad request");
         }
         playerColor = playerColor.toLowerCase();
         try {
             if(playerColor.equals("white")) {
-                if(currGame.whiteUsername().isEmpty()) {
+                if(currGame.whiteUsername() == null) {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(), currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
-                    throw new ServiceException("FIXME already taken");
+                    throw new ResponseException(403, "Error: already taken");
                 }
             } else {
-                if(currGame.blackUsername().isEmpty()) {
+                if(currGame.blackUsername() == null) {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), authData.username(), currGame.gameName(), currGame.game()));
                 } else {
-                    throw new ServiceException("FIXME already taken");
+                    throw new ResponseException(403, "Error: already taken");
                 }
             }
         } catch (dataaccess.DataAccessException e) {
+            //FIXME this is a bad exception to throw and you need to care about it
             throw new ServiceException("FIXME something else happened and it failed");
         }
     }

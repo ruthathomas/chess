@@ -5,6 +5,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
@@ -12,6 +13,9 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Server {
 
@@ -98,15 +102,19 @@ public class Server {
     }
 
     private Object listGames(Request req, Response res) throws ResponseException {
-        var listGamesRequest = serializer.fromJson(req.headers("authorization"), String.class);
-        var result = gameService.listGames(listGamesRequest);
-        // make a new class to store the hashmap stuff (give it the field games w/ the list of the games)
-        System.out.println(result.toString());
-       // System.out.println(serializer.toJson(result));
-        return serializer.toJson(result);
+        Map<Integer, GameData> result;
+        try {
+            var listGamesRequest = serializer.fromJson(req.headers("authorization"), String.class);
+            result = gameService.listGames(listGamesRequest);
+        } catch (ResponseException e) {
+            res.status(e.getStatus());
+            return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
+        }
+        return serializer.toJson(new GameListRecord(result.values()));
     }
 
     private Object createGame(Request req, Response res) throws ResponseException {
+        
         var authToken = serializer.fromJson(req.headers("authorization"), String.class);
         var requestedName = serializer.fromJson(req.body(), LinkedTreeMap.class).get("gameName");
         var result = gameService.createGame(requestedName.toString(), authToken);
