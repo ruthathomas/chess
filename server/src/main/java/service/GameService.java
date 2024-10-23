@@ -28,7 +28,6 @@ public class GameService {
         if(authData == null) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        //FIXME this is also supposed to have a bad request error
         GameData newGame = new GameData(generateGameID(), null, null, gameName, new ChessGame());
         memoryDataAccess.addGame(newGame);
         return newGame;
@@ -50,25 +49,24 @@ public class GameService {
         playerColor = playerColor.toLowerCase();
         try {
             if(playerColor.equals("white")) {
-                if(currGame.whiteUsername() == null) {
+                if(currGame.whiteUsername() == null || currGame.whiteUsername() == "") {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(), currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
             } else {
-                if(currGame.blackUsername() == null) {
+                if(currGame.blackUsername() == null || currGame.blackUsername() == "") {
                     memoryDataAccess.updateGame(gameID, new GameData(gameID, currGame.whiteUsername(), authData.username(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
             }
         } catch (dataaccess.DataAccessException e) {
-            //FIXME this is a bad exception to throw and you need to care about it
-            throw new ServiceException("FIXME something else happened and it failed");
+            throw new ResponseException(400, "Error: bad request");
         }
     }
 
-    public void clearData() throws ServiceException {
+    public void clearData() throws ResponseException {
         memoryDataAccess.clearGameData();
         // Throws an exception if something wonky happens
     }

@@ -15,6 +15,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
 
+    /*
+    Private member functions of the services are not tested here.
+    Each public method on your Service classes has two test cases, one positive test and one negative test
+        clearData
+     */
+
     private MemoryDataAccess memory = new MemoryDataAccess();
     private AuthService authService = new AuthService(memory);
     private GameService gameService = new GameService(memory);
@@ -26,34 +32,57 @@ public class ServiceTests {
     private GameData availableGameWhite = new GameData(4321, "", "testingUser", "availableGame", new ChessGame());
     private GameData availableGameBlack = new GameData(2, "whiteUser", "", "availableGame", new ChessGame());
     private UserData existingUser = new UserData("existingUser", "existingPassword", "existing@email.com");
+    private Map<Integer, GameData> expectedData = new HashMap<>();
 
+    /**
+     * The functions 'addAuth,' 'addGame,' and 'addUser' are ONLY used in testing;
+     * they have not been given tests in the testing suite because they are not
+     * intended to be used in actual execution of the program.
+     */
     @BeforeEach
-    public void init() {
+    public void init() throws ResponseException {
+        // clear data
         authService.clearData();
         gameService.clearData();
         userService.clearData();
+        // add the variables to memory
         authService.addAuth(existingAuth);
         gameService.addGame(fullGame);
         gameService.addGame(availableGameBlack);
         gameService.addGame(availableGameWhite);
         userService.addUser(existingUser);
-
+        // add test games to expectedData
+        expectedData.put(fullGame.gameID(), fullGame);
+        expectedData.put(availableGameWhite.gameID(), availableGameWhite);
+        expectedData.put(availableGameBlack.gameID(), availableGameBlack);
     }
 
     // Set of tests for AuthService
 
     @Test
-    public void createNewAuth() {
+    public void createGoodAuth() throws ResponseException {
+        assertDoesNotThrow(()->{authService.createAuth("testUser");});
         AuthData testAuth = authService.createAuth("testUser");
-        assertNotNull(testAuth.authToken());
         assertEquals("testUser", testAuth.username());
     }
 
     @Test
-    public void delExistingAuth() {
+    public void createBadAuth() {
+        // invalid username for auth creation
+        assertThrows(ResponseException.class, ()->{authService.createAuth(null);});
+    }
+
+    @Test
+    public void delExistingAuth() throws ResponseException {
         assertNotNull(authService.getAuth("testToken"));
-        authService.delAuth("testToken");
+        assertDoesNotThrow(()-> {authService.delAuth("testToken");});
         assertNull(authService.getAuth("testToken"));
+    }
+
+    @Test
+    public void delNonexistentAuth() {
+        assertNull(authService.getAuth("badToken"));
+        assertThrows(ResponseException.class, ()->{authService.delAuth("badToken");});
     }
 
     @Test
@@ -79,53 +108,57 @@ public class ServiceTests {
     @Test
     public void joinAvailableGameColorTaken() {
         //FIXME 2: should we prevent someone from being part of multiple games at once?
-        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameWhite.gameID(), "black", existingAuth.authToken());});
-        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "white", existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()->{gameService.joinGame(availableGameWhite.gameID(), "black", existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "white", existingAuth.authToken());});
     }
 
     @Test
     public void joinGameColorNotLowercase() {
         //FIXME : in future, I'd like to make the colors into an enum
         assertDoesNotThrow(()-> {gameService.joinGame(availableGameWhite.gameID(), "WHITE", existingAuth.authToken());});
-        assertThrows(ServiceException.class, ()-> {gameService.joinGame(availableGameWhite.gameID(), "WhITe", existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()-> {gameService.joinGame(availableGameWhite.gameID(), "WhITe", existingAuth.authToken());});
         assertDoesNotThrow(()-> {gameService.joinGame(availableGameBlack.gameID(), "Black", existingAuth.authToken());});
-        assertThrows(ServiceException.class, ()-> {gameService.joinGame(availableGameBlack.gameID(), "BLaCk", existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()-> {gameService.joinGame(availableGameBlack.gameID(), "BLaCk", existingAuth.authToken());});
     }
 
     @Test
     public void joinInvalidGame() {
-        // invalid ID
-        assertThrows(ServiceException.class, ()->{gameService.joinGame(0, "white", existingAuth.authToken());});
-        // unjoinable game (full)
-        assertThrows(ServiceException.class, ()-> {gameService.joinGame(fullGame.gameID(), "white", existingAuth.authToken());});
-        assertThrows(ServiceException.class, ()-> {gameService.joinGame(fullGame.gameID(), "black", existingAuth.authToken());});
+        // test invalid ID
+        assertThrows(ResponseException.class, ()->{gameService.joinGame(0, "white", existingAuth.authToken());});
+        // test unjoinable game (full)
+        assertThrows(ResponseException.class, ()-> {gameService.joinGame(fullGame.gameID(), "white", existingAuth.authToken());});
+        assertThrows(ResponseException.class, ()-> {gameService.joinGame(fullGame.gameID(), "black", existingAuth.authToken());});
     }
 
     @Test
-    public void createValidGame() {
+    public void createGameValidToken() {
         assertDoesNotThrow(()-> {gameService.createGame("gameName", existingAuth.authToken());});
     }
 
     @Test
-    public void listGamesTest() throws ResponseException {
-        // there are games to be listed
-        Map<Integer, GameData> expectedData = new HashMap<>();
-        expectedData.put(fullGame.gameID(), fullGame);
-        expectedData.put(availableGameWhite.gameID(), availableGameWhite);
-        expectedData.put(availableGameBlack.gameID(), availableGameBlack);
+    public void createGameInvalidToken() {
+        assertThrows(ResponseException.class, ()-> {gameService.createGame("gameName", "badAuth");});
+    }
+
+    @Test
+    public void listGamesNonEmpty() throws ResponseException {
         assertEquals(expectedData, gameService.listGames(existingAuth.authToken()));
-        // there are no available games
+    }
+
+    @Test
+    public void listGamesEmpty() throws ResponseException {
         gameService.clearData();
         expectedData.clear();
+        // there are no available games
         assertEquals(expectedData, gameService.listGames(existingAuth.authToken()));
     }
 
     @Test
     public void gameServiceInvalidToken() {
         // for join, create, and list
-        assertThrows(ServiceException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "black", "invalidToken");});
-        assertThrows(ServiceException.class, ()->{gameService.createGame("gameName", "invalidToken");});
-        assertThrows(ServiceException.class, ()->{gameService.listGames("invalidToken");});
+        assertThrows(ResponseException.class, ()->{gameService.joinGame(availableGameBlack.gameID(), "black", "invalidToken");});
+        assertThrows(ResponseException.class, ()->{gameService.createGame("gameName", "invalidToken");});
+        assertThrows(ResponseException.class, ()->{gameService.listGames("invalidToken");});
     }
 
     // Set of tests for UserService
@@ -157,11 +190,11 @@ public class ServiceTests {
         // Register a user that already exists
         assertThrows(ResponseException.class, ()->{userService.register(existingUser);});
         // Register a user without a username
-        assertThrows(ResponseException.class, ()->{userService.register(new UserData("", samplePassword, sampleEmail));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData(null, samplePassword, sampleEmail));});
         // Register a user without a password
-        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, "", sampleEmail));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, null, sampleEmail));});
         // Register a user without an email
-        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, samplePassword, ""));});
+        assertThrows(ResponseException.class, ()->{userService.register(new UserData(sampleName, samplePassword, null));});
     }
 
     @Test
@@ -171,13 +204,25 @@ public class ServiceTests {
 
     @Test
     public void logoutInvalid() throws ResponseException {
+        // invalid because of bad token
         assertThrows(ResponseException.class, ()->{userService.logout("badToken");});
         userService.logout(existingAuth.authToken());
+        // previously valid token was removed on logout
         assertThrows(ResponseException.class, ()->{userService.logout(existingAuth.authToken());});
     }
 
     @Test
-    public void clear() {
+    public void clearHasData() {
+        assertDoesNotThrow(()->{authService.clearData();});
+        assertDoesNotThrow(()->{gameService.clearData();});
+        assertDoesNotThrow(()->{userService.clearData();});
+    }
+
+    @Test
+    public void clearNoData() throws ResponseException {
+        authService.clearData();
+        gameService.clearData();
+        userService.clearData();
         assertDoesNotThrow(()->{authService.clearData();});
         assertDoesNotThrow(()->{gameService.clearData();});
         assertDoesNotThrow(()->{userService.clearData();});

@@ -47,7 +47,6 @@ public class UserService {
         }
     }
 
-    //FIXME this doesn't account for 500? idk if it needs to
     public void logout(String authToken) throws ResponseException {
         memoryDataAccess.getAuth(authToken);
         try {
@@ -57,7 +56,7 @@ public class UserService {
         }
     }
 
-    public void clearData() throws ServiceException {
+    public void clearData() throws ResponseException {
         memoryDataAccess.clearUserData();
     }
 

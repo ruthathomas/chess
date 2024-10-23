@@ -7,6 +7,8 @@ import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import server.records.ExceptionFailureRecord;
+import server.records.GameListRecord;
 import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
 import service.AuthService;
@@ -14,7 +16,6 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
@@ -127,7 +128,7 @@ public class Server {
         return serializer.toJson(result);
     }
 
-    private Object joinGame(Request req, Response res) throws ResponseException {
+    private Object joinGame(Request req, Response res) {
         try {
             var authToken = req.headers("authorization");
             //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
@@ -140,11 +141,16 @@ public class Server {
         return serializer.toJson(new JsonNull());
     }
 
-    private Object clear(Request req, Response res) throws ResponseException {
-        authService.clearData();
-        gameService.clearData();
-        userService.clearData();
-        res.status(200);
-        return "";
+    private Object clear(Request req, Response res) {
+        try {
+            authService.clearData();
+            gameService.clearData();
+            userService.clearData();
+            res.status(200);
+            return "";
+        } catch (ResponseException e) {
+            res.status(e.getStatus());
+            return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
+        }
     }
 }

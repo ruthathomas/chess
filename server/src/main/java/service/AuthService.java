@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
+import server.ResponseException;
 
 public class AuthService {
 
@@ -18,12 +19,11 @@ public class AuthService {
      * @param username username of the user for which to create the AuthData.
      * @return The newly created AuthData object.
      */
-    public AuthData createAuth(String username) {
-        String authToken = generateToken();
-        // If the unlikely occurs and the authToken already exists, generate a new one
-        while(getAuth(authToken) != null) {
-            authToken = generateToken();
+    public AuthData createAuth(String username) throws ResponseException {
+        if(username == null) {
+            throw new ResponseException(400, "Error: bad request");
         }
+        String authToken = generateToken();
         AuthData newAuth = new AuthData(authToken, username);
         memoryDataAccess.addAuth(newAuth);
         return newAuth;
@@ -36,7 +36,7 @@ public class AuthService {
      * @param authData provided AuthData object.
      * @return provided AuthData object.
      */
-    public AuthData addAuth(AuthData authData) {
+    public AuthData addAuth(AuthData authData){
         memoryDataAccess.addAuth(authData);
         return authData;
     }
@@ -46,16 +46,15 @@ public class AuthService {
         return memoryDataAccess.getAuth(authToken);
     }
 
-    public void delAuth(String authToken) throws ServiceException {
+    public void delAuth(String authToken) throws ResponseException {
         try {
             memoryDataAccess.delAuth(authToken);
         } catch (dataaccess.DataAccessException e) {
-            throw new ServiceException("FIXME this is an error bc bad data");
+            throw new ResponseException(400, "Error: bad request");
         }
     }
 
-    //FIXME maybe stop throwing exceptions
-    public void clearData() throws ServiceException {
+    public void clearData() throws ResponseException {
         memoryDataAccess.clearAuthData();
     }
 
