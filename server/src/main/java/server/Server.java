@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
+import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.MemoryDataAccess;
 import model.UserData;
 import server.requests.JoinGameRequest;
@@ -97,8 +98,8 @@ public class Server {
 
     private Object createGame(Request req, Response res) throws ResponseException {
         var authToken = serializer.fromJson(req.headers("authorization"), String.class);
-        var requestedName = serializer.fromJson(req.body(), String.class);
-        var result = gameService.createGame(requestedName, authToken);
+        var requestedName = serializer.fromJson(req.body(), LinkedTreeMap.class).get("gameName");
+        var result = gameService.createGame(requestedName.toString(), authToken);
         return serializer.toJson(result);
     }
 

@@ -81,9 +81,9 @@ public class GameService {
 
     //FIXME this is slapdash garbage
     private int generateGameID() {
-        int currID = 0;
+        int currID = 1;
         for(var key : memoryDataAccess.getGames().keySet()) {
-            if(key > currID) {
+            if(key >= currID) {
                 currID = key + 1;
             }
         }
