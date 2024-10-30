@@ -65,17 +65,17 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void clearAuthData() {
-        //
+        deleteTableVals("auth");
     }
 
     @Override
     public void clearGameData() {
-
+        deleteTableVals("game");
     }
 
     @Override
     public void clearUserData() {
-
+        deleteTableVals("user");
     }
 
     private Object selectObject(String workingVar) {
@@ -106,6 +106,18 @@ public class SQLDataAccess implements DataAccessInterface {
 //            }
 //        }
 
+    }
+
+    private void deleteTableVals(String table) {
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement("DELETE FROM ?")) {
+                preparedStatement.setString(1, table);
+                preparedStatement.executeQuery();
+                // I'm not sure if this is right?
+            }
+        } catch (DataAccessException | SQLException e) {
+            // do something here ig
+        }
     }
 
 }
