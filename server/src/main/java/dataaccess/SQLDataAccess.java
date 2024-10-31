@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -21,37 +22,38 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public UserData getUser(String username) {
-        return null;
+    public UserData getUser(String username) throws DataAccessException {
+        return (UserData) singleSelection(Query.SELECT_USER, username, 0);
+
     }
 
     @Override
-    public void addUser(UserData userData) {
+    public void addUser(UserData userData) throws DataAccessException {
         //
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
-        return null;
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        return (AuthData) singleSelection(Query.SELECT_AUTH, authToken, 0);
     }
 
     @Override
-    public void addAuth(AuthData authData) {
+    public void addAuth(AuthData authData) throws DataAccessException {
         //
     }
 
     @Override
     public void delAuth(String authToken) throws DataAccessException {
-
+        //
     }
 
     @Override
-    public GameData getGame(int gameID) {
-        return null;
+    public GameData getGame(int gameID) throws DataAccessException {
+        return (GameData) singleSelection(Query.SELECT_GAME, "", gameID);
     }
 
     @Override
-    public void addGame(GameData gameData) {
+    public void addGame(GameData gameData) throws DataAccessException {
         // 1. You're going to have to serialize the chess game to a JSON string
         // 2. and then you're going to have to put it in that database
         //
@@ -68,56 +70,26 @@ public class SQLDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public Map<Integer, GameData> getGames() {
+    public Map<Integer, GameData> getGames() throws DataAccessException {
         return null;
     }
 
     @Override
-    public void clearAuthData() {
+    public void clearAuthData() throws DataAccessException {
         deleteTableVals("auth");
     }
 
     @Override
-    public void clearGameData() {
+    public void clearGameData() throws DataAccessException {
         deleteTableVals("game");
     }
 
     @Override
-    public void clearUserData() {
+    public void clearUserData() throws DataAccessException {
         deleteTableVals("user");
     }
 
-    private Object selectObject(String workingVar) {
-        //FIXME I'm not sure what I'm doing
-        try(var conn = getConnection()) {
-            try(var preparedStatement = conn.prepareStatement("SELECT ?")) {
-                preparedStatement.setString(1, workingVar);
-
-                var rs = preparedStatement.executeQuery();
-                rs.next();
-                rs.getString(1);
-            }
-        } catch (DataAccessException | SQLException e) {
-            //do something
-        }
-        return null;
-
-//        private static void simpleParameter(int a, int b) throws SQLException {
-//            try (var conn = getConnection()) {
-//                try (var preparedStatement = conn.prepareStatement("SELECT ?+?")) {
-//                    preparedStatement.setInt(1, a);
-//                    preparedStatement.setInt(2, b);
-//
-//                    var rs = preparedStatement.executeQuery();
-//                    rs.next();
-//                    System.out.println(rs.getInt(1));
-//                }
-//            }
-//        }
-
-    }
-
-    private void deleteTableVals(String table) {
+    private void deleteTableVals(String table) throws DataAccessException {
         try(var conn = getConnection()) {
             try(var preparedStatement = conn.prepareStatement("DELETE FROM ?")) {
                 preparedStatement.setString(1, table);
@@ -125,11 +97,11 @@ public class SQLDataAccess implements DataAccessInterface {
                 // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {
-            // do something here ig
+            throw new DataAccessException(e.getMessage());
         }
     }
 
-    private Object singleSelection(Query query, String queryStrVal, int queryIntVal) {
+    private Object singleSelection(Query query, String queryStrVal, int queryIntVal) throws DataAccessException {
         String queryStatement;
         switch (query) {
             case SELECT_AUTH -> queryStatement = "SELECT * FROM auth WHERE authToken = ?";
@@ -147,40 +119,27 @@ public class SQLDataAccess implements DataAccessInterface {
                 } else if(queryIntVal != 0) {
                     preparedStatement.setInt(1, queryIntVal);
                 }
-                
-            }
-        } catch (DataAccessException | SQLException e) {
-            //fixme
-        }
-
-        return null;
-    }
-
-    private void makeQuery(Query query, String s, int i) {
-        String queryString;
-        switch (query) {
-            case DELETE_TABLE -> queryString = "DELETE FROM ?";
-            case DELETE_AUTH_TOKEN -> queryString = "DELETE FROM auth WHERE authToken = ?";
-            case SELECT_ALL_GAMES -> queryString = "SELECT * FROM game";
-            case SELECT_AUTH -> queryString = "SELECT * FROM auth WHERE authToken = ?";
-            case SELECT_GAME -> queryString = "SELECT * FROM game WHERE gameID = ?";
-            case SELECT_USER -> queryString = "SELECT * FROM user WHERE username = ?";
-            case null, default -> queryString = "FIXME FIXME FIXME";
-        }
-        try(var conn = getConnection()) {
-            try(var preparedStatement = conn.prepareStatement(queryString)) {
-                if(s != "") {
-                    preparedStatement.setString(1, s);
-                } else if(i != 0) {
-                    preparedStatement.setInt(1, i);
-                }
-                //fixme
                 var rs = preparedStatement.executeQuery();
                 rs.next();
-
+                //Function is now on the proper line to select items
+                switch (query) {
+                    case SELECT_AUTH -> {
+                        return new AuthData(rs.getString("authToken"), rs.getString("username"));
+                    }
+                    case SELECT_GAME -> {
+                        //deserialize the string that the game is and then make a new GameData object
+                        return "lol fixme";
+                    }
+                    case SELECT_USER -> {
+                        // split into two ugly lines because of java conventions :(
+                        return new UserData(rs.getString("username"), rs.getString("password"),
+                                rs.getString("email"));
+                    }
+                    case null, default -> throw new DataAccessException("Unexpected query made.");
+                }
             }
         } catch (DataAccessException | SQLException e) {
-            //fixme
+            throw new DataAccessException(e.getMessage());
         }
     }
 
