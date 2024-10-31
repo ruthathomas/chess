@@ -11,6 +11,15 @@ import static dataaccess.DatabaseManager.getConnection;
 
 public class SQLDataAccess implements DataAccessInterface {
 
+    enum Query {
+        DELETE_AUTH_TOKEN,
+        DELETE_TABLE,
+        SELECT_ALL_GAMES,
+        SELECT_AUTH,
+        SELECT_GAME,
+        SELECT_USER
+    }
+
     @Override
     public UserData getUser(String username) {
         return null;
@@ -117,6 +126,61 @@ public class SQLDataAccess implements DataAccessInterface {
             }
         } catch (DataAccessException | SQLException e) {
             // do something here ig
+        }
+    }
+
+    private Object singleSelection(Query query, String queryStrVal, int queryIntVal) {
+        String queryStatement;
+        switch (query) {
+            case SELECT_AUTH -> queryStatement = "SELECT * FROM auth WHERE authToken = ?";
+            case SELECT_GAME -> queryStatement = "SELECT * FROM game WHERE gameID = ?";
+            case SELECT_USER -> queryStatement = "SELECT * FROM user WHERE username = ?";
+            case null, default -> queryStatement = "";
+        }
+        try(var conn = getConnection()) {
+            if(queryStatement == "") {
+                throw new DataAccessException("Unexpected query made.");
+            }
+            try(var preparedStatement = conn.prepareStatement(queryStatement)) {
+                if(queryStrVal != "" && queryStrVal != null) {
+                    preparedStatement.setString(1, queryStrVal);
+                } else if(queryIntVal != 0) {
+                    preparedStatement.setInt(1, queryIntVal);
+                }
+                
+            }
+        } catch (DataAccessException | SQLException e) {
+            //fixme
+        }
+
+        return null;
+    }
+
+    private void makeQuery(Query query, String s, int i) {
+        String queryString;
+        switch (query) {
+            case DELETE_TABLE -> queryString = "DELETE FROM ?";
+            case DELETE_AUTH_TOKEN -> queryString = "DELETE FROM auth WHERE authToken = ?";
+            case SELECT_ALL_GAMES -> queryString = "SELECT * FROM game";
+            case SELECT_AUTH -> queryString = "SELECT * FROM auth WHERE authToken = ?";
+            case SELECT_GAME -> queryString = "SELECT * FROM game WHERE gameID = ?";
+            case SELECT_USER -> queryString = "SELECT * FROM user WHERE username = ?";
+            case null, default -> queryString = "FIXME FIXME FIXME";
+        }
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement(queryString)) {
+                if(s != "") {
+                    preparedStatement.setString(1, s);
+                } else if(i != 0) {
+                    preparedStatement.setInt(1, i);
+                }
+                //fixme
+                var rs = preparedStatement.executeQuery();
+                rs.next();
+
+            }
+        } catch (DataAccessException | SQLException e) {
+            //fixme
         }
     }
 
