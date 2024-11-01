@@ -3,6 +3,7 @@ import dataaccess.DataAccessInterface;
 import dataaccess.MemoryDataAccess;
 import dataaccess.SQLDataAccess;
 import server.Server;
+import spark.Spark;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,16 +16,15 @@ public class Main {
         }
 
         DataAccessInterface dataAccess = new MemoryDataAccess();
-        if(args.length >= 2 && args[1] == "sql") {
+        if(args.length >= 2 && args[1].equals("sql")) {
             // an argument has been passed indicating that memory access should use the database
             dataAccess = new SQLDataAccess();
         }
-        //all sorts of stuff
-        var server = new Server();
-        server.run(8080);
 
-
-
-
+        // boot up the server; services are initialized within the server
+        var server = new Server(dataAccess);
+        server.run(port);
+        // print to console the port number and the kind of memory being used
+        System.out.printf("Server running on port %d with memory type %s", Spark.port(), dataAccess.getClass());
     }
 }

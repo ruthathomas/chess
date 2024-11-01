@@ -1,10 +1,7 @@
 package dataaccess;
 
-import model.AuthData;
-import model.GameData;
-import model.UserData;
+import model.*;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -13,6 +10,9 @@ import static dataaccess.DatabaseManager.getConnection;
 public class SQLDataAccess implements DataAccessInterface {
 
     enum Query {
+        ADD_AUTH,
+        ADD_GAME,
+        ADD_USER,
         DELETE_AUTH_TOKEN,
         DELETE_TABLE,
         SELECT_ALL_GAMES,
@@ -29,7 +29,7 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addUser(UserData userData) throws DataAccessException {
-        //FIXME
+        valueInsertion(Query.ADD_USER, userData);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addAuth(AuthData authData) throws DataAccessException {
-        //FIXME
+        valueInsertion(Query.ADD_AUTH, authData);
     }
 
     @Override
@@ -138,6 +138,44 @@ public class SQLDataAccess implements DataAccessInterface {
                     }
                     case null, default -> throw new DataAccessException("Unexpected query made.");
                 }
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    private void valueInsertion(Query query, Object dataObject) throws DataAccessException {
+        String queryStatement;
+        switch (query) {
+            case ADD_AUTH -> queryStatement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+            case ADD_GAME -> {
+                queryStatement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) " +
+                        "VALUES (?, ?, ?, ?, ?)";
+            }
+            case ADD_USER -> queryStatement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+            case null, default -> throw new DataAccessException("Unexpected query made.");
+        }
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement(queryStatement)) {
+                if(dataObject instanceof AuthData && query == Query.ADD_AUTH) {
+                 preparedStatement.setString(1, ((AuthData) dataObject).authToken());
+                 preparedStatement.setString(2, ((AuthData) dataObject).username());
+                } else if (dataObject instanceof GameData && query == Query.ADD_GAME) {
+                    preparedStatement.setInt(1, ((GameData) dataObject).gameID());
+                    preparedStatement.setString(2, ((GameData) dataObject).whiteUsername());
+                    preparedStatement.setString(3, ((GameData) dataObject).blackUsername());
+                    preparedStatement.setString(4, ((GameData) dataObject).gameName());
+                    //FIXME here is where you need to do the json conversion
+                    preparedStatement.setString(5, "FIXME FIXME");
+                } else if(dataObject instanceof UserData && query == Query.ADD_USER) {
+                    preparedStatement.setString(1, ((UserData) dataObject).username());
+                    preparedStatement.setString(2, ((UserData) dataObject).password());
+                    preparedStatement.setString(3, ((UserData) dataObject).email());
+                } else {
+                    throw new DataAccessException("Unexpected query made.");
+                }
+                preparedStatement.executeQuery();
+                // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {
             throw new DataAccessException(e.getMessage());

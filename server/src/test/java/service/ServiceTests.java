@@ -76,20 +76,20 @@ public class ServiceTests {
     }
 
     @Test
-    public void delNonexistentAuth() {
+    public void delNonexistentAuth() throws ResponseException {
         assertNull(authService.getAuth("badToken"));
         assertThrows(ResponseException.class, ()->{authService.delAuth("badToken");});
     }
 
     @Test
-    public void getExistingAuth() {
+    public void getExistingAuth() throws ResponseException {
         AuthData testAuth = authService.getAuth("testToken");
         assertNotNull(testAuth);
         assertEquals("existingUser", testAuth.username());
     }
 
     @Test
-    public void getNonexistentAuth() {
+    public void getNonexistentAuth() throws ResponseException {
         assertNull(authService.getAuth("testToken2"));
     }
 

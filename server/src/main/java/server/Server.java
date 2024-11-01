@@ -3,18 +3,13 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.internal.LinkedTreeMap;
-import dataaccess.DataAccessInterface;
-import dataaccess.MemoryDataAccess;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import server.records.ExceptionFailureRecord;
-import server.records.GameListRecord;
-import server.requests.JoinGameRequest;
-import server.requests.LoginRequest;
-import service.AuthService;
-import service.GameService;
-import service.UserService;
+import server.records.*;
+import server.requests.*;
+import service.*;
 import spark.*;
 
 import java.util.Map;
@@ -23,7 +18,7 @@ public class Server {
 
     // This feels more coupled than I would like it to be (server layer shouldn't
     // know about data layer). I want to come back later and rework, if possible.
-    private DataAccessInterface dataAccess;
+    private DataAccessInterface dataAccess = new MemoryDataAccess();
     private AuthService authService = new AuthService(dataAccess);
     private GameService gameService = new GameService(dataAccess);
     private UserService userService = new UserService(dataAccess);
@@ -32,6 +27,8 @@ public class Server {
     public Server(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
     }
+
+    public Server() {}
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
