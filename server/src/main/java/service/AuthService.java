@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
-import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import server.ResponseException;
 
