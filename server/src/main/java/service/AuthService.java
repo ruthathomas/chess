@@ -10,7 +10,7 @@ import server.ResponseException;
 
 public class AuthService {
 
-    private DataAccessInterface dataAccess;
+    private final DataAccessInterface dataAccess;
 
     public AuthService(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;

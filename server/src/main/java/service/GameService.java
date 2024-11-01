@@ -1,6 +1,8 @@
 package service;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
+import dataaccess.DataAccessInterface;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
@@ -10,35 +12,53 @@ import java.util.Map;
 
 public class GameService {
 
-    private MemoryDataAccess memoryDataAccess;
+    private final DataAccessInterface dataAccess;
 
-    public GameService(MemoryDataAccess memDA) {
-        memoryDataAccess = memDA;
+    public GameService(DataAccessInterface dataAccess) {
+        this.dataAccess = dataAccess;
     }
 
     public Map<Integer, GameData> listGames(String authToken) throws ResponseException {
-        if(memoryDataAccess.getAuth(authToken) == null) {
-            throw new ResponseException(401, "Error: unauthorized");
+        try {
+            if(dataAccess.getAuth(authToken) == null) {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            return dataAccess.getGames();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
         }
-        return memoryDataAccess.getGames();
     }
 
     public GameData createGame(String gameName, String authToken) throws ResponseException {
-        AuthData authData = memoryDataAccess.getAuth(authToken);
-        if(authData == null) {
-            throw new ResponseException(401, "Error: unauthorized");
+        try {
+            AuthData authData = dataAccess.getAuth(authToken);
+            if(authData == null) {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            GameData newGame = new GameData(generateGameID(), null, null, gameName, new ChessGame());
+            dataAccess.addGame(newGame);
+            return newGame;
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
         }
-        GameData newGame = new GameData(generateGameID(), null, null, gameName, new ChessGame());
-        memoryDataAccess.addGame(newGame);
-        return newGame;
     }
 
     public void joinGame(int gameID, String playerColor, String authToken) throws ResponseException {
-        AuthData authData = memoryDataAccess.getAuth(authToken);
+        AuthData authData;
+        GameData currGame;
+        try {
+            authData = dataAccess.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
         if(authData == null) {
             throw new ResponseException(401, "Error: unauthorized");
         }
-        GameData currGame = memoryDataAccess.getGame(gameID);
+        try {
+            currGame = dataAccess.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
         if(currGame == null) {
             throw new ResponseException(400, "Error: bad request");
         }
@@ -49,14 +69,14 @@ public class GameService {
         try {
             if(playerColor.equals("white")) {
                 if(currGame.whiteUsername() == null || currGame.whiteUsername() == "") {
-                    memoryDataAccess.updateGame(gameID, new GameData(gameID, authData.username(),
+                    dataAccess.updateGame(gameID, new GameData(gameID, authData.username(),
                             currGame.blackUsername(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
             } else {
                 if(currGame.blackUsername() == null || currGame.blackUsername() == "") {
-                    memoryDataAccess.updateGame (gameID, new GameData(gameID, currGame.whiteUsername(),
+                    dataAccess.updateGame (gameID, new GameData(gameID, currGame.whiteUsername(),
                             authData.username(), currGame.gameName(), currGame.game()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
@@ -68,22 +88,34 @@ public class GameService {
     }
 
     public void clearData() throws ResponseException {
-        memoryDataAccess.clearGameData();
+        try {
+            dataAccess.clearGameData();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 
     // To be used only in testing for the adding of "pre-existing" data to the server
-    public void addGame(GameData gameData) {
-        memoryDataAccess.addGame(gameData);
+    public void addGame(GameData gameData) throws ResponseException{
+        try {
+            dataAccess.addGame(gameData);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 
     // I think I'd like to change this in future
-    private int generateGameID() {
-        int currID = 1;
-        for(var key : memoryDataAccess.getGames().keySet()) {
-            if(key >= currID) {
-                currID = key + 1;
+    private int generateGameID() throws ResponseException{
+        try {
+            int currID = 1;
+            for (var key : dataAccess.getGames().keySet()) {
+                if (key >= currID) {
+                    currID = key + 1;
+                }
             }
+            return currID;
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
         }
-        return currID;
     }
 }
