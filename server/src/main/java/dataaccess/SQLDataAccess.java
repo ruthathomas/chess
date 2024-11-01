@@ -29,7 +29,7 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addUser(UserData userData) throws DataAccessException {
-        //
+        //FIXME
     }
 
     @Override
@@ -39,12 +39,12 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addAuth(AuthData authData) throws DataAccessException {
-        //
+        //FIXME
     }
 
     @Override
     public void delAuth(String authToken) throws DataAccessException {
-        //
+        //FIXME
     }
 
     @Override
@@ -71,6 +71,7 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public Map<Integer, GameData> getGames() throws DataAccessException {
+        //FIXME
         return null;
     }
 
