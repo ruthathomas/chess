@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +56,11 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void addGame(GameData gameData) {
+    public void addGame(GameData gameData) throws DataAccessException {
+        if(gameData.gameID() == 0 | gameData.game() == null | gameData.whiteUsername() == null |
+                gameData.blackUsername() == null | gameData.gameName() == null) {
+            throw new DataAccessException("Insertion failed; cannot insert a null value");
+        }
         gameDataMap.put(gameData.gameID(), gameData);
     }
 

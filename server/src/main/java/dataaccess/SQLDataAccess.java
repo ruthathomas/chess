@@ -96,14 +96,19 @@ public class SQLDataAccess implements DataAccessInterface {
     public Map<Integer, GameData> getGames() throws DataAccessException {
         Map<Integer, GameData> gamesList = new HashMap<>();
         try(var conn = getConnection()) {
-            try(var preparedStatement = conn.prepareStatement("SELECT * FROM game")) {
+            try(var preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM game")) {
                 var rs = preparedStatement.executeQuery();
-                for(int i = 0; i <= 4; i++) {
-                    rs.next();
-                    var game = serializer.fromJson(rs.getString("game"), ChessGame.class);
-                    gamesList.put(rs.getInt("gameID"), new GameData(rs.getInt("gameID"),
-                            rs.getString("whiteUsername"), rs.getString("blackUsername"),
-                            rs.getString("gameName"), game));
+                rs.next();
+                int gamesCount = rs.getInt("count(*)");
+                for(int i = 1; i <= gamesCount; i++) {
+                    var nextStatement = conn.prepareStatement("SELECT * FROM game WHERE id = ?");
+                    nextStatement.setInt(1, i);
+                    var rs2 = nextStatement.executeQuery();
+                    rs2.next();
+                    var game = serializer.fromJson(rs2.getString("game"), ChessGame.class);
+                    gamesList.put(rs2.getInt("gameID"), new GameData(rs2.getInt("gameID"),
+                            rs2.getString("whiteUsername"), rs2.getString("blackUsername"),
+                            rs2.getString("gameName"), game));
                 }
                 // I'm not sure if this is right?
                 return gamesList;
@@ -212,6 +217,9 @@ public class SQLDataAccess implements DataAccessInterface {
                     preparedStatement.setString(3, ((GameData) dataObject).blackUsername());
                     preparedStatement.setString(4, ((GameData) dataObject).gameName());
                     var gameString = serializer.toJson(((GameData) dataObject).game());
+                    if(gameString.equals("null")) {
+                        throw new DataAccessException("Insertion failed; cannot insert a null value");
+                    }
                     preparedStatement.setString(5, gameString);
                 } else if(dataObject instanceof UserData && query == Query.ADD_USER) {
                     preparedStatement.setString(1, ((UserData) dataObject).username());
