@@ -7,6 +7,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,8 +98,8 @@ public class DataAccessTests {
     }
 
     @Test
-    void getNonexistentAuthDatabase() {
-        assertThrows(DataAccessException.class, ()->{databaseMemory.getAuth("fakeToken");});
+    void getNonexistentAuthDatabase() throws DataAccessException {
+        assertNull(databaseMemory.getAuth("fakeToken"));
     }
 
     @Test
@@ -132,9 +133,9 @@ public class DataAccessTests {
     }
 
     @Test
-    void delExistingAuthDatabase() {
+    void delExistingAuthDatabase() throws DataAccessException {
         assertDoesNotThrow(()->databaseMemory.delAuth(existingAuth.authToken()));
-        assertThrows(DataAccessException.class, ()->{databaseMemory.getAuth(existingAuth.authToken());});
+        assertNull(databaseMemory.getAuth(existingAuth.authToken()));
     }
 
     @Test
@@ -192,9 +193,9 @@ public class DataAccessTests {
     }
 
     @Test
-    void getNonexistentGameDatabase() {
-        assertThrows(DataAccessException.class, ()->{databaseMemory.getGame(0);});
-        assertThrows(DataAccessException.class, ()->{databaseMemory.getGame(70);});
+    void getNonexistentGameDatabase() throws DataAccessException {
+        assertNull(databaseMemory.getGame(0));
+        assertNull(databaseMemory.getGame(70));
     }
 
     @Test
@@ -319,8 +320,8 @@ public class DataAccessTests {
     }
 
     @Test
-    void getNonexistentUserDatabase() {
-        assertThrows(DataAccessException.class, ()->{databaseMemory.getUser("fakeUser");});
+    void getNonexistentUserDatabase() throws DataAccessException {
+        assertNull(databaseMemory.getUser("fakeUser"));
     }
 
     @Test

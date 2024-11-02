@@ -82,6 +82,8 @@ public class UserService {
     // For testing use only; the testing suite calls this to add "existing" data before running tests.
     public void addUser(UserData userData) throws ResponseException {
         try {
+            var hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+            userData = new UserData(userData.username(), hashedPassword, userData.email());
             dataAccess.addUser(userData);
         } catch (DataAccessException e) {
             throw new ResponseException(500, e.getMessage());

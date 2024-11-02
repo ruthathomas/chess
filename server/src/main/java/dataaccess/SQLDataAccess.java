@@ -211,6 +211,9 @@ public class SQLDataAccess implements DataAccessInterface {
                     preparedStatement.setString(1, queryStrVal);
                 } else if(queryIntVal != 0) {
                     preparedStatement.setInt(1, queryIntVal);
+                } else {
+                    // invalid query made; the other functions will determine the error code
+                    return null;
                 }
                 var rs = preparedStatement.executeQuery();
                 if(!rs.next()) {
