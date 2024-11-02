@@ -34,6 +34,9 @@ public class DataAccessTests {
             new ChessGame());
     private GameData invalidGameGame = new GameData(117, "", "", "",
             null);
+    private GameData updateGame = new GameData(12, "existingUser", "newPlayer",
+            "gameName", new ChessGame());
+    private HashMap<Integer, GameData> gamesList = new HashMap<>();
 
     // Define UserData values to be used in testing
     private UserData existingUser = new UserData("existingUser", "exists", "exists@email.com");
@@ -41,7 +44,6 @@ public class DataAccessTests {
     private UserData invalidUsernameUser = new UserData(null, "password", "email@email.com");
     private UserData invalidPasswordUser = new UserData("username", null, "email@email.com");
     private UserData invalidEmailUser = new UserData("username", "password", null);
-    private HashMap<Integer, GameData> gamesList = new HashMap<>();
 
     @BeforeEach
     void init() throws DataAccessException {
@@ -243,11 +245,49 @@ public class DataAccessTests {
     }
 
     @Test
-    void updateGame() {
+    void updateGameValidLocal() {
+        assertDoesNotThrow(()->{localMemory.updateGame(existingGame.gameID(), updateGame);});
+        assertEquals(updateGame, localMemory.getGame(existingGame.gameID()));
     }
 
     @Test
-    void clearGame() {
+    void updateGameValidDatabase() throws DataAccessException {
+        assertDoesNotThrow(()->{databaseMemory.updateGame(existingGame.gameID(), updateGame);});
+        assertEquals(updateGame, databaseMemory.getGame(existingGame.gameID()));
+    }
+
+    @Test
+    void updateGameInvalidLocal() {
+        //his one throws exceptions, but I might change it so that it doesn't, because SQL doesn't
+        assertThrows(DataAccessException.class, ()->{localMemory.updateGame(0, updateGame);});
+    }
+
+    @Test
+    void updateGameInvalidDatabase() {
+        // this kind of request doesn't cause any issues with the database
+        assertDoesNotThrow(()->{databaseMemory.updateGame(0, updateGame);});
+    }
+
+    @Test
+    void clearGameLocal() {
+        assertDoesNotThrow(()->{localMemory.clearGameData();});
+    }
+
+    @Test
+    void clearGameDatabase() {
+        assertDoesNotThrow(()->{databaseMemory.clearGameData();});
+    }
+
+    @Test
+    void clearGameEmptyLocal() {
+        localMemory.clearGameData();
+        assertDoesNotThrow(()->{localMemory.clearGameData();});
+    }
+
+    @Test
+    void clearGameEmptyDatabase() throws DataAccessException {
+        databaseMemory.clearGameData();
+        assertDoesNotThrow(()->{databaseMemory.clearGameData();});
     }
 
     // Test UserData requests

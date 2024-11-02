@@ -76,19 +76,18 @@ public class SQLDataAccess implements DataAccessInterface {
     @Override
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
         try(var conn = getConnection()) {
-            try(var preparedStatement = conn.prepareStatement("UPDATE game SET game = ? WHERE gameID = ?")) {
-                preparedStatement.setString(1, serializer.toJson(gameData));
-                preparedStatement.setInt(2, gameID);
-                preparedStatement.executeQuery();
+            try(var preparedStatement = conn.prepareStatement("UPDATE game SET whiteUsername = ?, blackUsername = ?," +
+                    " gameName = ?, game = ? WHERE gameID = ?")) {
+                preparedStatement.setString(1, gameData.whiteUsername());
+                preparedStatement.setString(2, gameData.blackUsername());
+                preparedStatement.setString(3, gameData.gameName());
+                preparedStatement.setString(4, serializer.toJson(gameData.game()));
+                preparedStatement.setInt(5, gameID);
+                preparedStatement.execute();
             }
         } catch (DataAccessException | SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
-//        1. Select the game’s state (JSON string) from the database
-//        2. Deserialize the JSON string to a ChessGame Java object
-//        3. Update the state of the ChessGame object
-//        4. Re-serialize the Chess game to a JSON string
-//        5. Update the game’s JSON string in the database
         return gameData;
     }
 
