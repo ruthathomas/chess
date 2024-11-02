@@ -47,8 +47,8 @@ public class SQLDataAccess implements DataAccessInterface {
             """
             CREATE TABLE IF NOT EXISTS USER (
             gameID int NOT NULL,
-            whiteUsername varchar(255) NOT NULL,
-            blackUsername varchar(255) NOT NULL,
+            whiteUsername varchar(255),
+            blackUsername varchar(255),
             gameName varchar(255) NOT NULL,
             game longtext NOT NULL,
             id int NOT NULL AUTO_INCREMENT,
@@ -217,7 +217,7 @@ public class SQLDataAccess implements DataAccessInterface {
                     // if results set is empty, return null
                     return null;
                 }
-                rs.next();
+                //rs.next();
                 //Function is now on the proper line to select items
                 switch (query) {
                     case SELECT_AUTH -> {

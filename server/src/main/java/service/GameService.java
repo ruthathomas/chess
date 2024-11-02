@@ -32,9 +32,11 @@ public class GameService {
         try {
             AuthData authData = dataAccess.getAuth(authToken);
             if(authData == null) {
+                System.out.println("GameService line 35: authData is null");
                 throw new ResponseException(401, "Error: unauthorized");
             }
             GameData newGame = new GameData(generateGameID(), null, null, gameName, new ChessGame());
+            System.out.println("GameService line 39: newGame created");
             dataAccess.addGame(newGame);
             return newGame;
         } catch (DataAccessException e) {

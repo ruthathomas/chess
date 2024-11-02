@@ -57,8 +57,7 @@ public class MemoryDataAccess implements DataAccessInterface {
 
     @Override
     public void addGame(GameData gameData) throws DataAccessException {
-        if(gameData.gameID() == 0 | gameData.game() == null | gameData.whiteUsername() == null |
-                gameData.blackUsername() == null | gameData.gameName() == null) {
+        if(gameData.gameID() == 0 | gameData.game() == null | gameData.gameName() == null) {
             throw new DataAccessException("Insertion failed; cannot insert a null value");
         }
         gameDataMap.put(gameData.gameID(), gameData);

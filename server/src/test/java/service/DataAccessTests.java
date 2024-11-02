@@ -27,10 +27,6 @@ public class DataAccessTests {
             new ChessGame());
     private GameData validGame = new GameData(13, "", "", "validGame",
             new ChessGame());
-    private GameData invalidUserGame = new GameData(14, null, "", "",
-            new ChessGame());
-    private GameData invalidUserGame2 = new GameData(15, "", null, "",
-            new ChessGame());
     private GameData invalidNameGame = new GameData(16, "", "", null,
             new ChessGame());
     private GameData invalidGameGame = new GameData(117, "", "", "",
@@ -247,16 +243,12 @@ public class DataAccessTests {
 
     @Test
     void addInvalidGameLocal() {
-        assertThrows(DataAccessException.class, ()->{localMemory.addGame(invalidUserGame);});
-        assertThrows(DataAccessException.class, ()->{localMemory.addGame(invalidUserGame2);});
         assertThrows(DataAccessException.class, ()->{localMemory.addGame(invalidNameGame);});
         assertThrows(DataAccessException.class, ()->{localMemory.addGame(invalidGameGame);});
     }
 
     @Test
     void addInvalidGameDatabase() {
-        assertThrows(DataAccessException.class, ()->{databaseMemory.addGame(invalidUserGame);});
-        assertThrows(DataAccessException.class, ()->{databaseMemory.addGame(invalidUserGame2);});
         assertThrows(DataAccessException.class, ()->{databaseMemory.addGame(invalidNameGame);});
         assertThrows(DataAccessException.class, ()->{databaseMemory.addGame(invalidGameGame);});
     }
