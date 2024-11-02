@@ -35,12 +35,13 @@ public class DetermineKnightMoves implements DeterminePieceMoves {
         int newRow = row + rowModify;
         int newCol = col + colModify;
         ChessPosition newPos = new ChessPosition(newRow, newCol);
+        ChessGame.TeamColor myColor = myPiece.getTeamColor();
         if(newRow > 0 && newRow < 9) {
             if(newCol > 0 && newCol < 9) {
-                if(board.isTileOccupied(newPos) && board.getPiece(newPos).getTeamColor() == myPiece.getTeamColor()) {
-                    // there is a blocking piece of the same team
-                } else {
-                    // there is either no blockage, or a capturable piece
+                if(board.isTileOccupied(newPos) && board.getPiece(newPos).getTeamColor() != myColor) {
+                    // pos is blocked by a capturable piece
+                    return new ChessMove(myPosition, newPos, null);
+                } else if (!board.isTileOccupied(newPos)) {
                     return new ChessMove(myPosition, newPos, null);
                 }
             }

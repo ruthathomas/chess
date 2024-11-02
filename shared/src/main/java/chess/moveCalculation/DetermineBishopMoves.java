@@ -1,9 +1,6 @@
 package chess.movecalculation;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.ArrayList;
 
@@ -18,17 +15,18 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
+        ChessGame.TeamColor myColor = myPiece.getTeamColor();
         // Add available moves to the upper left
         while(row < 8 && col > 1) {
             row++;
             col--;
             ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
-                // Player's team is in the way; pos and any tiles beyond may not be accessed
-                if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
+                if(board.getPiece(endPos).getTeamColor() == myColor) {
+                    // Piece of same color prevents movement
                     break;
-                    // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
                 } else {
+                    // Opponent's piece is in the way; further tiles blocked
                     validMoves.add(new ChessMove(myPosition, endPos, null));
                     break;
                 }
@@ -43,12 +41,12 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             col++;
             ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
-                // Player's team is in the way; pos and any tiles beyond may not be accessed
-                if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
-                    break;
-                    // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
-                } else {
+                if(board.getPiece(endPos).getTeamColor() != myColor) {
+                    // Opponent's piece is in the way; capture allowed, but no further movement
                     validMoves.add(new ChessMove(myPosition, endPos, null));
+                    break;
+                } else {
+                    // Player's team is in the way; movement prevented
                     break;
                 }
             }
@@ -63,7 +61,7 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
                 // Player's team is in the way; pos and any tiles beyond may not be accessed
-                if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
+                if(board.getPiece(endPos).getTeamColor() == myColor) {
                     break;
                     // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
                 } else {
@@ -81,11 +79,9 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             col++;
             ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
-                // Player's team is in the way; pos and any tiles beyond may not be accessed
-                if(board.getPiece(endPos).getTeamColor() == myPiece.getTeamColor()) {
-                    break;
-                    // Opponent's piece is in the way; pos is added, but tiles beyond may be accessed
-                } else {
+                if(board.getPiece(endPos).getTeamColor() != myColor) {
+                    // If colors were equal, player's team would be blocking movement
+                    // Opponent's piece is in the way; pos is added, but tiles beyond may not be accessed
                     validMoves.add(new ChessMove(myPosition, endPos, null));
                     break;
                 }
