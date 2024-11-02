@@ -1,13 +1,11 @@
-package service;
+package dataaccess;
 
 import chess.ChessGame;
-import dataaccess.*;
 import model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.crypto.Data;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
