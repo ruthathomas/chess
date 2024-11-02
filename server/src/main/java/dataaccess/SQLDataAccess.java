@@ -1,30 +1,37 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.*;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static dataaccess.DatabaseManager.getConnection;
 
 public class SQLDataAccess implements DataAccessInterface {
 
+    private Gson serializer = new Gson();
+
     enum Query {
         ADD_AUTH,
         ADD_GAME,
         ADD_USER,
-        DELETE_AUTH_TOKEN,
-        DELETE_TABLE,
-        SELECT_ALL_GAMES,
         SELECT_AUTH,
         SELECT_GAME,
         SELECT_USER
     }
 
+    enum TableName {
+        AUTH,
+        GAME,
+        USER
+    }
+
     @Override
     public UserData getUser(String username) throws DataAccessException {
         return (UserData) singleSelection(Query.SELECT_USER, username, 0);
-
     }
 
     @Override
@@ -44,7 +51,14 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void delAuth(String authToken) throws DataAccessException {
-        //FIXME
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement("DELETE FROM auth WHERE authToken = ?")) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.execute();
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
@@ -54,47 +68,77 @@ public class SQLDataAccess implements DataAccessInterface {
 
     @Override
     public void addGame(GameData gameData) throws DataAccessException {
+        valueInsertion(Query.ADD_GAME, gameData);
         // 1. You're going to have to serialize the chess game to a JSON string
         // 2. and then you're going to have to put it in that database
-        //
     }
 
     @Override
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement("UPDATE game SET game = ? WHERE gameID = ?")) {
+                preparedStatement.setString(1, serializer.toJson(gameData));
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeQuery();
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
 //        1. Select the game’s state (JSON string) from the database
 //        2. Deserialize the JSON string to a ChessGame Java object
 //        3. Update the state of the ChessGame object
 //        4. Re-serialize the Chess game to a JSON string
 //        5. Update the game’s JSON string in the database
-        return null;
+        return gameData;
     }
 
     @Override
     public Map<Integer, GameData> getGames() throws DataAccessException {
-        //FIXME
-        return null;
+        Map<Integer, GameData> gamesList = new HashMap<>();
+        try(var conn = getConnection()) {
+            try(var preparedStatement = conn.prepareStatement("SELECT * FROM game")) {
+                var rs = preparedStatement.executeQuery();
+                for(int i = 0; i <= 4; i++) {
+                    rs.next();
+                    var game = serializer.fromJson(rs.getString("game"), ChessGame.class);
+                    gamesList.put(rs.getInt("gameID"), new GameData(rs.getInt("gameID"),
+                            rs.getString("whiteUsername"), rs.getString("blackUsername"),
+                            rs.getString("gameName"), game));
+                }
+                // I'm not sure if this is right?
+                return gamesList;
+            }
+        } catch (DataAccessException | SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
     public void clearAuthData() throws DataAccessException {
-        deleteTableVals("auth");
+        deleteTableVals(TableName.AUTH);
     }
 
     @Override
     public void clearGameData() throws DataAccessException {
-        deleteTableVals("game");
+        deleteTableVals(TableName.GAME);
     }
 
     @Override
     public void clearUserData() throws DataAccessException {
-        deleteTableVals("user");
+        deleteTableVals(TableName.USER);
     }
 
-    private void deleteTableVals(String table) throws DataAccessException {
+    private void deleteTableVals(TableName table) throws DataAccessException {
+        String queryString;
+        switch(table) {
+            case AUTH -> queryString = "TRUNCATE auth";
+            case GAME -> queryString = "TRUNCATE game";
+            case USER -> queryString = "TRUNCATE user";
+            case null, default -> throw new DataAccessException("Unexpected query.");
+        }
         try(var conn = getConnection()) {
-            try(var preparedStatement = conn.prepareStatement("DELETE FROM ?")) {
-                preparedStatement.setString(1, table);
-                preparedStatement.executeQuery();
+            try(var preparedStatement = conn.prepareStatement(queryString)) {
+                preparedStatement.execute();
                 // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {
@@ -128,8 +172,10 @@ public class SQLDataAccess implements DataAccessInterface {
                         return new AuthData(rs.getString("authToken"), rs.getString("username"));
                     }
                     case SELECT_GAME -> {
+                        var game = serializer.fromJson(rs.getString("game"), ChessGame.class);
+                        return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
+                                rs.getString("blackUsername"), rs.getString("gameName"), game);
                         //deserialize the string that the game is and then make a new GameData object
-                        return "lol fixme";
                     }
                     case SELECT_USER -> {
                         // split into two ugly lines because of java conventions :(
@@ -165,16 +211,16 @@ public class SQLDataAccess implements DataAccessInterface {
                     preparedStatement.setString(2, ((GameData) dataObject).whiteUsername());
                     preparedStatement.setString(3, ((GameData) dataObject).blackUsername());
                     preparedStatement.setString(4, ((GameData) dataObject).gameName());
-                    //FIXME here is where you need to do the json conversion
-                    preparedStatement.setString(5, "FIXME FIXME");
+                    var gameString = serializer.toJson(((GameData) dataObject).game());
+                    preparedStatement.setString(5, gameString);
                 } else if(dataObject instanceof UserData && query == Query.ADD_USER) {
                     preparedStatement.setString(1, ((UserData) dataObject).username());
                     preparedStatement.setString(2, ((UserData) dataObject).password());
                     preparedStatement.setString(3, ((UserData) dataObject).email());
                 } else {
-                    throw new DataAccessException("Unexpected query made.");
+                    throw new DataAccessException("Unexpected data used for query.");
                 }
-                preparedStatement.executeQuery();
+                preparedStatement.execute();
                 // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {

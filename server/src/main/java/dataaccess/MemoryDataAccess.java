@@ -24,7 +24,10 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void addUser(UserData userData) {
+    public void addUser(UserData userData) throws DataAccessException {
+        if(userData.username() == null | userData.password() == null | userData.email() == null) {
+            throw new DataAccessException("Insertion failed; cannot insert a null value.");
+        }
         userDataMap.put(userData.username(), userData);
     }
 
