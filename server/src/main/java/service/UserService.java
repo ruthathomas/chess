@@ -3,6 +3,7 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 import server.ResponseException;
 
 import java.util.Objects;
@@ -23,6 +24,8 @@ public class UserService {
                          newUser.username() == "" || newUser.password() == "" || newUser.email() == "") {
                      throw new ResponseException(400, "Error: bad request");
                  }
+                 var hashedPassword = BCrypt.hashpw(newUser.password(), BCrypt.gensalt());
+                 newUser = new UserData(newUser.username(), hashedPassword, newUser.email());
                  dataAccess.addUser(newUser);
                  AuthData newAuth = new AuthData(generateToken(), newUser.username());
                  dataAccess.addAuth(newAuth);
@@ -98,11 +101,7 @@ public class UserService {
         } catch (DataAccessException e) {
             throw new ResponseException(500, e.getMessage());
         }
-        if(Objects.equals(currentUser.password(), password)) {
-            return true;
-        } else {
-            return false;
-        }
+        return BCrypt.checkpw(password, currentUser.password());
     }
 
 }
