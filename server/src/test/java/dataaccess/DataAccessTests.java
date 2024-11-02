@@ -43,11 +43,8 @@ public class DataAccessTests {
 
     @BeforeEach
     void init() throws DataAccessException {
-        try {
-            databaseMemory = new SQLDataAccess();
-        } catch (DataAccessException ex) {
-            throw new DataAccessException(ex.getMessage());
-        }
+
+        databaseMemory = new SQLDataAccess();
 
         localMemory.clearAuthData();
         localMemory.clearGameData();
