@@ -63,7 +63,7 @@ public class UserService {
             if(dataAccess.getAuth(authToken) != null) {
                 dataAccess.delAuth(authToken);
             } else {
-                // if the token doesn't exist in the data set, access is unauthorized
+                // if the token doesn't exist in the data set, deny access
                 throw new ResponseException(401, "Error: unauthorized");
             }
         } catch (DataAccessException e) {

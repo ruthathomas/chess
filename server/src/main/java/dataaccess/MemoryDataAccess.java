@@ -11,9 +11,11 @@ import java.util.Map;
 
 public class MemoryDataAccess implements DataAccessInterface {
 
-    // I've been told (see: Slack) that we need to have all of the DataAccessExceptions, but that
-    // they're specifically important for SQL, and we don't necessarily have to have them on the
-    // memory side. I don't want to implement them here right now, and I use that as my excuse. Thanks <3
+    /*
+        I've been told (see: Slack) that we need to have all DataAccessExceptions, but that
+        they're specifically important for SQL, and we don't necessarily have to have them on the
+        memory side. I don't want to implement them here right now, and I use that as my excuse. Thanks <3
+     */
 
     private Map<String, AuthData> authDataMap = new HashMap<>();
     private Map<Integer, GameData> gameDataMap = new HashMap<>();

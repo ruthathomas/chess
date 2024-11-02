@@ -113,8 +113,6 @@ public class SQLDataAccess implements DataAccessInterface {
     @Override
     public void addGame(GameData gameData) throws DataAccessException {
         valueInsertion(Query.ADD_GAME, gameData);
-        // 1. You're going to have to serialize the chess game to a JSON string
-        // 2. and then you're going to have to put it in that database
     }
 
     @Override
@@ -153,7 +151,6 @@ public class SQLDataAccess implements DataAccessInterface {
                             rs2.getString("whiteUsername"), rs2.getString("blackUsername"),
                             rs2.getString("gameName"), game));
                 }
-                // I'm not sure if this is right?
                 return gamesList;
             }
         } catch (DataAccessException | SQLException e) {
@@ -187,7 +184,6 @@ public class SQLDataAccess implements DataAccessInterface {
         try(var conn = getConnection()) {
             try(var preparedStatement = conn.prepareStatement(queryString)) {
                 preparedStatement.execute();
-                // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {
             throw new DataAccessException(e.getMessage());
@@ -220,8 +216,6 @@ public class SQLDataAccess implements DataAccessInterface {
                     // if results set is empty, return null
                     return null;
                 }
-                //rs.next();
-                //Function is now on the proper line to select items
                 switch (query) {
                     case SELECT_AUTH -> {
                         return new AuthData(rs.getString("authToken"), rs.getString("username"));
@@ -279,7 +273,6 @@ public class SQLDataAccess implements DataAccessInterface {
                     throw new DataAccessException("Unexpected data used for query.");
                 }
                 preparedStatement.execute();
-                // I'm not sure if this is right?
             }
         } catch (DataAccessException | SQLException e) {
             throw new DataAccessException(e.getMessage());
