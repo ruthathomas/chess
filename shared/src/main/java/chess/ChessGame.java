@@ -155,9 +155,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        // do you need to find a way to know where the king is?
+        // do you need to find a way to know where the king is? or where the other ones are?? >:((
         // I feel like this is hot garbage :')
-        //or where the other ones are?? >:((
         if(gameBoard.findPiece(ChessPiece.PieceType.KING, teamColor).isEmpty()) {
             return false;
         }
@@ -167,7 +166,6 @@ public class ChessGame {
         if(teamColor == TeamColor.WHITE) {
             opposingColor = TeamColor.BLACK;
         }
-        // ArrayList<ChessPiece> opposingPieces = gameBoard.getTeamPieces(opposingColor);
         ArrayList<ChessMove> opposingMoves = new ArrayList<>();
         for(var type : ChessPiece.PieceType.values()) {
             for(var p : gameBoard.findPiece(type, opposingColor)) {
@@ -221,13 +219,7 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
-        ArrayList<ChessMove> teamMoves = new ArrayList<>();
-        for(var type : ChessPiece.PieceType.values()) {
-            for(var p : gameBoard.findPiece(type, teamColor)) {
-                teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
-            }
-        }
+        ArrayList<ChessMove> teamMoves = getAllColorMoves(teamColor);
         for(var move : teamMoves) {
             // if a single move removes check, we can return false
             if(!doesMoveCheck(move)) { return false; }
@@ -243,18 +235,24 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ArrayList<ChessPiece> teamPieces = gameBoard.getTeamPieces(teamColor);
         ArrayList<ChessMove> teamMoves = new ArrayList<>();
         // stalemate occurs when you are NOT in check, but cannot move
         if(isInCheck(teamColor)) {
             return false;
         }
+        teamMoves = getAllColorMoves(teamColor);
+        return teamMoves.isEmpty();
+    }
+
+    // returns all available moves for the team of the passed color
+    private ArrayList<ChessMove> getAllColorMoves(TeamColor teamColor) {
+        ArrayList<ChessMove> teamMoves = new ArrayList<>();
         for(var type : ChessPiece.PieceType.values()) {
             for(var p : gameBoard.findPiece(type, teamColor)) {
                 teamMoves.addAll(validMoves(new ChessPosition(p.getRow(), p.getColumn())));
             }
         }
-        return teamMoves.isEmpty();
+        return teamMoves;
     }
 
     /**
