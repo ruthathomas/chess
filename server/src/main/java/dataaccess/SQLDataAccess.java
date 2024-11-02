@@ -21,36 +21,29 @@ public class SQLDataAccess implements DataAccessInterface {
 
     private Gson serializer = new Gson();
 
-    private final String[] createAuthStatements = {
+    private final String[] creationStatements = {
             """
 CREATE TABLE IF NOT EXISTS auth (
 authToken varchar(255) NOT NULL,
 username varchar(255) NOT NULL,
 PRIMARY KEY (authToken)
 )
-"""
-    };
-
-    private final String[] createGameStatements = {
-            """
+""", """
 CREATE TABLE IF NOT EXISTS game (
-username varchar(255) NOT NULL,
-password varchar(255) NOT NULL,
-email varchar(255) NOT NULL,
-id int NOT NULL AUTO_INCREMENT,
-PRIMARY KEY (id),
-INDEX (username)
-)
-"""
-    };
-    private final String[] createUserStatements = {
-            """
-CREATE TABLE IF NOT EXISTS user (
 gameID int NOT NULL,
 whiteUsername varchar(255),
 blackUsername varchar(255),
 gameName varchar(255) NOT NULL,
 game longtext NOT NULL,
+id int NOT NULL AUTO_INCREMENT,
+PRIMARY KEY (id),
+index(gameID)
+)
+""", """
+CREATE TABLE IF NOT EXISTS user (
+username varchar(255) NOT NULL,
+password varchar(255) NOT NULL,
+email varchar(255) NOT NULL,
 id int NOT NULL AUTO_INCREMENT,
 PRIMARY KEY (id),
 INDEX (username)
@@ -282,17 +275,7 @@ INDEX (username)
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
-            for(var statement : createAuthStatements) {
-                try(var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-            for(var statement : createGameStatements) {
-                try(var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-            for(var statement : createUserStatements) {
+            for(var statement : creationStatements) {
                 try(var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }

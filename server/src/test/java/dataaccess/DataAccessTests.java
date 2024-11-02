@@ -206,8 +206,8 @@ public class DataAccessTests {
     void getGamesAvailableDatabase() throws DataAccessException {
         assertNotNull(databaseMemory.getGames());
         assertEquals(gamesList, databaseMemory.getGames());
-        databaseMemory.addGame(validGame);
         gamesList.put(validGame.gameID(), validGame);
+        databaseMemory.addGame(validGame);
         assertEquals(gamesList, databaseMemory.getGames());
     }
 
@@ -340,9 +340,9 @@ public class DataAccessTests {
 
     @Test
     void addInvalidUserDatabase() {
+        assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidEmailUser);});
         assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidUsernameUser);});
         assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidPasswordUser);});
-        assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidEmailUser);});
     }
 
     @Test
