@@ -282,12 +282,6 @@ public class SQLDataAccess implements DataAccessInterface {
     private void configureDatabase() throws DataAccessException {
         DatabaseManager.createDatabase();
         try(var conn = DatabaseManager.getConnection()) {
-            try(var preparedStatement = conn.prepareStatement("CREATE DATABASE IF NOT EXISTS chess")) {
-                preparedStatement.executeUpdate();
-            }
-            try(var preparedStatement = conn.prepareStatement("USE chess")) {
-                preparedStatement.executeUpdate();
-            }
             for(var statement : createAuthStatements) {
                 try(var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
