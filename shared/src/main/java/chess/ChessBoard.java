@@ -117,23 +117,6 @@ public class ChessBoard {
         return piecePositions;
     }
 
-    /**
-     *
-     * @param team
-     * @return an ArrayList of ChessPieces
-     */
-    public ArrayList<ChessPiece> getTeamPieces(ChessGame.TeamColor team) {
-        ArrayList<ChessPiece> teamPieces = new ArrayList<>();
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                if(tiles[i][j] != null && tiles[i][j].getTeamColor() == team) {
-                    teamPieces.add(tiles[i][j]);
-                }
-            }
-        }
-        return teamPieces;
-    }
-
     // This space used to house the "isOccupied" function.
     // This is a reminder in case I want it again.
 
