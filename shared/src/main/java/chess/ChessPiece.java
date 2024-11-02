@@ -54,7 +54,11 @@ public class ChessPiece {
         BISHOP,
         KNIGHT,
         ROOK,
-        PAWN
+        PAWN;
+
+        public static PieceType[] validPromotionPieces() {
+            return new PieceType[] {QUEEN, BISHOP, KNIGHT, ROOK};
+        }
     }
 
     /**

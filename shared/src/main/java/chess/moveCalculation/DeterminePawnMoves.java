@@ -38,20 +38,16 @@ public class DeterminePawnMoves implements DeterminePieceMoves {
             ChessPosition fwd = new ChessPosition(row + direction, col);
             if(!board.isTileOccupied(fwd)) {
                 // forward movement is open
-                for(var piece : ChessPiece.PieceType.values()) {
-                    if(piece != ChessPiece.PieceType.PAWN && piece != ChessPiece.PieceType.KING) {
-                        validMoves.add(new ChessMove(myPosition, fwd, piece));
-                    }
+                for(var piece : ChessPiece.PieceType.validPromotionPieces()) {
+                    validMoves.add(new ChessMove(myPosition, fwd, piece));
                 }
             }
             if(col - 1 > 0) {
                 ChessPosition leftAttack = new ChessPosition(row + direction, col - 1);
                 if(board.isTileOccupied(leftAttack) && board.getPiece(leftAttack).getTeamColor() != myColor) {
                     // attack to the left is possible
-                    for(var piece : ChessPiece.PieceType.values()) {
-                        if(piece != ChessPiece.PieceType.PAWN && piece != ChessPiece.PieceType.KING) {
-                            validMoves.add(new ChessMove(myPosition, leftAttack, piece));
-                        }
+                    for(var piece : ChessPiece.PieceType.validPromotionPieces()) {
+                        validMoves.add(new ChessMove(myPosition, leftAttack, piece));
                     }
                 }
             }
@@ -59,10 +55,8 @@ public class DeterminePawnMoves implements DeterminePieceMoves {
                 ChessPosition rightAttack = new ChessPosition(row + direction, col + 1);
                 if(board.isTileOccupied(rightAttack) && board.getPiece(rightAttack).getTeamColor() != myColor) {
                     // attack to the right is possible
-                    for(var piece : ChessPiece.PieceType.values()) {
-                        if(piece != ChessPiece.PieceType.PAWN && piece != ChessPiece.PieceType.KING) {
-                            validMoves.add(new ChessMove(myPosition, rightAttack, piece));
-                        }
+                    for(var piece : ChessPiece.PieceType.validPromotionPieces()) {
+                        validMoves.add(new ChessMove(myPosition, rightAttack, piece));
                     }
                 }
             }
