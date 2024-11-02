@@ -16,7 +16,13 @@ import static dataaccess.DatabaseManager.getConnection;
 public class SQLDataAccess implements DataAccessInterface {
 
     public SQLDataAccess() throws DataAccessException {
-        configureDatabase();
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            //didn't need to make a new database
+            createDatabase();
+        }
+
     }
 
     private Gson serializer = new Gson();
