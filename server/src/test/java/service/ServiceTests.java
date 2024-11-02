@@ -78,7 +78,7 @@ public class ServiceTests {
     @Test
     public void delNonexistentAuth() throws ResponseException {
         assertNull(authService.getAuth("badToken"));
-        assertThrows(ResponseException.class, ()->{authService.delAuth("badToken");});
+        assertDoesNotThrow(()->{authService.delAuth("badToken");});
     }
 
     @Test

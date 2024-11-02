@@ -49,10 +49,13 @@ public class AuthService {
     }
 
     public void delAuth(String authToken) throws ResponseException {
+
         try {
-            dataAccess.delAuth(authToken);
-        } catch (dataaccess.DataAccessException e) {
-            throw new ResponseException(400, "Error: bad request");
+            if(dataAccess.getAuth(authToken) != null) {
+                dataAccess.delAuth(authToken);
+            }
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
         }
     }
 

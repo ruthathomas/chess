@@ -56,7 +56,7 @@ public class DataAccessTests {
 
     @Test
     void getNonexistentAuthLocal() {
-        assertThrows(DataAccessException.class, ()->{localMemory.getAuth("fakeToken");});
+        assertNull(localMemory.getAuth("fakeToken"));
     }
 
     @Test

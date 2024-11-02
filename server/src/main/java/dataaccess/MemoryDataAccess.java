@@ -37,17 +37,16 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
-    public void addAuth(AuthData authData) {
+    public void addAuth(AuthData authData) throws DataAccessException {
+        if(authData.authToken() == null | authData.username() == null) {
+            throw new DataAccessException("Insertion failed; cannot insert a null value.");
+        }
         authDataMap.put(authData.authToken(), authData);
     }
 
     @Override
     public void delAuth(String authToken) throws DataAccessException {
-        if(authDataMap.containsKey(authToken)) {
-            authDataMap.remove(authToken);
-        } else {
-            throw new DataAccessException("AuthToken did not exist in list");
-        }
+        authDataMap.remove(authToken);
     }
 
     @Override

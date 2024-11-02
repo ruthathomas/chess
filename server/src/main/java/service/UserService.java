@@ -57,14 +57,14 @@ public class UserService {
 
     public void logout(String authToken) throws ResponseException {
         try {
-            dataAccess.getAuth(authToken);
+            if(dataAccess.getAuth(authToken) != null) {
+                dataAccess.delAuth(authToken);
+            } else {
+                // if the token doesn't exist in the data set, access is unauthorized
+                throw new ResponseException(401, "Error: unauthorized");
+            }
         } catch (DataAccessException e) {
             throw new ResponseException(500, e.getMessage());
-        }
-        try {
-            dataAccess.delAuth(authToken);
-        } catch (DataAccessException e) {
-            throw new ResponseException(401, "Error: unauthorized");
         }
     }
 
