@@ -339,9 +339,10 @@ public class DataAccessTests {
     }
 
     @Test
-    void addInvalidUserDatabase() {
+    void addInvalidUserDatabase() throws DataAccessException {
         assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidEmailUser);});
         assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidUsernameUser);});
+        assertNull(databaseMemory.getUser(invalidUsernameUser.username()));
         assertThrows(DataAccessException.class, ()->{databaseMemory.addUser(invalidPasswordUser);});
     }
 

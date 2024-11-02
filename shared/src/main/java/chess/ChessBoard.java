@@ -46,53 +46,12 @@ public class ChessBoard {
                 if(tiles[i][j] == null) {
                     boardString += " |";
                 } else {
-                    switch(tiles[i][j].getPieceType()) {
-                        case KING -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "K|";
-                            } else {
-                                boardString += "k|";
-                            }
-                        }
-                        case QUEEN -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "Q|";
-                            } else {
-                                boardString += "q|";
-                            }
-                        }
-                        case BISHOP -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "B|";
-                            } else {
-                                boardString += "b|";
-                            }
-                        }
-                        case KNIGHT -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "N|";
-                            } else {
-                                boardString += "n|";
-                            }
-                        }
-                        case ROOK -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "R|";
-                            } else {
-                                boardString += "r|";
-                            }
-                        }
-                        case PAWN -> {
-                            if(tiles[i][j].getTeamColor() == ChessGame.TeamColor.WHITE) {
-                                boardString += "P|";
-                            } else {
-                                boardString += "p|";
-                            }
-                        }
-                    }
+                    boardString += getPieceStringForBoard(i, j);
                 }
             }
-            boardString += "\n|";
+            if(i != 7) {
+                boardString += "\n|";
+            }
         }
         return boardString;
     }
@@ -139,6 +98,7 @@ public class ChessBoard {
      */
     public ArrayList<ChessPosition> findPiece(ChessPiece.PieceType piece, ChessGame.TeamColor color) {
         //THIS DOESN'T WORK AND HAS TO BE FIXED
+        // The above note may be incorrect because all my tests pass and I'm using it 8 times?? fact check
         ArrayList<ChessPosition> piecePositions = new ArrayList<>();
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
@@ -176,6 +136,57 @@ public class ChessBoard {
 
     // This space used to house the "isOccupied" function.
     // This is a reminder in case I want it again.
+
+    // only to be called if the given position is known to contain a piece
+    private String getPieceStringForBoard(int row, int col) {
+        ChessPiece.PieceType pieceType = tiles[row][col].getPieceType();
+        ChessGame.TeamColor pieceColor = tiles[row][col].getTeamColor();
+        switch(pieceType) {
+            case KING -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "K|";
+                } else {
+                    return "k|";
+                }
+            }
+            case QUEEN -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "Q|";
+                } else {
+                    return "q|";
+                }
+            }
+            case BISHOP -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "B|";
+                } else {
+                    return "b|";
+                }
+            }
+            case KNIGHT -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "N|";
+                } else {
+                    return "n|";
+                }
+            }
+            case ROOK -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "R|";
+                } else {
+                    return "r|";
+                }
+            }
+            case PAWN -> {
+                if(pieceColor == ChessGame.TeamColor.WHITE) {
+                    return "P|";
+                } else {
+                    return "p|";
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Sets the board to the default starting board
