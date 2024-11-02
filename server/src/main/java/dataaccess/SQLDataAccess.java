@@ -45,7 +45,7 @@ public class SQLDataAccess implements DataAccessInterface {
     };
     private final String[] createUserStatements = {
             """
-            CREATE TABLE IF NOT EXISTS USER (
+            CREATE TABLE IF NOT EXISTS user (
             gameID int NOT NULL,
             whiteUsername varchar(255),
             blackUsername varchar(255),
