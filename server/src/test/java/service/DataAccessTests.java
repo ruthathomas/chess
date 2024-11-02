@@ -3,6 +3,7 @@ package service;
 import chess.ChessGame;
 import dataaccess.*;
 import model.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DataAccessTests {
 
-    private MemoryDataAccess localMemory = new MemoryDataAccess();
-    private SQLDataAccess databaseMemory = new SQLDataAccess();
+    private static MemoryDataAccess localMemory = new MemoryDataAccess();
+    private static SQLDataAccess databaseMemory;
 
     // Define AuthData values to be used in testing
     private AuthData existingAuth = new AuthData("existingAuth", "existingUser");
@@ -47,6 +48,12 @@ public class DataAccessTests {
 
     @BeforeEach
     void init() throws DataAccessException {
+        try {
+            databaseMemory = new SQLDataAccess();
+        } catch (DataAccessException ex) {
+            throw new DataAccessException(ex.getMessage());
+        }
+
         localMemory.clearAuthData();
         localMemory.clearGameData();
         localMemory.clearUserData();
@@ -62,6 +69,16 @@ public class DataAccessTests {
         databaseMemory.addGame(existingGame);
 
         gamesList.put(existingGame.gameID(), existingGame);
+    }
+
+    @AfterAll
+    static void finish() throws DataAccessException {
+        localMemory.clearAuthData();
+        localMemory.clearGameData();
+        localMemory.clearUserData();
+        databaseMemory.clearAuthData();
+        databaseMemory.clearGameData();
+        databaseMemory.clearUserData();
     }
 
     // Test AuthData requests

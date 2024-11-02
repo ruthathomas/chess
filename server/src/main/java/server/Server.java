@@ -28,9 +28,20 @@ public class Server {
         this.dataAccess = dataAccess;
     }
 
-    public Server() {}
+    public Server() {
+        try {
+            dataAccess = new SQLDataAccess();
+            authService = new AuthService(dataAccess);
+            gameService = new GameService(dataAccess);
+            userService = new UserService(dataAccess);
+        } catch (Exception e) {
+            System.out.println(String.format("Failed to start up server with database memory: %s", e.getMessage()));
+            System.out.println("Processing will continue using local data...");
+        }
+    }
 
     public int run(int desiredPort) {
+
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");

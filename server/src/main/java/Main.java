@@ -1,4 +1,5 @@
 import chess.*;
+import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import dataaccess.MemoryDataAccess;
 import dataaccess.SQLDataAccess;
@@ -18,7 +19,11 @@ public class Main {
         DataAccessInterface dataAccess = new MemoryDataAccess();
         if(args.length >= 2 && args[1].equals("sql")) {
             // an argument has been passed indicating that memory access should use the database
-            dataAccess = new SQLDataAccess();
+            try {
+                dataAccess = new SQLDataAccess();
+            } catch (DataAccessException e) {
+                System.out.println(e.getMessage());
+            }
         }
 
         // boot up the server; services are initialized within the server
