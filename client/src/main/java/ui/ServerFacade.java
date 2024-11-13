@@ -34,8 +34,13 @@ public class ServerFacade {
         return this.makeRequest("/game", "GET", authToken, null, Map.class);
     }
 
-    public void createGame() throws ResponseException {
-        // this.makeRequest("/game", "POST", "teehee", Map.class);
+    public GameData createGame(String authToken, String gameName) throws ResponseException {
+        return this.makeRequest("/game", "POST", authToken, gameName, GameData.class);
+    }
+
+    public void joinGame() {
+        //FIXME
+        //not sure what to do about this one? need to be able to join as an observer or player
     }
 
     /**
