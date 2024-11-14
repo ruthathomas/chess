@@ -1,11 +1,15 @@
 package client;
 
+import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
 import server.requests.LoginRequest;
 import ui.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,6 +20,7 @@ public class ServerFacadeTests {
     static ServerFacade facade;
 
     static UserData existingUser = new UserData("exists", "exists", "exists@email.com");
+    static LoginRequest existingLoginReq = new LoginRequest(existingUser.username(), existingUser.password());
 
     @BeforeAll
     public static void init() throws ResponseException {
@@ -47,15 +52,13 @@ public class ServerFacadeTests {
     void registerBadUser() {
         assertThrows(ResponseException.class, () -> {facade.register(
                 new UserData("badPlayer", null, "bad@email.com"));});
-
     }
 
     @Test
     void loginValidUser() throws ResponseException {
-        var auth = facade.login(new LoginRequest(existingUser.username(), existingUser.password()));
+        var auth = facade.login(existingLoginReq);
         assertTrue(auth.authToken().length() > 10);
         facade.logout(auth.authToken());
-
     }
 
     @Test
@@ -66,17 +69,38 @@ public class ServerFacadeTests {
 
     @Test
     void logoutCurrentUser() throws ResponseException {
-        var auth = facade.login(new LoginRequest(existingUser.username(), existingUser.password()));
+        var auth = facade.login(existingLoginReq);
         assertDoesNotThrow(() -> {facade.logout(auth.authToken());});
     }
 
     @Test
     void logoutInvalidUser() throws ResponseException {
-        var auth = facade.login(new LoginRequest(existingUser.username(), existingUser.password()));
-        facade.logout(auth.authToken());
-        assertThrows(ResponseException.class, () -> {facade.logout(auth.authToken());});
+        var auth = facade.login(existingLoginReq).authToken();
+        facade.logout(auth);
+        assertThrows(ResponseException.class, () -> {facade.logout(auth);});
         assertThrows(ResponseException.class, () -> {facade.logout(null);});
         assertThrows(ResponseException.class, () -> {facade.logout("badToken");});
+    }
+
+    @Test
+    void listGamesEmpty() throws ResponseException {
+        var auth = facade.login(existingLoginReq).authToken();
+        assertDoesNotThrow(() -> {facade.listGames(auth);});
+        facade.logout(auth);
+    }
+
+    @Test
+    void listGamesNonEmpty() throws ResponseException {
+        var auth = facade.login(existingLoginReq).authToken();
+        facade.createGame(auth, "Game1");
+        facade.createGame(auth, "Game2");
+        facade.createGame(auth, "Game3");
+        Map<Integer, GameData> expectedMap = new HashMap<>();
+        expectedMap.put(1, new GameData(1, null, null, "Game1", new ChessGame()));
+        expectedMap.put(2, new GameData(2, null, null, "Game2", new ChessGame()));
+        expectedMap.put(3, new GameData(3, null, null, "Game3", new ChessGame()));
+        assertEquals(expectedMap, facade.listGames(auth));
+        //FIXME this is a work in progress
     }
 
     // listGames createGame joinGame

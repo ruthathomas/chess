@@ -1,6 +1,7 @@
 package ui;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import model.*;
 import server.ResponseException;
 import server.requests.*;
@@ -35,7 +36,9 @@ public class ServerFacade {
     }
 
     public GameData createGame(String authToken, String gameName) throws ResponseException {
-        return this.makeRequest("/game", "POST", authToken, gameName, GameData.class);
+        LinkedTreeMap<String, String> treeMap = new LinkedTreeMap<>();
+        treeMap.put("gameName", gameName);
+        return this.makeRequest("/game", "POST", authToken, treeMap, GameData.class);
     }
 
     public void joinGame() {
