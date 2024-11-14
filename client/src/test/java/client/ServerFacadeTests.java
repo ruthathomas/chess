@@ -20,10 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ServerFacadeTests {
 
     private static Server server;
-    static ServerFacade facade;
+    private static ServerFacade facade;
 
-    static UserData existingUser = new UserData("exists", "exists", "exists@email.com");
-    static LoginRequest existingLoginReq = new LoginRequest(existingUser.username(), existingUser.password());
+    private static UserData existingUser = new UserData("exists", "exists", "exists@email.com");
+    private static LoginRequest existingLoginReq = new LoginRequest(existingUser.username(), existingUser.password());
+    Collection<GameData> expectedGames = new ArrayList<>();
 
     @BeforeAll
     public static void init() throws ResponseException {
@@ -98,7 +99,6 @@ public class ServerFacadeTests {
         GameData gameData1 = facade.createGame(auth, "Game1");
         GameData gameData2 = facade.createGame(auth, "Game2");
         GameData gameData3 = facade.createGame(auth, "Game3");
-        Collection<GameData> expectedGames = new ArrayList<>();
         expectedGames.add(gameData1);
         expectedGames.add(gameData2);
         expectedGames.add(gameData3);
@@ -107,13 +107,23 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void createValidGame() {
-
+    void createValidGame() throws ResponseException {
+        var auth = facade.login(existingLoginReq).authToken();
+        GameData sampleGame = new GameData(facade.listGames(auth).games().size()+1, null,
+                null, "sampleGame", new ChessGame());
+        GameData actualGame = facade.createGame(auth, "sampleGame");
+        assertEquals(sampleGame, actualGame);
+        expectedGames.add(actualGame);
+        assertDoesNotThrow(() -> {facade.createGame(auth, "");});
+        expectedGames.add(new GameData(2, null, null, "", new ChessGame()));
+        facade.logout(auth);
     }
 
     @Test
-    void createInvalidGame() {
-
+    void createInvalidGame() throws ResponseException {
+        assertThrows(ResponseException.class, () -> {facade.createGame("badToken", "newGame");});
+        var auth = facade.login(existingLoginReq).authToken();
+        assertThrows(ResponseException.class, () -> {facade.createGame(auth, null);});
     }
 
     @Test
