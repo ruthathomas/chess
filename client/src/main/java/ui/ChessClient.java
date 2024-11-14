@@ -13,6 +13,7 @@ public class ChessClient {
     private ServerFacade server;
     private int port;
     private AuthData authData;
+    private GameData currGame;
     // in petShop, it has here a notif handler and a websocket facade
     private Status status = Status.LOGGEDOUT;
     private Gson serializer = new Gson();
@@ -125,14 +126,42 @@ public class ChessClient {
         return null;
     }
 
-    private void join() throws ResponseException {
+    private String join(String[] params) throws ResponseException {
         assertLoggedIn();
+        if(params.length > 1) {
+            // this is the requested id; doesn't align with actual ids
+            int id = Integer.parseInt(params[0]);
+            var color = params[1];
+            var games = server.listGames(authData.authToken());
+            int gameNumber = 0;
+            // get the proper number for the game
+            for(var game : games.games()) {
+                gameNumber += 1;
+                if(gameNumber == id) {
+                    id = game.gameID();
+                    currGame = game;
+                    break;
+                }
+            }
+            // if joining the game fails, currGame must be set to null because there is no current game
+            try {
+                server.joinGame(authData.authToken(), id, color);
+            } catch (RuntimeException e) {
+                currGame = null;
+                throw new RuntimeException(e);
+            }
+        }
         //fixme
+        return null;
     }
 
-    private void observe() throws ResponseException {
+    private String observe(String[] params) throws ResponseException {
         assertLoggedIn();
+        if(params.length > 0) {
+            int id = Integer.parseInt(params[0]);
+        }
         //fixme
+        return null;
     }
 
     private String help() {

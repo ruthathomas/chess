@@ -9,7 +9,6 @@ import server.requests.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.Map;
 
 public class ServerFacade {
 
@@ -42,7 +41,7 @@ public class ServerFacade {
         return this.makeRequest("/game", "POST", authToken, treeMap, GameData.class);
     }
 
-    public void joinGame() {
+    public void joinGame(String authToken, int id, String color) {
         //FIXME
         //not sure what to do about this one? need to be able to join as an observer or player
     }
@@ -52,6 +51,8 @@ public class ServerFacade {
         this.makeRequest("/db", "DELETE", null, null, null);
     }
 
+    // The following methods are replicated closely from the PetShop example
+
     /**
      * Make the given request to the server via HttpURLConnection
      * @param path a String; the request path for the url
@@ -60,7 +61,7 @@ public class ServerFacade {
      * @param request an Object; the information to be used in the request body
      * @param responseClass a Class; the class which is the data type which the request expects as a response
      * @return an object of the same type as responseClass
-     * @throws ResponseException
+     * @throws ResponseException includes error status code and error message
      */
     private <T> T makeRequest(String path, String method, String authToken, Object request, Class<T> responseClass)
             throws ResponseException {
