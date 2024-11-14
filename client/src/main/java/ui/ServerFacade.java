@@ -105,12 +105,6 @@ public class ServerFacade {
 
     // for handling sending/receiving HTTP requests; calls server
 
-    // register, join, etc.
-
-    // PRELOGIN UI
-
-    // POSTLOGIN UI
-
     // GAMEPLAY UI
 
     // DO NOT DISPLAY JSON, AUTHTOKENS, GAMEIDS, HTTP STATUS CODES, EXCEPTION STACK TRACES
