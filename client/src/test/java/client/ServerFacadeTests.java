@@ -5,9 +5,12 @@ import model.*;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
+import server.records.GameListRecord;
 import server.requests.LoginRequest;
 import ui.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,17 +95,35 @@ public class ServerFacadeTests {
     @Test
     void listGamesNonEmpty() throws ResponseException {
         var auth = facade.login(existingLoginReq).authToken();
-        facade.createGame(auth, "Game1");
-        facade.createGame(auth, "Game2");
-        facade.createGame(auth, "Game3");
-        Map<Integer, GameData> expectedMap = new HashMap<>();
-        expectedMap.put(1, new GameData(1, null, null, "Game1", new ChessGame()));
-        expectedMap.put(2, new GameData(2, null, null, "Game2", new ChessGame()));
-        expectedMap.put(3, new GameData(3, null, null, "Game3", new ChessGame()));
-        assertEquals(expectedMap, facade.listGames(auth));
-        //FIXME this is a work in progress
+        GameData gameData1 = facade.createGame(auth, "Game1");
+        GameData gameData2 = facade.createGame(auth, "Game2");
+        GameData gameData3 = facade.createGame(auth, "Game3");
+        Collection<GameData> expectedGames = new ArrayList<>();
+        expectedGames.add(gameData1);
+        expectedGames.add(gameData2);
+        expectedGames.add(gameData3);
+        assertEquals(new GameListRecord(expectedGames), facade.listGames(auth));
+        facade.logout(auth);
     }
 
-    // listGames createGame joinGame
+    @Test
+    void createValidGame() {
+
+    }
+
+    @Test
+    void createInvalidGame() {
+
+    }
+
+    @Test
+    void joinValidGame() {
+
+    }
+
+    @Test
+    void joinInvalidGame() {
+
+    }
 
 }

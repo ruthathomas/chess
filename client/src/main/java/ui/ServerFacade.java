@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import model.*;
 import server.ResponseException;
+import server.records.GameListRecord;
 import server.requests.*;
 
 import java.io.*;
@@ -30,9 +31,9 @@ public class ServerFacade {
         this.makeRequest("/session", "DELETE", authToken, null,null);
     }
 
-    public Map<Integer, GameData> listGames(String authToken) throws ResponseException {
+    public GameListRecord listGames(String authToken) throws ResponseException {
         // so this is a concern...we'll assume we get the correct type of map back until it becomes a problem
-        return this.makeRequest("/game", "GET", authToken, null, Map.class);
+        return this.makeRequest("/game", "GET", authToken, null, GameListRecord.class);
     }
 
     public GameData createGame(String authToken, String gameName) throws ResponseException {

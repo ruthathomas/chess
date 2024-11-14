@@ -6,6 +6,8 @@ import server.ResponseException;
 import server.requests.LoginRequest;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChessClient {
     private ServerFacade server;
@@ -99,9 +101,13 @@ public class ChessClient {
     private String list() throws ResponseException {
         assertLoggedIn();
         var games = server.listGames(authData.authToken());
+        Map<Integer, GameData> gamesMap = new HashMap<>();
+        for(var game : games.games()) {
+            gamesMap.put(game.gameID(), game);
+        }
         var buffer = new StringBuilder();
         int gameNumber = 0;
-        for(var game : games.entrySet()) {
+        for(var game : gamesMap.entrySet()) {
             gameNumber += 1;
             var value = game.getValue();
             buffer.append(String.format("ID: %d\t|\tName: %s\t|\tWhite: %s\t|\tBlack: %s%n", gameNumber, value.gameName(),
