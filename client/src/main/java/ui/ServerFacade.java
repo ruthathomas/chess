@@ -43,13 +43,23 @@ public class ServerFacade {
         //not sure what to do about this one? need to be able to join as an observer or player
     }
 
+    // he is dangerous but I need him for testing
+    public void clear() throws ResponseException {
+        this.makeRequest("/db", "DELETE", null, null, null);
+    }
+
     /**
-     *
-     * @param path - the request path for the url
-     * @param method - the http method to be used
+     * Make the given request to the server via HttpURLConnection
+     * @param path a String; the request path for the url
+     * @param method a String; the http method to be used
+     * @param authToken a String; the authentication token for authorization; not required in all cases (may be null)
+     * @param request an Object; the information to be used in the request body
+     * @param responseClass a Class; the class which is the data type which the request expects as a response
+     * @return an object of the same type as responseClass
      * @throws ResponseException
      */
-    private <T> T makeRequest(String path, String method, String authToken, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String path, String method, String authToken, Object request, Class<T> responseClass)
+            throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             // set up http connection

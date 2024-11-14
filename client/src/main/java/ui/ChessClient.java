@@ -1,8 +1,7 @@
 package ui;
 
 import com.google.gson.Gson;
-import model.AuthData;
-import model.UserData;
+import model.*;
 import server.ResponseException;
 import server.requests.LoginRequest;
 
@@ -45,7 +44,7 @@ public class ChessClient {
                     return list();
                 }
                 case "create" -> {
-                    return "create";
+                    return create(params);
                 }
                 case "join" -> {
                     return "FIXME SWEET SUMMER CHILD";
@@ -111,9 +110,12 @@ public class ChessClient {
         return buffer.toString();
     }
 
-    private String create() throws ResponseException {
+    private String create(String[] params) throws ResponseException {
         assertLoggedIn();
-
+        if(params.length > 0) {
+            GameData game = server.createGame(authData.authToken(), params[0]);
+            return String.format("Successfully created game %s", game.gameName());
+        }
         return null;
     }
 
