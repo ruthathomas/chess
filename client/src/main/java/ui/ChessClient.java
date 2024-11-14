@@ -2,6 +2,7 @@ package ui;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.UserData;
 import server.ResponseException;
 import server.requests.LoginRequest;
 
@@ -32,10 +33,10 @@ public class ChessClient {
             }
             switch(cmd) {
                 case "register" -> {
-                    return "register";
+                    return register(params);
                 }
                 case "login" -> {
-                    return "login";
+                    return login(params);
                 }
                 case "logout" -> {
                     return logout();
@@ -64,16 +65,26 @@ public class ChessClient {
         return null;
     }
 
-    private String register(String[] params) {
-        if(params.length > 1) {
+    private String register(String[] params) throws ResponseException {
+        if(params.length > 2) {
+            UserData user = new UserData(params[0], params[1], params[2]);
+            authData = server.register(user);
+            status = Status.LOGGEDINIDLE;
+            return String.format("Successfully registered user %s", authData.username());
             //fixme
         }
         return null;
     }
 
-    private String login() {
-        //you'll need to set authData to the returned authData
-        status = Status.LOGGEDINIDLE;
+    private String login(String[] params) throws ResponseException {
+        if(params.length > 1) {
+            LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
+            authData = server.login(loginRequest);
+            //fixme???
+            status = Status.LOGGEDINIDLE;
+            return String.format("Successfully logged in user %s", authData.username());
+        }
+        //should I return something else instead of null?
         return null;
     }
 
@@ -81,7 +92,9 @@ public class ChessClient {
         assertLoggedIn();
         server.logout(authData.authToken());
         status = Status.LOGGEDOUT;
-        return String.format("Successfully logged out user %s", authData.username());
+        String result = String.format("Successfully logged out user %s", authData.username());
+        authData = null;
+        return result;
     }
 
     private String list() throws ResponseException {
@@ -98,16 +111,19 @@ public class ChessClient {
         return buffer.toString();
     }
 
-    private String create() {
+    private String create() throws ResponseException {
+        assertLoggedIn();
 
         return null;
     }
 
-    private void join() {
+    private void join() throws ResponseException {
+        assertLoggedIn();
         //fixme
     }
 
-    private void observe() {
+    private void observe() throws ResponseException {
+        assertLoggedIn();
         //fixme
     }
 
