@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import server.ResponseException;
 import server.Server;
 import server.records.GameListRecord;
+import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
 import ui.*;
 
@@ -115,7 +116,8 @@ public class ServerFacadeTests {
         assertEquals(sampleGame, actualGame);
         expectedGames.add(actualGame);
         assertDoesNotThrow(() -> {facade.createGame(auth, "");});
-        expectedGames.add(new GameData(2, null, null, "", new ChessGame()));
+        expectedGames.add(new GameData(facade.listGames(auth).games().size()+1, null,
+                null, "", new ChessGame()));
         facade.logout(auth);
     }
 
@@ -127,13 +129,34 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void joinValidGame() {
-
+    void joinValidGame() throws ResponseException {
+        var auth = facade.login(existingLoginReq).authToken();
+        GameData validGame = facade.createGame(auth, "validGame");
+        int id = validGame.gameID();
+        assertDoesNotThrow(() -> {facade.joinGame(auth, new JoinGameRequest("white", id));});
+        GameData expectedGame = new GameData(id, existingUser.username(), null, validGame.gameName(),
+                validGame.game());
+        var games = facade.listGames(auth).games();
+        GameData actualGame = null;
+        for(var game : games) {
+            if(game.gameID() == id) {
+                actualGame = game;
+            }
+        }
+        assertEquals(expectedGame, actualGame);
+        facade.logout(auth);
     }
 
     @Test
-    void joinInvalidGame() {
-
+    void joinInvalidGame() throws ResponseException {
+        var auth = facade.login(existingLoginReq).authToken();
+        GameData validGame = facade.createGame(auth, "Game");
+        int id = validGame.gameID();
+        facade.joinGame(auth, new JoinGameRequest("white", id));
+        // Request to join as color which is already taken
+        assertThrows(ResponseException.class, () -> {facade.joinGame(auth, new JoinGameRequest("white", id));});
+        // Request to play as a color when already playing the other color
+        assertThrows(ResponseException.class, () -> {facade.joinGame(auth, new JoinGameRequest("black", id));});
     }
 
 }

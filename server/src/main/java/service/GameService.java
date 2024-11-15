@@ -8,6 +8,7 @@ import model.GameData;
 import server.ResponseException;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class GameService {
 
@@ -63,6 +64,10 @@ public class GameService {
             throw new ResponseException(400, "Error: bad request");
         }
         if (playerColor == null) {
+            throw new ResponseException(400, "Error: bad request");
+        }
+        if(authData.username().equals(currGame.whiteUsername()) ||
+                authData.username().equals(currGame.blackUsername())) {
             throw new ResponseException(400, "Error: bad request");
         }
         playerColor = playerColor.toLowerCase();
