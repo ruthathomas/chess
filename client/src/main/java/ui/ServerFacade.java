@@ -41,9 +41,8 @@ public class ServerFacade {
         return this.makeRequest("/game", "POST", authToken, treeMap, GameData.class);
     }
 
-    public void joinGame(String authToken, int id, String color) {
-        //FIXME
-        //not sure what to do about this one? need to be able to join as an observer or player
+    public void joinGame(String authToken, JoinGameRequest joinGameRequest) throws ResponseException {
+        this.makeRequest("/game", "PUT", authToken, joinGameRequest, null);
     }
 
     // he is dangerous but I need him for testing

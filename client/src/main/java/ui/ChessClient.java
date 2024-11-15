@@ -1,8 +1,10 @@
 package ui;
 
+import chess.ChessBoard;
 import com.google.gson.Gson;
 import model.*;
 import server.ResponseException;
+import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
 
 import java.util.Arrays;
@@ -50,19 +52,19 @@ public class ChessClient {
                     return create(params);
                 }
                 case "join" -> {
-                    return "FIXME SWEET SUMMER CHILD";
+                    return join(params);
                 }
                 case "observe" -> {
-                    return "FIXME ALSO";
+                    return observe(params);
                 }
                 case "help" -> {
                     return help();
                 }
             }
             //we can either check here that the state is correct, or do it within the function itself
-            server.login(new LoginRequest("bogus", "bogus"));
         } catch (ResponseException ex) {
             //fixme
+            return ex.getMessage();
         }
         return null;
     }
@@ -133,11 +135,12 @@ public class ChessClient {
             int id = Integer.parseInt(params[0]);
             var color = params[1];
             id = getIdFromRequestedId(id);
-            server.joinGame(authData.authToken(), id, color);
+            server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
+            //FIXME FIXME THIS IS TEMPORARY
+            return getBoardString("white") + "\n\n" + getBoardString("black");
         }
-        //fixme
         return null;
     }
 
@@ -147,8 +150,9 @@ public class ChessClient {
             int requestedId = Integer.parseInt(params[0]);
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
+            //FIXME FIXME THIS IS TEMPORARY
+            return getBoardString("white") + "\n\n" + getBoardString("black");
         }
-        //fixme
         return null;
     }
 
@@ -186,10 +190,10 @@ public class ChessClient {
 
     private int getIdFromRequestedId(int requestedId) throws ResponseException {
         int trueId = 0;
-        var games = server.listGames(authData.authToken());
+        var games = server.listGames(authData.authToken()).games();
         int gameNumber = 0;
         // get the proper number for the game
-        for(var game : games.games()) {
+        for(var game : games) {
             gameNumber += 1;
             if(gameNumber == requestedId) {
                 // the requested game has been found; set trueId equal to its gameID
@@ -205,12 +209,18 @@ public class ChessClient {
     }
 
     private void setCurrGame(int requestedId) throws ResponseException {
-        var games = server.listGames(authData.authToken());
-        for(var game : games.games()) {
+        var games = server.listGames(authData.authToken()).games();
+        for(var game : games) {
             if(game.gameID() == requestedId) {
                 currGame = game;
                 break;
             }
         }
+    }
+
+    private String getBoardString(String color) {
+        ChessBoard board = currGame.game().getBoard();
+        //FIXME! FIXME!
+        return board.toString();
     }
 }
