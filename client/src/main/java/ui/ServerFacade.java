@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import model.*;
 import server.ResponseException;
+import server.records.ExceptionFailureRecord;
 import server.records.GameListRecord;
 import server.requests.*;
 
@@ -80,14 +81,9 @@ public class ServerFacade {
             httpConn.connect();
             var status = httpConn.getResponseCode();
             if(status != 200) {
-                String msg = String.valueOf(status);
-                if(status == 400) {
-                    msg = "bad request";
-                } else if (status == 401) {
-                    msg = "unauthorized";
-                } else if(status == 403) {
-                    msg = "forbidden";
-                }
+                String msg = httpConn.getResponseMessage();
+//                var test = readResponseBody(httpConn, ExceptionFailureRecord.class);
+//                msg = test.message();
                 throw new ResponseException(status, "Error: " + msg);
             }
             return readResponseBody(httpConn, responseClass);

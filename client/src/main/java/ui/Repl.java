@@ -32,6 +32,16 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n>>>");
+        String status = client.getStatus();
+        if(status.equals("LOGGEDOUT")) {
+            status = "LOGGED OUT";
+        } else if(status.equals("LOGGEDINIDLE")) {
+            status = "LOGGED IN";
+        } else if(status.equals("LOGGEDINPLAYING")) {
+            status = "PLAYING";
+        } else if(status.equals("LOGGEDINOBSERVING")) {
+            status = "OBSERVING";
+        }
+        System.out.print("\n["+ status +"] >>> ");
     }
 }

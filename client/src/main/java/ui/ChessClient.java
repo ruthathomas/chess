@@ -78,20 +78,22 @@ public class ChessClient {
     public String help() {
         if(status == Status.LOGGEDOUT) {
             return """
-                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                    login <USERNAME> <PASSWORD> - to play chess
-                    quit - to exit the program
-                    help - to list possible commands
+                    \t[OPTIONS]
+                    \t┝ register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                    \t┝ login <USERNAME> <PASSWORD> - to play chess
+                    \t┝ quit - to exit the program
+                    \t┕ help - to list possible commands
                     """;
         } else if (status == Status.LOGGEDINIDLE) {
             return """
-                    create <NAME> - to create a game
-                    list - to list all games
-                    join <ID> [WHITE|BLACK] - to join a game
-                    observe <ID> - to observe a game
-                    logout - to logout of the program
-                    quit - to exit the program
-                    help - to list possible commands
+                    \t[OPTIONS]
+                    \t┝ create <NAME> - to create a game
+                    \t┝ list - to list all games
+                    \t┝ join <ID> [WHITE|BLACK] - to join a game
+                    \t┝ observe <ID> - to observe a game
+                    \t┝ logout - to logout of the program
+                    \t┝ quit - to exit the program
+                    \t┕ help - to list possible commands
                     """;
         } else {
             return """
@@ -99,6 +101,10 @@ public class ChessClient {
                     I'll make separate ones for observing and playing
                     """;
         }
+    }
+
+    public String getStatus() {
+        return status.toString();
     }
 
     private String register(String[] params) throws ResponseException {
@@ -128,6 +134,7 @@ public class ChessClient {
 
     private String logout() throws ResponseException {
         assertLoggedIn();
+        // you should probably make it so people can't log out in the middle of a game
         server.logout(authData.authToken());
         status = Status.LOGGEDOUT;
         String result = String.format("Successfully logged out user %s", authData.username());
@@ -154,6 +161,7 @@ public class ChessClient {
     }
 
     private String create(String[] params) throws ResponseException {
+        //you might want to make it so the names can have spaces? but I don't really want to
         assertLoggedIn();
         if(params.length > 0) {
             GameData game = server.createGame(authData.authToken(), params[0]);
