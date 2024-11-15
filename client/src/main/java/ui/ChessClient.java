@@ -132,24 +132,10 @@ public class ChessClient {
             // this is the requested id; doesn't align with actual ids
             int id = Integer.parseInt(params[0]);
             var color = params[1];
-            var games = server.listGames(authData.authToken());
-            int gameNumber = 0;
-            // get the proper number for the game
-            for(var game : games.games()) {
-                gameNumber += 1;
-                if(gameNumber == id) {
-                    id = game.gameID();
-                    currGame = game;
-                    break;
-                }
-            }
-            // if joining the game fails, currGame must be set to null because there is no current game
-            try {
-                server.joinGame(authData.authToken(), id, color);
-            } catch (RuntimeException e) {
-                currGame = null;
-                throw new RuntimeException(e);
-            }
+            id = getIdFromRequestedId(id);
+            server.joinGame(authData.authToken(), id, color);
+            setCurrGame(id);
+            status = Status.LOGGEDINPLAYING;
         }
         //fixme
         return null;
@@ -158,7 +144,9 @@ public class ChessClient {
     private String observe(String[] params) throws ResponseException {
         assertLoggedIn();
         if(params.length > 0) {
-            int id = Integer.parseInt(params[0]);
+            int requestedId = Integer.parseInt(params[0]);
+            setCurrGame(getIdFromRequestedId(requestedId));
+            status = Status.LOGGEDINOBSERVING;
         }
         //fixme
         return null;
@@ -185,6 +173,7 @@ public class ChessClient {
         } else {
             return """
                     don't worry about it for now ;')
+                    I'll make separate ones for observing and playing
                     """;
         }
     }
@@ -192,6 +181,36 @@ public class ChessClient {
     private void assertLoggedIn() throws ResponseException {
         if(status == Status.LOGGEDOUT) {
             throw new ResponseException(400, "Error: Bad request (must log in)");
+        }
+    }
+
+    private int getIdFromRequestedId(int requestedId) throws ResponseException {
+        int trueId = 0;
+        var games = server.listGames(authData.authToken());
+        int gameNumber = 0;
+        // get the proper number for the game
+        for(var game : games.games()) {
+            gameNumber += 1;
+            if(gameNumber == requestedId) {
+                // the requested game has been found; set trueId equal to its gameID
+                trueId = game.gameID();
+                break;
+            }
+        }
+        // if trueId is still 0, a client-side failure has occurred
+        if(trueId == 0) {
+            throw new ResponseException(400, "Error: bad request");
+        }
+        return trueId;
+    }
+
+    private void setCurrGame(int requestedId) throws ResponseException {
+        var games = server.listGames(authData.authToken());
+        for(var game : games.games()) {
+            if(game.gameID() == requestedId) {
+                currGame = game;
+                break;
+            }
         }
     }
 }
