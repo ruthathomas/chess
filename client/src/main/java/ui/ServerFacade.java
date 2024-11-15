@@ -80,7 +80,15 @@ public class ServerFacade {
             httpConn.connect();
             var status = httpConn.getResponseCode();
             if(status != 200) {
-                throw new ResponseException(status, "ERROR " + status);
+                String msg = String.valueOf(status);
+                if(status == 400) {
+                    msg = "bad request";
+                } else if (status == 401) {
+                    msg = "unauthorized";
+                } else if(status == 403) {
+                    msg = "forbidden";
+                }
+                throw new ResponseException(status, "Error: " + msg);
             }
             return readResponseBody(httpConn, responseClass);
         } catch (Exception ex) {

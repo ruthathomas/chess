@@ -3,6 +3,7 @@ package ui;
 import chess.ChessBoard;
 import com.google.gson.Gson;
 import model.*;
+import org.glassfish.grizzly.http.server.Response;
 import server.ResponseException;
 import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
@@ -18,7 +19,7 @@ public class ChessClient {
     private GameData currGame;
     // in petShop, it has here a notif handler and a websocket facade
     private Status status = Status.LOGGEDOUT;
-    private Gson serializer = new Gson();
+    //private Gson serializer = new Gson();
     //fixme I'm working on it
 
     public ChessClient(int port) {
@@ -60,16 +61,48 @@ public class ChessClient {
                 case "help" -> {
                     return help();
                 }
+                case "quit" -> {
+                    return "quit";
+                }
+                case null, default -> {
+                    return help();
+                }
             }
             //we can either check here that the state is correct, or do it within the function itself
         } catch (ResponseException ex) {
             //fixme
             return ex.getMessage();
         }
-        return null;
+    }
+
+    public String help() {
+        if(status == Status.LOGGEDOUT) {
+            return """
+                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                    login <USERNAME> <PASSWORD> - to play chess
+                    quit - to exit the program
+                    help - to list possible commands
+                    """;
+        } else if (status == Status.LOGGEDINIDLE) {
+            return """
+                    create <NAME> - to create a game
+                    list - to list all games
+                    join <ID> [WHITE|BLACK] - to join a game
+                    observe <ID> - to observe a game
+                    logout - to logout of the program
+                    quit - to exit the program
+                    help - to list possible commands
+                    """;
+        } else {
+            return """
+                    don't worry about it for now ;')
+                    I'll make separate ones for observing and playing
+                    """;
+        }
     }
 
     private String register(String[] params) throws ResponseException {
+        assertLoggedOut();
         if(params.length > 2) {
             UserData user = new UserData(params[0], params[1], params[2]);
             authData = server.register(user);
@@ -81,6 +114,7 @@ public class ChessClient {
     }
 
     private String login(String[] params) throws ResponseException {
+        assertLoggedOut();
         if(params.length > 1) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             authData = server.login(loginRequest);
@@ -133,7 +167,7 @@ public class ChessClient {
         if(params.length > 1) {
             // this is the requested id; doesn't align with actual ids
             int id = Integer.parseInt(params[0]);
-            var color = params[1];
+            var color = params[1].toLowerCase();
             id = getIdFromRequestedId(id);
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
@@ -156,35 +190,15 @@ public class ChessClient {
         return null;
     }
 
-    private String help() {
+    private void assertLoggedIn() throws ResponseException {
         if(status == Status.LOGGEDOUT) {
-            return """
-                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                    login <USERNAME> <PASSWORD> - to play chess
-                    quit - to exit the program
-                    help - to list possible commands
-                    """;
-        } else if (status == Status.LOGGEDINIDLE) {
-            return """
-                    create <NAME> - to create a game
-                    list - to list all games
-                    join <ID> [WHITE|BLACK] - to join a game
-                    observe <ID> - to observe a game
-                    logout - to logout of the program
-                    quit - to exit the program
-                    help - to list possible commands
-                    """;
-        } else {
-            return """
-                    don't worry about it for now ;')
-                    I'll make separate ones for observing and playing
-                    """;
+            throw new ResponseException(400, "Error: bad request (must log in)");
         }
     }
 
-    private void assertLoggedIn() throws ResponseException {
-        if(status == Status.LOGGEDOUT) {
-            throw new ResponseException(400, "Error: Bad request (must log in)");
+    private void assertLoggedOut() throws ResponseException {
+        if(status != Status.LOGGEDOUT) {
+            throw new ResponseException(400, "Error: bad request (must log out)");
         }
     }
 
