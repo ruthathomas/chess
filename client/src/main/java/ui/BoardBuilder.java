@@ -18,22 +18,14 @@ public class BoardBuilder {
             row = 8;
             boardString += buildVerticalBorder(color);
             boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
-            //fixme add board in here
             for(int i = pieceArray.length - 1; i >= 0; i--) {
-                if(isLightSquare) {
-                    boardString += EscapeSequences.SET_BG_COLOR_LIGHT_BROWN;
-                } else {
-                    boardString += EscapeSequences.SET_BG_COLOR_DARK_BROWN;
+                var squareInfo = buildBoardSquare(isLightSquare, pieceArray[i], row, -1, cell);
+                boardString += squareInfo[0];
+                if(squareInfo[1] == "change_row") {
+                    row -=1;
                 }
-                isLightSquare = !isLightSquare;
-                boardString += pieceArray[i];
-                if(cell % 8 == 0 && cell != 64) {
-                    boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT + "\n";
-                    row -= 1;
-                    boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
+                if(squareInfo[2] == "change_color") {
                     isLightSquare = !isLightSquare;
-                } else if (cell % 8 == 0) {
-                    boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT + "\n";
                 }
                 cell += 1;
             }
@@ -43,7 +35,18 @@ public class BoardBuilder {
             // pieceArray comes in the correct order for black
             row = 1;
             boardString += buildVerticalBorder(color);
-            //fixme add board in here
+            boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
+            for(int i = 0; i < pieceArray.length; i++) {
+                var squareInfo = buildBoardSquare(isLightSquare, pieceArray[i], row, 1, cell);
+                boardString += squareInfo[0];
+                if(squareInfo[1] == "change_row") {
+                    row +=1;
+                }
+                if(squareInfo[2] == "change_color") {
+                    isLightSquare = !isLightSquare;
+                }
+                cell += 1;
+            }
             boardString += buildVerticalBorder(color);
         }
         return boardString;
@@ -58,5 +61,30 @@ public class BoardBuilder {
             return borderString + EscapeSequences.EMPTY + "ｈ  ｇ  ｆ  ｅ  ｄ  ｃ  ｂ  ａ" + EscapeSequences.EMPTY +
                     RESET_FORMAT + "\n";
         }
+    }
+
+    // direction will be either negative 1 (for white) or 1 for (black)
+    private static String[] buildBoardSquare(boolean isLightSquare, String piece, int row, int direction, int cell) {
+        String[] squareInformation = new String[3];
+        String squareString = "";
+        if(isLightSquare) {
+            squareString += EscapeSequences.SET_BG_COLOR_LIGHT_BROWN;
+        } else {
+            squareString += EscapeSequences.SET_BG_COLOR_DARK_BROWN;
+        }
+        squareInformation[2] = "change_color";
+        squareString += piece;
+        if(cell % 8 == 0 && cell != 64) {
+            squareString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT + "\n";
+            row += direction;
+            squareInformation[1] = "change_row";
+            squareString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
+            squareInformation[2] = "leave_color";
+        } else if (cell % 8 == 0) {
+            squareString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT + "\n";
+            squareInformation[1] = "leave_row";
+        }
+        squareInformation[0] = squareString;
+        return squareInformation;
     }
 }
