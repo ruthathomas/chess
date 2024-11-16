@@ -65,10 +65,6 @@ public class GameService {
         if (playerColor == null) {
             throw new ResponseException(400, "Error: bad request");
         }
-        if(authData.username().equals(currGame.whiteUsername()) ||
-                authData.username().equals(currGame.blackUsername())) {
-            throw new ResponseException(400, "Error: bad request");
-        }
         playerColor = playerColor.toLowerCase();
         try {
             if(playerColor.equals("white")) {

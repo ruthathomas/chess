@@ -153,8 +153,6 @@ public class ServerFacadeTests {
         facade.joinGame(auth, new JoinGameRequest("white", id));
         // Request to join as color which is already taken
         assertThrows(ResponseException.class, () -> {facade.joinGame(auth, new JoinGameRequest("white", id));});
-        // Request to play as a color when already playing the other color
-        assertThrows(ResponseException.class, () -> {facade.joinGame(auth, new JoinGameRequest("black", id));});
     }
 
 }
