@@ -164,7 +164,8 @@ public class ChessClient {
         //you might want to make it so the names can have spaces? but I don't really want to
         assertLoggedIn();
         if(params.length > 0) {
-            GameData game = server.createGame(authData.authToken(), params[0]);
+            String name = String.join(" ", params);
+            GameData game = server.createGame(authData.authToken(), name);
             return String.format("Successfully created game %s", game.gameName());
         }
         throw new ResponseException(400, "Error: expected game name");
