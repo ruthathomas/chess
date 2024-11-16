@@ -44,7 +44,7 @@ public class WordArt {
                  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
             """;
 
-    public static final String ENTERING_GAME = "\n╒══════════════════════════════════════════════════╕\n";
+    public static final String ENTERING_GAME = "\njoining ═ ═ ═══════════════════════════════════════╕\n\n";
 
-    public static final String EXITING_GAME = "\n╘══════════════════════════════════════════════════╛\n";
+    public static final String EXITING_GAME = "\nexiting ═ ═ ═══════════════════════════════════════╛\n\n";
 }

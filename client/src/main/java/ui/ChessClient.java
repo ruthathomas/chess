@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import model.*;
 import server.ResponseException;
 import server.requests.JoinGameRequest;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Character.*;
+import static ui.BoardBuilder.buildBoard;
 
 public class ChessClient {
     private ServerFacade server;
@@ -178,12 +180,19 @@ public class ChessClient {
             // this is the requested id; doesn't align with actual ids
             int id = Integer.parseInt(params[0]);
             var color = params[1].toLowerCase();
+            ChessGame.TeamColor colorEnum;
+            if(color.equalsIgnoreCase("white")) {
+                colorEnum = ChessGame.TeamColor.WHITE;
+            } else {
+                colorEnum = ChessGame.TeamColor.BLACK;
+            }
             id = getIdFromRequestedId(id);
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
-            //FIXME FIXME THIS IS TEMPORARY; also, convert color from string to ENUM
-            return WordArt.ENTERING_GAME + getBoardString("white") + "\n\n" + getBoardString("black");
+            //FIXME FIXME THIS IS TEMPORARY; eventually, you will call this using colorEnum as the argument
+            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE) +
+                    "\n\n" + getBoardString(ChessGame.TeamColor.BLACK);
         }
         throw new ResponseException(400, "Error: bad request (expected game ID and player color)");
     }
@@ -195,7 +204,8 @@ public class ChessClient {
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
             //FIXME FIXME THIS IS TEMPORARY
-            return WordArt.ENTERING_GAME + getBoardString("white") + "\n\n" + getBoardString("black");
+            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE) +
+                    "\n\n" + getBoardString(ChessGame.TeamColor.BLACK);
         }
         throw new ResponseException(400, "Error: bad request (expected game ID)");
     }
@@ -242,10 +252,12 @@ public class ChessClient {
         }
     }
 
-    private String getBoardString(String color) {
-        String boardString = currGame.game().getBoard().toString();
-        //FIXME! FIXME!
-        return boardString.toString();
+    private String getBoardString(ChessGame.TeamColor color) {
+        String[] pieceArray = getPieceArray();
+        return buildBoard(pieceArray, color);
+//        String boardString = currGame.game().getBoard().toString();
+//        //FIXME! FIXME!
+//        return boardString.toString();
     }
 
     private String[] getPieceArray() {
@@ -255,6 +267,7 @@ public class ChessClient {
         int currSquare = 0;
         for(var c : boardString.toCharArray()) {
             if(isLetter(c) && isUpperCase(c)) {
+                //color is white
                 switch(c) {
                     case('K') -> pieceArray[currSquare] = EscapeSequences.WHITE_KING;
                     case('Q') -> pieceArray[currSquare] = EscapeSequences.WHITE_QUEEN;
@@ -263,7 +276,7 @@ public class ChessClient {
                     case('R') -> pieceArray[currSquare] = EscapeSequences.WHITE_ROOK;
                     case('P') -> pieceArray[currSquare] = EscapeSequences.WHITE_PAWN;
                 }
-                //color is white
+                currSquare += 1;
             } else if(isLetter(c) && isLowerCase(c)) {
                 //color is black
                 switch(c) {
@@ -274,12 +287,13 @@ public class ChessClient {
                     case('r') -> pieceArray[currSquare] = EscapeSequences.BLACK_ROOK;
                     case('p') -> pieceArray[currSquare] = EscapeSequences.BLACK_PAWN;
                 }
+                currSquare += 1;
             } else if(c == ' ') {
                 //empty square
                 pieceArray[currSquare] = EscapeSequences.EMPTY;
+                currSquare += 1;
             }
             //if none of the above are true, the character should be ignored
-            currSquare += 1;
         }
         return pieceArray;
     }

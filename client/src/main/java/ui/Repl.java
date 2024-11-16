@@ -33,6 +33,7 @@ public class Repl {
 
     private void printPrompt() {
         String status = client.getStatus();
+        String promptString = EscapeSequences.RESET_BG_COLOR + EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
         if(status.equals("LOGGEDOUT")) {
             status = "LOGGED OUT";
         } else if(status.equals("LOGGEDINIDLE")) {
@@ -42,6 +43,6 @@ public class Repl {
         } else if(status.equals("LOGGEDINOBSERVING")) {
             status = "OBSERVING";
         }
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + "\u001b[3m\n["+ status +"] >>> ");
+        System.out.print(promptString + "\u001b[3m\n["+ status +"] >>> ");
     }
 }

@@ -18,15 +18,18 @@ public class BoardBuilder {
             //fixme add board in here
             boardString += buildVerticalBorder(color);
         }
-        return null;
+        return boardString;
     }
 
     private static String buildVerticalBorder(ChessGame.TeamColor color) {
-        String borderString = EscapeSequences.SET_BG_COLOR_LIGHT_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK;
+        String borderString = EscapeSequences.SET_BG_COLOR_LIGHT_BLUE + EscapeSequences.SET_TEXT_COLOR_BLACK +
+                EscapeSequences.SET_TEXT_BOLD;
         if(color == ChessGame.TeamColor.WHITE) {
-            return borderString + EscapeSequences.EMPTY + " a  b  c  d  e  f  g  h " + EscapeSequences.EMPTY;
+            return borderString + EscapeSequences.EMPTY + " a  b  c  d  e  f  g  h " + EscapeSequences.EMPTY +
+                    EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_BOLD_FAINT + "\n";
         } else {
-            return borderString + EscapeSequences.EMPTY + " h  g  f  e  d  c  b  a " + EscapeSequences.EMPTY;
+            return borderString + EscapeSequences.EMPTY + " h  g  f  e  d  c  b  a " + EscapeSequences.EMPTY +
+                    EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_BOLD_FAINT + "\n";
         }
     }
 }
