@@ -1,9 +1,7 @@
 package ui;
 
 import chess.ChessBoard;
-import com.google.gson.Gson;
 import model.*;
-import org.glassfish.grizzly.http.server.Response;
 import server.ResponseException;
 import server.requests.JoinGameRequest;
 import server.requests.LoginRequest;
@@ -11,6 +9,8 @@ import server.requests.LoginRequest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.lang.Character.*;
 
 public class ChessClient {
     private ServerFacade server;
@@ -182,8 +182,8 @@ public class ChessClient {
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
-            //FIXME FIXME THIS IS TEMPORARY
-            return WordArt.enteringGame + getBoardString("white") + "\n\n" + getBoardString("black");
+            //FIXME FIXME THIS IS TEMPORARY; also, convert color from string to ENUM
+            return WordArt.ENTERING_GAME + getBoardString("white") + "\n\n" + getBoardString("black");
         }
         throw new ResponseException(400, "Error: bad request (expected game ID and player color)");
     }
@@ -195,7 +195,7 @@ public class ChessClient {
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
             //FIXME FIXME THIS IS TEMPORARY
-            return WordArt.enteringGame + getBoardString("white") + "\n\n" + getBoardString("black");
+            return WordArt.ENTERING_GAME + getBoardString("white") + "\n\n" + getBoardString("black");
         }
         throw new ResponseException(400, "Error: bad request (expected game ID)");
     }
@@ -243,8 +243,44 @@ public class ChessClient {
     }
 
     private String getBoardString(String color) {
-        ChessBoard board = currGame.game().getBoard();
+        String boardString = currGame.game().getBoard().toString();
         //FIXME! FIXME!
-        return board.toString();
+        return boardString.toString();
+    }
+
+    private String[] getPieceArray() {
+        // this function produces an array from BLACK's perspective
+        String boardString = currGame.game().getBoard().toString();
+        String[] pieceArray = new String[64];
+        int currSquare = 0;
+        for(var c : boardString.toCharArray()) {
+            if(isLetter(c) && isUpperCase(c)) {
+                switch(c) {
+                    case('K') -> pieceArray[currSquare] = EscapeSequences.WHITE_KING;
+                    case('Q') -> pieceArray[currSquare] = EscapeSequences.WHITE_QUEEN;
+                    case('B') -> pieceArray[currSquare] = EscapeSequences.WHITE_BISHOP;
+                    case('N') -> pieceArray[currSquare] = EscapeSequences.WHITE_KNIGHT;
+                    case('R') -> pieceArray[currSquare] = EscapeSequences.WHITE_ROOK;
+                    case('P') -> pieceArray[currSquare] = EscapeSequences.WHITE_PAWN;
+                }
+                //color is white
+            } else if(isLetter(c) && isLowerCase(c)) {
+                //color is black
+                switch(c) {
+                    case('k') -> pieceArray[currSquare] = EscapeSequences.BLACK_KING;
+                    case('q') -> pieceArray[currSquare] = EscapeSequences.BLACK_QUEEN;
+                    case('b') -> pieceArray[currSquare] = EscapeSequences.BLACK_BISHOP;
+                    case('n') -> pieceArray[currSquare] = EscapeSequences.BLACK_KNIGHT;
+                    case('r') -> pieceArray[currSquare] = EscapeSequences.BLACK_ROOK;
+                    case('p') -> pieceArray[currSquare] = EscapeSequences.BLACK_PAWN;
+                }
+            } else if(c == ' ') {
+                //empty square
+                pieceArray[currSquare] = EscapeSequences.EMPTY;
+            }
+            //if none of the above are true, the character should be ignored
+            currSquare += 1;
+        }
+        return pieceArray;
     }
 }

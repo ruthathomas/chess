@@ -123,8 +123,6 @@ public class ServerFacade {
 
     // for handling sending/receiving HTTP requests; calls server
 
-    // GAMEPLAY UI
-
     // DO NOT DISPLAY JSON, AUTHTOKENS, GAMEIDS, HTTP STATUS CODES, EXCEPTION STACK TRACES
     // DO NOT LET YOUR CLIENT CRASH; CATCH ALL EXCEPTIONS (too few/many arguments, bad arguments, rejected arguments)
     // IF you wanna use the unicode chess cars, go Settings > Time and Lang > Lang and Region > Admin Lang Settings >

@@ -31,7 +31,7 @@ public class WordArt {
             ▢▢▢▢ ▢   ▢ ▢▢▢▢ ▢▢▢▢ ▢▢▢▢
             """;
 
-    public static String welcomeToChessSerifed = """
+    public static final String WELCOME_TO_CHESS_SERIFED = """
                    ╖   ╓ ╔══╕ ╖    ╔══╕ ╔══╗ ╔═╦═╗ ╔══╕  ╒═╦═╕ ╔══╗
                    ║ ╥ ║ ╠═╡  ║    ║    ║  ║ ║ ╨ ║ ╠═╡     ║   ║  ║
                    ╚═╩═╝ ╚══╛ ╚══╛ ╚══╛ ╚══╝ ╜   ╙ ╚══╛    ╨   ╚══╝
@@ -44,7 +44,7 @@ public class WordArt {
                  ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
             """;
 
-    public static String enteringGame = "\n╒══════════════════════════════════════════════════╕\n";
+    public static final String ENTERING_GAME = "\n╒══════════════════════════════════════════════════╕\n";
 
-    public static String exitingGame = "\n╘══════════════════════════════════════════════════╛\n";
+    public static final String EXITING_GAME = "\n╘══════════════════════════════════════════════════╛\n";
 }
