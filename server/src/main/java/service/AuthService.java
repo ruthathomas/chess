@@ -2,8 +2,7 @@ package service;
 
 import java.util.UUID;
 
-import dataaccess.DataAccessException;
-import dataaccess.DataAccessInterface;
+import dataaccess.*;
 import model.AuthData;
 import exceptionhandling.ResponseException;
 

@@ -1,10 +1,8 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccessException;
-import dataaccess.DataAccessInterface;
-import model.AuthData;
-import model.GameData;
+import dataaccess.*;
+import model.*;
 import exceptionhandling.ResponseException;
 
 import java.util.Map;

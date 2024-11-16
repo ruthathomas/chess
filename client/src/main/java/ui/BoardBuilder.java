@@ -14,7 +14,7 @@ public class BoardBuilder {
         int cell = 1;
         boolean isLightSquare = true;
         if(color == ChessGame.TeamColor.WHITE) {
-            // pieceArray comes backwards for black
+            // pieceArray comes backwards for white
             row = 8;
             boardString += buildHorizontalBorder(color);
             boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
@@ -32,7 +32,7 @@ public class BoardBuilder {
             boardString += buildHorizontalBorder(color);
 
         } else {
-            // pieceArray comes in the correct order for white
+            // pieceArray comes in the correct order for black
             row = 1;
             boardString += buildHorizontalBorder(color);
             boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
@@ -63,7 +63,7 @@ public class BoardBuilder {
         }
     }
 
-    // direction will be either 1 (for white) or -1 for (black)
+    // direction will be either -1 (for white) or 1 (for black)
     private static String[] buildBoardSquare(boolean isLightSquare, String piece, int row, int direction, int cell) {
         String[] squareInformation = new String[3];
         String squareString = "";
