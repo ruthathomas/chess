@@ -65,7 +65,7 @@ public class ChessClient {
                     return help();
                 }
                 case "quit" -> {
-                    if(status != Status.LOGGEDOUT) {
+                    if(status == Status.LOGGEDOUT) {
                         return "quit";
                     } else {
                        return "Error: must log out";
