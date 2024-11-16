@@ -12,8 +12,8 @@ public class Repl {
 
     public void run() {
         //sample
-        System.out.println("Sign into start.");
-        System.out.print(client.help());
+        System.out.println("Sign in to start.");
+        System.out.print("\t" + client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -22,10 +22,10 @@ public class Repl {
             String input = scanner.nextLine();
             try {
                 result = client.evaluateInput(input);
-                System.out.print(EscapeSequences.RESET_TEXT_COLOR + result);
+                System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + result);
             } catch (Exception e) {
                 var msg = e.getMessage();
-                System.out.print(EscapeSequences.RESET_TEXT_COLOR + msg);
+                System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + msg);
             }
         }
         System.out.println();

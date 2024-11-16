@@ -78,7 +78,7 @@ public class ChessClient {
     public String help() {
         if(status == Status.LOGGEDOUT) {
             return """
-                    \u001b[1m\u001b[38;5;5m\t[OPTIONS]
+                    \u001b[1m\u001b[38;5;5m[OPTIONS]
                     \t┝ register <USERNAME> <PASSWORD> <EMAIL> - \u001b[22m\u001b[38;5;242mto create an account
                     \u001b[1m\u001b[38;5;5m\t┝ login <USERNAME> <PASSWORD> - \u001b[22m\u001b[38;5;242mto play chess
                     \u001b[1m\u001b[38;5;5m\t┝ quit - \u001b[22m\u001b[38;5;242mto exit the program
@@ -86,8 +86,8 @@ public class ChessClient {
                     """;
         } else if (status == Status.LOGGEDINIDLE) {
             return """
-                    \u001b[1m\u001b[38;5;5m\t[OPTIONS]
-                    \t┝ create <NAME> - \u001b[22m\u001b[39mto create a game
+                    \u001b[1m\u001b[38;5;5m[OPTIONS]
+                    \t┝ create <NAME> - \u001b[22m\u001b[38;5;242mto create a game
                     \u001b[1m\u001b[38;5;5m\t┝ list - \u001b[22m\u001b[38;5;242mto list all games
                     \u001b[1m\u001b[38;5;5m\t┝ join <ID> [WHITE|BLACK] - \u001b[22m\u001b[38;5;242mto join a game
                     \u001b[1m\u001b[38;5;5m\t┝ observe <ID> - \u001b[22m\u001b[38;5;242mto observe a game
@@ -153,8 +153,11 @@ public class ChessClient {
         for(var game : gamesMap.entrySet()) {
             gameNumber += 1;
             var value = game.getValue();
-            buffer.append(String.format("ID: %d\t|\tName: %s\t|\tWhite: %s\t|\tBlack: %s%n", gameNumber, value.gameName(),
-                    value.whiteUsername(), value.blackUsername()));
+            if(gameNumber > 1) {
+                buffer.append("\t");
+            }
+            buffer.append(String.format("ID: %d\t|\tName: %s\t\t|\tWhite: %s\t\t|\tBlack: %s%n",
+                    gameNumber, value.gameName(),value.whiteUsername(), value.blackUsername()));
         }
         return buffer.toString();
     }
@@ -180,7 +183,7 @@ public class ChessClient {
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
             //FIXME FIXME THIS IS TEMPORARY
-            return getBoardString("white") + "\n\n" + getBoardString("black");
+            return WordArt.enteringGame + getBoardString("white") + "\n\n" + getBoardString("black");
         }
         throw new ResponseException(400, "Error: bad request (expected game ID and player color)");
     }
@@ -192,7 +195,7 @@ public class ChessClient {
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
             //FIXME FIXME THIS IS TEMPORARY
-            return getBoardString("white") + "\n\n" + getBoardString("black");
+            return WordArt.enteringGame + getBoardString("white") + "\n\n" + getBoardString("black");
         }
         throw new ResponseException(400, "Error: bad request (expected game ID)");
     }
