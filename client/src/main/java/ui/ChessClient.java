@@ -116,9 +116,8 @@ public class ChessClient {
             authData = server.register(user);
             status = Status.LOGGEDINIDLE;
             return String.format("Successfully registered user %s", authData.username());
-            //fixme
         }
-        throw new ResponseException(400, "Error: bad request (expected username, password, and email)");
+        throw new ResponseException(400, "Error: expected username, password, and email");
     }
 
     private String login(String[] params) throws ResponseException {
@@ -126,11 +125,10 @@ public class ChessClient {
         if(params.length > 1) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             authData = server.login(loginRequest);
-            //fixme???
             status = Status.LOGGEDINIDLE;
             return String.format("Successfully logged in user %s", authData.username());
         }
-        throw new ResponseException(400, "Error: bad request (expected username and password)");
+        throw new ResponseException(400, "Error: expected username and password");
     }
 
     private String logout() throws ResponseException {
@@ -171,7 +169,7 @@ public class ChessClient {
             GameData game = server.createGame(authData.authToken(), params[0]);
             return String.format("Successfully created game %s", game.gameName());
         }
-        throw new ResponseException(400, "Error: bad request (expected game name)");
+        throw new ResponseException(400, "Error: expected game name");
     }
 
     private String join(String[] params) throws ResponseException {
@@ -190,11 +188,11 @@ public class ChessClient {
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
-            //FIXME FIXME THIS IS TEMPORARY; eventually, you will call this using colorEnum as the argument
-            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE) +
-                    "\n\n" + getBoardString(ChessGame.TeamColor.BLACK);
+            //This is temporary for phase 5; eventually, you will call this for only your color
+            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK) +
+                    "\n" + getBoardString(ChessGame.TeamColor.WHITE);
         }
-        throw new ResponseException(400, "Error: bad request (expected game ID and player color)");
+        throw new ResponseException(400, "Error: expected game ID and player color");
     }
 
     private String observe(String[] params) throws ResponseException {
@@ -203,22 +201,22 @@ public class ChessClient {
             int requestedId = Integer.parseInt(params[0]);
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
-            //FIXME FIXME THIS IS TEMPORARY
-            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE) +
-                    "\n\n" + getBoardString(ChessGame.TeamColor.BLACK);
+            //This is temporary for phase 5
+            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK) +
+                    "\n" + getBoardString(ChessGame.TeamColor.WHITE);
         }
-        throw new ResponseException(400, "Error: bad request (expected game ID)");
+        throw new ResponseException(400, "Error: expected game ID");
     }
 
     private void assertLoggedIn() throws ResponseException {
         if(status == Status.LOGGEDOUT) {
-            throw new ResponseException(400, "Error: bad request (must log in)");
+            throw new ResponseException(400, "Error: must first log in");
         }
     }
 
     private void assertLoggedOut() throws ResponseException {
         if(status != Status.LOGGEDOUT) {
-            throw new ResponseException(400, "Error: bad request (must log out)");
+            throw new ResponseException(400, "Error: must first log out");
         }
     }
 
@@ -255,9 +253,6 @@ public class ChessClient {
     private String getBoardString(ChessGame.TeamColor color) {
         String[] pieceArray = getPieceArray();
         return buildBoard(pieceArray, color);
-//        String boardString = currGame.game().getBoard().toString();
-//        //FIXME! FIXME!
-//        return boardString.toString();
     }
 
     private String[] getPieceArray() {
