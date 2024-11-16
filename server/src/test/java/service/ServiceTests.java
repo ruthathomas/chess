@@ -5,7 +5,7 @@ import dataaccess.MemoryDataAccess;
 import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.ResponseException;
+import exceptionhandling.ResponseException;
 
 
 import java.util.*;

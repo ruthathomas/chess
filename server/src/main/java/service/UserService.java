@@ -4,9 +4,8 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import model.*;
 import org.mindrot.jbcrypt.BCrypt;
-import server.ResponseException;
+import exceptionhandling.ResponseException;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {

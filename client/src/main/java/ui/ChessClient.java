@@ -1,11 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import model.*;
-import server.ResponseException;
-import server.requests.JoinGameRequest;
-import server.requests.LoginRequest;
+import exceptionhandling.ResponseException;
+import requests.JoinGameRequest;
+import requests.LoginRequest;
 
 import java.util.Arrays;
 import java.util.HashMap;

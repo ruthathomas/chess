@@ -5,7 +5,7 @@ import java.util.UUID;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import model.AuthData;
-import server.ResponseException;
+import exceptionhandling.ResponseException;
 
 public class AuthService {
 

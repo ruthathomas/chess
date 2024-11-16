@@ -1,4 +1,4 @@
-package server;
+package exceptionhandling;
 
 public class ResponseException extends Exception {
 

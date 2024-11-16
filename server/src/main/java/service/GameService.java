@@ -5,10 +5,9 @@ import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import model.AuthData;
 import model.GameData;
-import server.ResponseException;
+import exceptionhandling.ResponseException;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class GameService {
 

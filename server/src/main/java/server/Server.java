@@ -4,11 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonNull;
 import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.*;
+import exceptionhandling.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import server.records.*;
-import server.requests.*;
+import records.ExceptionFailureRecord;
+import records.GameListRecord;
+import requests.JoinGameRequest;
+import requests.LoginRequest;
 import service.*;
 import spark.*;
 

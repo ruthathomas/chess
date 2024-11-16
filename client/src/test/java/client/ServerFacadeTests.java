@@ -3,17 +3,15 @@ package client;
 import chess.ChessGame;
 import model.*;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import exceptionhandling.ResponseException;
 import server.Server;
-import server.records.GameListRecord;
-import server.requests.JoinGameRequest;
-import server.requests.LoginRequest;
+import records.GameListRecord;
+import requests.JoinGameRequest;
+import requests.LoginRequest;
 import ui.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 

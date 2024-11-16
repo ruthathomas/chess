@@ -3,14 +3,11 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
-import server.ResponseException;
 
-import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static dataaccess.DatabaseManager.createDatabase;
 import static dataaccess.DatabaseManager.getConnection;
 
 public class SQLDataAccess implements DataAccessInterface {

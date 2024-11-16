@@ -3,10 +3,10 @@ package ui;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import model.*;
-import server.ResponseException;
-import server.records.ExceptionFailureRecord;
-import server.records.GameListRecord;
-import server.requests.*;
+import exceptionhandling.ResponseException;
+import requests.JoinGameRequest;
+import requests.LoginRequest;
+import records.GameListRecord;
 
 import java.io.*;
 import java.net.*;
