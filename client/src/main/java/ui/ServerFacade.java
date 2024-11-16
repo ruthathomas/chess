@@ -81,8 +81,11 @@ public class ServerFacade {
             var status = httpConn.getResponseCode();
             if(status != 200) {
                 String msg = httpConn.getResponseMessage();
-//                var test = readResponseBody(httpConn, ExceptionFailureRecord.class);
-//                msg = test.message();
+                if(request.getClass() == UserData.class) {
+                    msg = "requested username already taken; please try again with another username";
+                } else if(request.getClass() == LoginRequest.class) {
+                    msg = "provided login information invalid; please check spelling and try again";
+                }
                 throw new ResponseException(status, "Error: " + msg);
             }
             return readResponseBody(httpConn, responseClass);
