@@ -14,11 +14,11 @@ public class BoardBuilder {
         int cell = 1;
         boolean isLightSquare = true;
         if(color == ChessGame.TeamColor.WHITE) {
-            // pieceArray comes backwards for white
+            // pieceArray comes backwards for black
             row = 8;
-            boardString += buildVerticalBorder(color);
+            boardString += buildHorizontalBorder(color);
             boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
-            for(int i = pieceArray.length - 1; i >= 0; i--) {
+            for(int i = 0; i < pieceArray.length; i++) {
                 var squareInfo = buildBoardSquare(isLightSquare, pieceArray[i], row, -1, cell);
                 boardString += squareInfo[0];
                 if(squareInfo[1] == "change_row") {
@@ -29,14 +29,14 @@ public class BoardBuilder {
                 }
                 cell += 1;
             }
-            boardString += buildVerticalBorder(color);
+            boardString += buildHorizontalBorder(color);
 
         } else {
-            // pieceArray comes in the correct order for black
+            // pieceArray comes in the correct order for white
             row = 1;
-            boardString += buildVerticalBorder(color);
+            boardString += buildHorizontalBorder(color);
             boardString += BORDER_FORMAT + " " + row + " " + RESET_FORMAT;
-            for(int i = 0; i < pieceArray.length; i++) {
+            for(int i = pieceArray.length - 1; i >= 0; i--) {
                 var squareInfo = buildBoardSquare(isLightSquare, pieceArray[i], row, 1, cell);
                 boardString += squareInfo[0];
                 if(squareInfo[1] == "change_row") {
@@ -47,12 +47,12 @@ public class BoardBuilder {
                 }
                 cell += 1;
             }
-            boardString += buildVerticalBorder(color);
+            boardString += buildHorizontalBorder(color);
         }
         return boardString;
     }
 
-    private static String buildVerticalBorder(ChessGame.TeamColor color) {
+    private static String buildHorizontalBorder(ChessGame.TeamColor color) {
         String borderString = BORDER_FORMAT;
         if(color == ChessGame.TeamColor.WHITE) {
             return borderString + EscapeSequences.EMPTY + "ａ  ｂ  ｃ  ｄ  ｅ  ｆ  ｇ  ｈ" + EscapeSequences.EMPTY +
@@ -63,7 +63,7 @@ public class BoardBuilder {
         }
     }
 
-    // direction will be either negative 1 (for white) or 1 for (black)
+    // direction will be either 1 (for white) or -1 for (black)
     private static String[] buildBoardSquare(boolean isLightSquare, String piece, int row, int direction, int cell) {
         String[] squareInformation = new String[3];
         String squareString = "";
@@ -87,4 +87,5 @@ public class BoardBuilder {
         squareInformation[0] = squareString;
         return squareInformation;
     }
+
 }

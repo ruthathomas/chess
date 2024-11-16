@@ -1,6 +1,9 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import model.*;
 import exceptionhandling.ResponseException;
 import requests.*;
@@ -258,39 +261,39 @@ public class ChessClient {
     }
 
     private String[] getPieceArray() {
-        // this function produces an array from BLACK's perspective
-        String boardString = currGame.game().getBoard().toString();
+        ChessBoard currBoard = currGame.game().getBoard();
         String[] pieceArray = new String[64];
-        int currSquare = 0;
-        for(var c : boardString.toCharArray()) {
-            if(isLetter(c) && isUpperCase(c)) {
-                //color is white
-                switch(c) {
-                    case('K') -> pieceArray[currSquare] = EscapeSequences.WHITE_KING;
-                    case('Q') -> pieceArray[currSquare] = EscapeSequences.WHITE_QUEEN;
-                    case('B') -> pieceArray[currSquare] = EscapeSequences.WHITE_BISHOP;
-                    case('N') -> pieceArray[currSquare] = EscapeSequences.WHITE_KNIGHT;
-                    case('R') -> pieceArray[currSquare] = EscapeSequences.WHITE_ROOK;
-                    case('P') -> pieceArray[currSquare] = EscapeSequences.WHITE_PAWN;
+        int currCell = 0;
+        for(int i = 8; i > 0; i--) {
+            for(int j = 1; j < 9; j++) {
+                ChessPiece currPiece = currBoard.getPiece(new ChessPosition(i,j));
+                if(currPiece == null) {
+                    pieceArray[currCell] = EscapeSequences.EMPTY;
+                    currCell +=1;
+                    continue;
                 }
-                currSquare += 1;
-            } else if(isLetter(c) && isLowerCase(c)) {
-                //color is black
-                switch(c) {
-                    case('k') -> pieceArray[currSquare] = EscapeSequences.BLACK_KING;
-                    case('q') -> pieceArray[currSquare] = EscapeSequences.BLACK_QUEEN;
-                    case('b') -> pieceArray[currSquare] = EscapeSequences.BLACK_BISHOP;
-                    case('n') -> pieceArray[currSquare] = EscapeSequences.BLACK_KNIGHT;
-                    case('r') -> pieceArray[currSquare] = EscapeSequences.BLACK_ROOK;
-                    case('p') -> pieceArray[currSquare] = EscapeSequences.BLACK_PAWN;
+                ChessPiece.PieceType pieceType = currPiece.getPieceType();
+                if(currPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                    switch (pieceType) {
+                        case KING -> pieceArray[currCell] = EscapeSequences.WHITE_KING;
+                        case QUEEN -> pieceArray[currCell] = EscapeSequences.WHITE_QUEEN;
+                        case BISHOP -> pieceArray[currCell] = EscapeSequences.WHITE_BISHOP;
+                        case KNIGHT -> pieceArray[currCell] = EscapeSequences.WHITE_KNIGHT;
+                        case ROOK -> pieceArray[currCell] = EscapeSequences.WHITE_ROOK;
+                        case PAWN -> pieceArray[currCell] = EscapeSequences.WHITE_PAWN;
+                    }
+                } else {
+                    switch (pieceType) {
+                        case KING -> pieceArray[currCell] = EscapeSequences.BLACK_KING;
+                        case QUEEN -> pieceArray[currCell] = EscapeSequences.BLACK_QUEEN;
+                        case BISHOP -> pieceArray[currCell] = EscapeSequences.BLACK_BISHOP;
+                        case KNIGHT -> pieceArray[currCell] = EscapeSequences.BLACK_KNIGHT;
+                        case ROOK -> pieceArray[currCell] = EscapeSequences.BLACK_ROOK;
+                        case PAWN -> pieceArray[currCell] = EscapeSequences.BLACK_PAWN;
+                    }
                 }
-                currSquare += 1;
-            } else if(c == ' ') {
-                //empty square
-                pieceArray[currSquare] = EscapeSequences.EMPTY;
-                currSquare += 1;
+                currCell +=1;
             }
-            //if none of the above are true, the character should be ignored
         }
         return pieceArray;
     }
