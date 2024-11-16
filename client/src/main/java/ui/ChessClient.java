@@ -78,22 +78,22 @@ public class ChessClient {
     public String help() {
         if(status == Status.LOGGEDOUT) {
             return """
-                    \t[OPTIONS]
-                    \t┝ register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                    \t┝ login <USERNAME> <PASSWORD> - to play chess
-                    \t┝ quit - to exit the program
-                    \t┕ help - to list possible commands
+                    \u001b[1m\u001b[38;5;5m\t[OPTIONS]
+                    \t┝ register <USERNAME> <PASSWORD> <EMAIL> - \u001b[22m\u001b[38;5;242mto create an account
+                    \u001b[1m\u001b[38;5;5m\t┝ login <USERNAME> <PASSWORD> - \u001b[22m\u001b[38;5;242mto play chess
+                    \u001b[1m\u001b[38;5;5m\t┝ quit - \u001b[22m\u001b[38;5;242mto exit the program
+                    \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
         } else if (status == Status.LOGGEDINIDLE) {
             return """
-                    \t[OPTIONS]
-                    \t┝ create <NAME> - to create a game
-                    \t┝ list - to list all games
-                    \t┝ join <ID> [WHITE|BLACK] - to join a game
-                    \t┝ observe <ID> - to observe a game
-                    \t┝ logout - to logout of the program
-                    \t┝ quit - to exit the program
-                    \t┕ help - to list possible commands
+                    \u001b[1m\u001b[38;5;5m\t[OPTIONS]
+                    \t┝ create <NAME> - \u001b[22m\u001b[39mto create a game
+                    \u001b[1m\u001b[38;5;5m\t┝ list - \u001b[22m\u001b[38;5;242mto list all games
+                    \u001b[1m\u001b[38;5;5m\t┝ join <ID> [WHITE|BLACK] - \u001b[22m\u001b[38;5;242mto join a game
+                    \u001b[1m\u001b[38;5;5m\t┝ observe <ID> - \u001b[22m\u001b[38;5;242mto observe a game
+                    \u001b[1m\u001b[38;5;5m\t┝ logout - \u001b[22m\u001b[38;5;242mto logout of the program
+                    \u001b[1m\u001b[38;5;5m\t┝ quit - \u001b[22m\u001b[38;5;242mto exit the program
+                    \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
         } else {
             return """
@@ -116,7 +116,7 @@ public class ChessClient {
             return String.format("Successfully registered user %s", authData.username());
             //fixme
         }
-        return null;
+        throw new ResponseException(400, "Error: bad request (expected username, password, and email)");
     }
 
     private String login(String[] params) throws ResponseException {
@@ -128,8 +128,7 @@ public class ChessClient {
             status = Status.LOGGEDINIDLE;
             return String.format("Successfully logged in user %s", authData.username());
         }
-        //should I return something else instead of null?
-        return null;
+        throw new ResponseException(400, "Error: bad request (expected username and password)");
     }
 
     private String logout() throws ResponseException {
@@ -167,7 +166,7 @@ public class ChessClient {
             GameData game = server.createGame(authData.authToken(), params[0]);
             return String.format("Successfully created game %s", game.gameName());
         }
-        return null;
+        throw new ResponseException(400, "Error: bad request (expected game name)");
     }
 
     private String join(String[] params) throws ResponseException {
@@ -183,7 +182,7 @@ public class ChessClient {
             //FIXME FIXME THIS IS TEMPORARY
             return getBoardString("white") + "\n\n" + getBoardString("black");
         }
-        return null;
+        throw new ResponseException(400, "Error: bad request (expected game ID and player color)");
     }
 
     private String observe(String[] params) throws ResponseException {
@@ -195,7 +194,7 @@ public class ChessClient {
             //FIXME FIXME THIS IS TEMPORARY
             return getBoardString("white") + "\n\n" + getBoardString("black");
         }
-        return null;
+        throw new ResponseException(400, "Error: bad request (expected game ID)");
     }
 
     private void assertLoggedIn() throws ResponseException {

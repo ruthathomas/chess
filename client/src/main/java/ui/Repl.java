@@ -12,7 +12,7 @@ public class Repl {
 
     public void run() {
         //sample
-        System.out.println("Welcome to Chess :') Sign into start.");
+        System.out.println("Sign into start.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -22,10 +22,10 @@ public class Repl {
             String input = scanner.nextLine();
             try {
                 result = client.evaluateInput(input);
-                System.out.print(result);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR + result);
             } catch (Exception e) {
                 var msg = e.getMessage();
-                System.out.print(msg);
+                System.out.print(EscapeSequences.RESET_TEXT_COLOR + msg);
             }
         }
         System.out.println();
@@ -42,6 +42,6 @@ public class Repl {
         } else if(status.equals("LOGGEDINOBSERVING")) {
             status = "OBSERVING";
         }
-        System.out.print("\n["+ status +"] >>> ");
+        System.out.print(EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + "\u001b[3m\n["+ status +"] >>> ");
     }
 }
