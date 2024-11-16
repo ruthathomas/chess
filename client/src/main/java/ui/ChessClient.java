@@ -62,7 +62,11 @@ public class ChessClient {
                     return help();
                 }
                 case "quit" -> {
-                    return "quit";
+                    if(status != Status.LOGGEDOUT) {
+                        return "quit";
+                    } else {
+                       return "Error: must log out";
+                    }
                 }
                 case null, default -> {
                     return help();
@@ -92,7 +96,6 @@ public class ChessClient {
                     \u001b[1m\u001b[38;5;5m\t┝ join <ID> [WHITE|BLACK] - \u001b[22m\u001b[38;5;242mto join a game
                     \u001b[1m\u001b[38;5;5m\t┝ observe <ID> - \u001b[22m\u001b[38;5;242mto observe a game
                     \u001b[1m\u001b[38;5;5m\t┝ logout - \u001b[22m\u001b[38;5;242mto logout of the program
-                    \u001b[1m\u001b[38;5;5m\t┝ quit - \u001b[22m\u001b[38;5;242mto exit the program
                     \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
         } else {
