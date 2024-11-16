@@ -5,13 +5,9 @@ import com.google.gson.JsonNull;
 import com.google.gson.internal.LinkedTreeMap;
 import dataaccess.*;
 import exceptionhandling.ResponseException;
-import model.AuthData;
-import model.GameData;
-import model.UserData;
-import records.ExceptionFailureRecord;
-import records.GameListRecord;
-import requests.JoinGameRequest;
-import requests.LoginRequest;
+import model.*;
+import records.*;
+import requests.*;
 import service.*;
 import spark.*;
 

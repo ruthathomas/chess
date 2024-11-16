@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import model.*;
 import exceptionhandling.ResponseException;
-import requests.JoinGameRequest;
-import requests.LoginRequest;
-import records.GameListRecord;
+import requests.*;
+import records.*;
 
 import java.io.*;
 import java.net.*;

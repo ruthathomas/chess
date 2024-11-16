@@ -3,8 +3,7 @@ package ui;
 import chess.ChessGame;
 import model.*;
 import exceptionhandling.ResponseException;
-import requests.JoinGameRequest;
-import requests.LoginRequest;
+import requests.*;
 
 import java.util.Arrays;
 import java.util.HashMap;

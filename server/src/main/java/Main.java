@@ -1,8 +1,5 @@
 import chess.*;
-import dataaccess.DataAccessException;
-import dataaccess.DataAccessInterface;
-import dataaccess.MemoryDataAccess;
-import dataaccess.SQLDataAccess;
+import dataaccess.*;
 import server.Server;
 import spark.Spark;
 
