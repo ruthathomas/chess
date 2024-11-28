@@ -9,7 +9,7 @@ public class DetermineKingMoves implements DeterminePieceMoves {
     @Override
     public ArrayList<ChessMove> getValidMoves(ChessBoard board, ChessPosition myPosition) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        int row = myPosition.getRow();;
+        int row = myPosition.getRow();
         int col = myPosition.getColumn();
         ChessPiece myPiece = board.getPiece(myPosition);
         validMoves.add(validateKingMove(row, col, 1, -1, board, myPiece, myPosition));

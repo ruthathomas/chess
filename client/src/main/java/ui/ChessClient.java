@@ -5,9 +5,8 @@ import model.*;
 import exceptionhandling.ResponseException;
 import requests.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 
 import static java.lang.Character.*;
 import static ui.BoardBuilder.buildBoard;
@@ -17,6 +16,7 @@ public class ChessClient {
     private int port;
     private AuthData authData;
     private GameData currGame;
+    private ChessGame.TeamColor currColor;
     // in petShop, it has here a notif handler and a websocket facade
     private Status status = Status.LOGGEDOUT;
     //private Gson serializer = new Gson();
@@ -59,7 +59,7 @@ public class ChessClient {
                     return observe(params);
                 }
                 case "redraw" -> {
-                    return "redraw";
+                    return redraw();
                 }
                 case "leave" -> {
                     return "leave";
@@ -71,7 +71,7 @@ public class ChessClient {
                     return "resign";
                 }
                 case "highlight" -> {
-                    return "highlight";
+                    return highlight(params);
                 }
                 case "help" -> {
                     return help();
@@ -190,19 +190,20 @@ public class ChessClient {
             // this is the requested id; doesn't align with actual ids
             int id = Integer.parseInt(params[0]);
             var color = params[1].toLowerCase();
-            ChessGame.TeamColor colorEnum;
             if(color.equalsIgnoreCase("white")) {
-                colorEnum = ChessGame.TeamColor.WHITE;
+                currColor = ChessGame.TeamColor.WHITE;
             } else {
-                colorEnum = ChessGame.TeamColor.BLACK;
+                currColor = ChessGame.TeamColor.BLACK;
             }
             id = getIdFromRequestedId(id);
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
-            //This is temporary for phase 5; eventually, you will call this for only your color
-            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK) +
-                    "\n" + getBoardString(ChessGame.TeamColor.WHITE);
+            if(currColor == ChessGame.TeamColor.WHITE) {
+                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
+            } else {
+                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK, getEmptyHighlightArray());
+            }
         }
         throw new ResponseException(400, "Error: expected game ID and player color");
     }
@@ -214,17 +215,19 @@ public class ChessClient {
             int requestedId = Integer.parseInt(params[0]);
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
-            //This is temporary for phase 5
-            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK) +
-                    "\n" + getBoardString(ChessGame.TeamColor.WHITE);
+            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");
     }
 
     private String redraw() throws ResponseException {
         assertLoggedIn();
-        // FIXME; this should be the opposite direction if you're playing as black
-        return getBoardString(ChessGame.TeamColor.BLACK) + "\n" + getBoardString(ChessGame.TeamColor.WHITE);
+        // null indicates no color assigned; observing
+        if(currColor == null || currColor == ChessGame.TeamColor.WHITE) {
+            return "\n" + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
+        } else {
+            return "\n" + getBoardString(ChessGame.TeamColor.BLACK, getEmptyHighlightArray());
+        }
     }
 
     private String leave() throws ResponseException {
@@ -244,7 +247,32 @@ public class ChessClient {
 
     private String highlight(String[] params) throws ResponseException {
         assertLoggedIn();
-        return null;
+        String positionRequest = params[0];
+        try {
+            char charCol = positionRequest.charAt(0);
+            int col;
+            switch (charCol) {
+                case 'a' -> col = 1;
+                case 'b' -> col = 2;
+                case 'c' -> col = 3;
+                case 'd' -> col = 4;
+                case 'e' -> col = 5;
+                case 'f' -> col = 6;
+                case 'g' -> col = 7;
+                case 'h' -> col = 8;
+                default -> throw new ResponseException(400, "Error: bad request");
+            }
+            int row = Integer.parseInt(String.valueOf(positionRequest.charAt(1)));
+            ChessBoard currBoard = currGame.game().getBoard();
+            // you're DEFINITELY going to have to take a look at this to make sure it's proper
+            ChessPiece selectedPiece = currBoard.getPiece(new ChessPosition(row, col));
+            Collection<ChessMove> moves =
+                    selectedPiece.pieceMoves(currBoard, new ChessPosition(row, col));
+            int[] highlightArray = getHighlightArray(moves);
+            return "\n" + getBoardString(ChessGame.TeamColor.WHITE, highlightArray);
+        } catch (Exception e) {
+            throw new ResponseException(400, "Error: bad request");
+        }
     }
 
     private void assertLoggedIn() throws ResponseException {
@@ -289,9 +317,9 @@ public class ChessClient {
         }
     }
 
-    private String getBoardString(ChessGame.TeamColor color) {
+    private String getBoardString(ChessGame.TeamColor color, int[] highlightArray) {
         String[] pieceArray = getPieceArray();
-        return buildBoard(pieceArray, color);
+        return buildBoard(pieceArray, highlightArray, color);
     }
 
     private String[] getPieceArray() {
@@ -331,4 +359,43 @@ public class ChessClient {
         }
         return pieceArray;
     }
+
+    private int[] getHighlightArray(Collection<ChessMove> moves) {
+        int[] highlightArray = new int[64];
+        ArrayList<ChessPosition> endPositions = new ArrayList<>();
+        ChessPosition startPosition = null;
+        for(var move : moves) {
+            if (startPosition == null) {
+                startPosition = new ChessPosition(move.getStartPosition().getRow() - 1,
+                        move.getStartPosition().getColumn() - 1);
+            }
+            ChessPosition endPosition = new ChessPosition(move.getEndPosition().getRow() - 1,
+                    move.getEndPosition().getColumn() - 1);
+            endPositions.add(endPosition);
+        }
+        int currCell = 0;
+        for(int i = 8; i > 0; i--) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition currPos = new ChessPosition(i - 1, j - 1);
+                if(Objects.equals(startPosition, currPos)) {
+                    highlightArray[currCell] = 2;
+                } else if(endPositions.contains(currPos)) {
+                    highlightArray[currCell] = 1;
+                } else {
+                    highlightArray[currCell] = 0;
+                }
+                currCell +=1;
+            }
+        }
+        return highlightArray;
+    }
+
+    private int[] getEmptyHighlightArray() {
+        int[] highlightArray = new int[64];
+        for(int i = 0; i < 64; i++) {
+            highlightArray[i] = 0;
+        }
+        return highlightArray;
+    }
+
 }
