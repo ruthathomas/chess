@@ -71,20 +71,20 @@ public class BoardBuilder {
         if(isLightSquare) {
             if(isHighlighted == 2) {
                 //fixme
-                squareString += EscapeSequences.SET_BG_COLOR_YELLOW;
+                squareString += EscapeSequences.SET_BG_COLOR_PIECE_HIGHLIGHT;
             } else if(isHighlighted == 1){
-                squareString += EscapeSequences.SET_BG_COLOR_BLUE;
+                squareString += EscapeSequences.SET_BG_COLOR_LIGHT_HIGHLIGHT;
             } else {
-                squareString += EscapeSequences.SET_BG_COLOR_LIGHT_BROWN;
+                squareString += EscapeSequences.SET_BG_COLOR_LIGHT_PURPLE;
             }
         } else {
             if(isHighlighted == 2) {
                 //fixme
-                squareString += EscapeSequences.SET_BG_COLOR_YELLOW;
+                squareString += EscapeSequences.SET_BG_COLOR_PIECE_HIGHLIGHT;
             } else if(isHighlighted == 1) {
-                squareString += EscapeSequences.SET_BG_COLOR_RED;
+                squareString += EscapeSequences.SET_BG_COLOR_DARK_HIGHLIGHT;
             } else {
-                squareString += EscapeSequences.SET_BG_COLOR_DARK_BROWN;
+                squareString += EscapeSequences.SET_BG_COLOR_DARK_PURPLE;
             }
         }
         squareInformation[2] = "change_color";
