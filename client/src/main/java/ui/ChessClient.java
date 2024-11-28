@@ -58,6 +58,21 @@ public class ChessClient {
                 case "observe" -> {
                     return observe(params);
                 }
+                case "redraw" -> {
+                    return "redraw";
+                }
+                case "leave" -> {
+                    return "leave";
+                }
+                case "move" -> {
+                    return "move";
+                }
+                case "resign" -> {
+                    return "resign";
+                }
+                case "highlight" -> {
+                    return "highlight";
+                }
                 case "help" -> {
                     return help();
                 }
@@ -237,6 +252,32 @@ public class ChessClient {
                     "\n" + getBoardString(ChessGame.TeamColor.WHITE);
         }
         throw new ResponseException(400, "Error: expected game ID");
+    }
+
+    private String redraw() throws ResponseException {
+        assertLoggedIn();
+        // FIXME; this should be the opposite direction if you're playing as black
+        return getBoardString(ChessGame.TeamColor.BLACK) + "\n" + getBoardString(ChessGame.TeamColor.WHITE);
+    }
+
+    private String leave() throws ResponseException {
+        assertLoggedIn();
+        return null;
+    }
+
+    private String move(String[] params) throws ResponseException {
+        assertLoggedIn();
+        return null;
+    }
+
+    private String resign() throws ResponseException {
+        assertLoggedIn();
+        return null;
+    }
+
+    private String highlight(String[] params) throws ResponseException {
+        assertLoggedIn();
+        return null;
     }
 
     private void assertLoggedIn() throws ResponseException {
