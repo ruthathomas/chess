@@ -236,7 +236,17 @@ public class ChessClient {
     }
 
     private String move(String[] params) throws ResponseException {
+        // takes start and end
         assertLoggedIn();
+        if(params.length > 1) {
+            String startRequest = params[0];
+            int startCol = getIntFromChar(startRequest.charAt(0));
+            int startRow = Integer.parseInt(String.valueOf(startRequest.charAt(1)));
+            String endRequest = params[1];
+            int endCol = getIntFromChar(endRequest.charAt(0));
+            int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
+            //fixme continue
+        }
         return null;
     }
 
@@ -249,22 +259,9 @@ public class ChessClient {
         assertLoggedIn();
         String positionRequest = params[0];
         try {
-            char charCol = positionRequest.charAt(0);
-            int col;
-            switch (charCol) {
-                case 'a' -> col = 1;
-                case 'b' -> col = 2;
-                case 'c' -> col = 3;
-                case 'd' -> col = 4;
-                case 'e' -> col = 5;
-                case 'f' -> col = 6;
-                case 'g' -> col = 7;
-                case 'h' -> col = 8;
-                default -> throw new ResponseException(400, "Error: bad request");
-            }
+            int col = getIntFromChar(positionRequest.charAt(0));
             int row = Integer.parseInt(String.valueOf(positionRequest.charAt(1)));
             ChessBoard currBoard = currGame.game().getBoard();
-            // you're DEFINITELY going to have to take a look at this to make sure it's proper
             ChessPiece selectedPiece = currBoard.getPiece(new ChessPosition(row, col));
             Collection<ChessMove> moves =
                     selectedPiece.pieceMoves(currBoard, new ChessPosition(row, col));
@@ -396,6 +393,36 @@ public class ChessClient {
             highlightArray[i] = 0;
         }
         return highlightArray;
+    }
+
+    private int getIntFromChar(char c) throws ResponseException {
+        switch (c) {
+            case 'a' -> {
+                return  1;
+            }
+            case 'b' -> {
+                return  2;
+            }
+            case 'c' -> {
+                return  3;
+            }
+            case 'd' -> {
+                return  4;
+            }
+            case 'e' -> {
+                return  5;
+            }
+            case 'f' -> {
+                return  6;
+            }
+            case 'g' -> {
+                return  7;
+            }
+            case 'h' -> {
+                return  8;
+            }
+            default -> throw new ResponseException(400, "Error: bad request");
+        }
     }
 
 }

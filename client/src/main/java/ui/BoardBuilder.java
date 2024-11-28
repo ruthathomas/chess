@@ -70,7 +70,6 @@ public class BoardBuilder {
         String squareString = "";
         if(isLightSquare) {
             if(isHighlighted == 2) {
-                //fixme
                 squareString += EscapeSequences.SET_BG_COLOR_PIECE_HIGHLIGHT;
             } else if(isHighlighted == 1){
                 squareString += EscapeSequences.SET_BG_COLOR_LIGHT_HIGHLIGHT;
@@ -79,7 +78,6 @@ public class BoardBuilder {
             }
         } else {
             if(isHighlighted == 2) {
-                //fixme
                 squareString += EscapeSequences.SET_BG_COLOR_PIECE_HIGHLIGHT;
             } else if(isHighlighted == 1) {
                 squareString += EscapeSequences.SET_BG_COLOR_DARK_HIGHLIGHT;

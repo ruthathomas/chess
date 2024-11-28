@@ -45,6 +45,7 @@ public class ServerFacade {
         this.makeRequest("/game", "PUT", authToken, joinGameRequest, null);
     }
 
+
     // he is dangerous but I need him for testing
     public void clear() throws ResponseException {
         this.makeRequest("/db", "DELETE", null, null, null);
