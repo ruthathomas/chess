@@ -80,16 +80,18 @@ public class ChessClient {
     }
 
     public String help() {
-        if(status == Status.LOGGEDOUT) {
-            return """
+        switch (status) {
+            case LOGGEDOUT -> {
+                return """
                     \u001b[1m\u001b[38;5;5m[OPTIONS]
                     \t┝ register <USERNAME> <PASSWORD> <EMAIL> - \u001b[22m\u001b[38;5;242mto create an account
                     \u001b[1m\u001b[38;5;5m\t┝ login <USERNAME> <PASSWORD> - \u001b[22m\u001b[38;5;242mto play chess
                     \u001b[1m\u001b[38;5;5m\t┝ quit - \u001b[22m\u001b[38;5;242mto exit the program
                     \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
-        } else if (status == Status.LOGGEDINIDLE) {
-            return """
+            }
+            case LOGGEDINIDLE -> {
+                return """
                     \u001b[1m\u001b[38;5;5m[OPTIONS]
                     \t┝ create <NAME> - \u001b[22m\u001b[38;5;242mto create a game
                     \u001b[1m\u001b[38;5;5m\t┝ list - \u001b[22m\u001b[38;5;242mto list all games
@@ -98,11 +100,36 @@ public class ChessClient {
                     \u001b[1m\u001b[38;5;5m\t┝ logout - \u001b[22m\u001b[38;5;242mto logout of the program
                     \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
-        } else {
-            return """
-                    don't worry about it for now ;')
-                    I'll make separate ones for observing and playing
+            }
+            case LOGGEDINPLAYING -> {
+                // maybe revise this later bc it's weird that it's so short
+                return """
+                    \u001b[1m\u001b[38;5;5m[OPTIONS]
+                    \t┝ redraw - \u001b[22m\u001b[38;5;242mto redraw the chess board
+                    \u001b[1m\u001b[38;5;5m\t┝ leave - \u001b[22m\u001b[38;5;242mto leave the game (game will not end)
+                    \u001b[1m\u001b[38;5;5m\t┝ move <START> <END> - \u001b[22m\u001b[38;5;242mto move the piece at
+                    \u001b[1m\u001b[38;5;5m\t|\t\u001b[22m\u001b[38;5;242mthe position START to the position END
+                    \u001b[1m\u001b[38;5;5m\t┝ resign - \u001b[22m\u001b[38;5;242mto forfeit the game (game will end)
+                    \u001b[1m\u001b[38;5;5m\t┝ highlight <POSITION> - \u001b[22m\u001b[38;5;242mto highlight the legal
+                    \u001b[1m\u001b[38;5;5m\t|\t\u001b[22m\u001b[38;5;242mmoves for the piece at position POSITION
+                    \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
                     """;
+            }
+            case LOGGEDINOBSERVING -> {
+                // maybe revise this later bc it's weird that it's so short
+                return """
+                    \u001b[1m\u001b[38;5;5m[OPTIONS]
+                    \t┝ redraw - \u001b[22m\u001b[38;5;242mto redraw the chess board
+                    \u001b[1m\u001b[38;5;5m\t┝ leave - \u001b[22m\u001b[38;5;242mto leave the game
+                    \u001b[1m\u001b[38;5;5m\t┝ highlight <POSITION> - \u001b[22m\u001b[38;5;242mto highlight the legal
+                    \u001b[1m\u001b[38;5;5m\t|\t\u001b[22m\u001b[38;5;242mmoves for the piece at position POSITION
+                    \u001b[1m\u001b[38;5;5m\t┕ help - \u001b[22m\u001b[38;5;242mto list possible commands
+                    """;
+            }
+            case null, default -> {
+                // this shouldn't cause problems, because there shouldn't be something with another status
+                return null;
+            }
         }
     }
 
@@ -175,6 +202,7 @@ public class ChessClient {
     }
 
     private String join(String[] params) throws ResponseException {
+        //FIXME when a player joins, must make a websocket connection
         assertLoggedIn();
         if(params.length > 1) {
             // this is the requested id; doesn't align with actual ids
@@ -198,6 +226,7 @@ public class ChessClient {
     }
 
     private String observe(String[] params) throws ResponseException {
+        //FIXME when a player joins, must make a websocket connection
         assertLoggedIn();
         if(params.length > 0) {
             int requestedId = Integer.parseInt(params[0]);
