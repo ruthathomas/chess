@@ -1,6 +1,7 @@
 package ui;
 
-import java.util.Objects;
+import ui.clienthelpers.EscapeSequences;
+
 import java.util.Scanner;
 
 public class Repl {

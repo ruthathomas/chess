@@ -4,12 +4,12 @@ import chess.*;
 import model.*;
 import exceptionhandling.ResponseException;
 import requests.*;
+import ui.clienthelpers.EscapeSequences;
+import ui.clienthelpers.HelpStrings;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
-import static java.lang.Character.*;
-import static ui.BoardBuilder.buildBoard;
+import static ui.clienthelpers.BoardBuilder.buildBoard;
 
 public class ChessClient {
     private ServerFacade server;
@@ -237,6 +237,7 @@ public class ChessClient {
 
     private String move(String[] params) throws ResponseException {
         // takes start and end
+        // will update for both users
         assertLoggedIn();
         if(params.length > 1) {
             String startRequest = params[0];
@@ -246,6 +247,8 @@ public class ChessClient {
             int endCol = getIntFromChar(endRequest.charAt(0));
             int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
             //fixme continue
+            String promotionRequest = params[2];
+            ChessPiece.PieceType promotionPiece;
         }
         return null;
     }
