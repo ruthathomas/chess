@@ -26,7 +26,7 @@ public class Repl {
                 result = client.evaluateInput(input);
                 System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + result);
             } catch (Exception e) {
-                var msg = e.getMessage();
+                var msg = "Error : " + e.getMessage();
                 System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + msg);
             }
         }

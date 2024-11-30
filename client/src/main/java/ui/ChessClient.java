@@ -4,16 +4,15 @@ import chess.*;
 import model.*;
 import exceptionhandling.ResponseException;
 import requests.*;
-import ui.clienthelpers.EscapeSequences;
-import ui.clienthelpers.HelpStrings;
+import ui.clienthelpers.*;
 
 import java.util.*;
 
 import static ui.clienthelpers.BoardBuilder.buildBoard;
 
 public class ChessClient {
-    private ServerFacade server;
-    private int port;
+    private final ServerFacade server;
+    private final int port;
     private AuthData authData;
     private GameData currGame;
     private ChessGame.TeamColor currColor;
@@ -65,7 +64,7 @@ public class ChessClient {
                     return "leave";
                 }
                 case "move" -> {
-                    return "move";
+                    return move(params);
                 }
                 case "resign" -> {
                     return "resign";
@@ -192,8 +191,10 @@ public class ChessClient {
             var color = params[1].toLowerCase();
             if(color.equalsIgnoreCase("white")) {
                 currColor = ChessGame.TeamColor.WHITE;
-            } else {
+            } else if (color.equalsIgnoreCase("black")) {
                 currColor = ChessGame.TeamColor.BLACK;
+            } else {
+                throw new ResponseException(400, "Error: bad color request");
             }
             id = getIdFromRequestedId(id);
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
@@ -239,18 +240,31 @@ public class ChessClient {
         // takes start and end
         // will update for both users
         assertLoggedIn();
-        if(params.length > 1) {
-            String startRequest = params[0];
-            int startCol = getIntFromChar(startRequest.charAt(0));
-            int startRow = Integer.parseInt(String.valueOf(startRequest.charAt(1)));
-            String endRequest = params[1];
-            int endCol = getIntFromChar(endRequest.charAt(0));
-            int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
-            //fixme continue
-            String promotionRequest = params[2];
-            ChessPiece.PieceType promotionPiece;
+        assertPlaying();
+        assertYourTurn();
+        try {
+            if(params.length > 1) {
+                String startRequest = params[0];
+                int startCol = getIntFromChar(startRequest.charAt(0));
+                int startRow = Integer.parseInt(String.valueOf(startRequest.charAt(1)));
+                String endRequest = params[1];
+                int endCol = getIntFromChar(endRequest.charAt(0));
+                int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
+                String promotionRequest;
+                ChessPiece.PieceType promotionPiece = null;
+                if (params.length > 2) {
+                    promotionRequest = params[2];
+                    promotionPiece = getPieceFromString(promotionRequest);
+                }
+                ChessMove moveRequest = new ChessMove(new ChessPosition(startRow, startCol),
+                        new ChessPosition(endRow, endCol), promotionPiece);
+                currGame.game().makeMove(moveRequest);
+                //fixme here is where we would do websocket notification?/update boards
+            }
+            return redraw();
+        } catch (Exception e) {
+            throw new ResponseException(400, e.getMessage());
         }
-        return null;
     }
 
     private String resign() throws ResponseException {
@@ -284,6 +298,18 @@ public class ChessClient {
     private void assertLoggedOut() throws ResponseException {
         if(status != Status.LOGGEDOUT) {
             throw new ResponseException(400, "Error: must first log out");
+        }
+    }
+
+    private void assertPlaying() throws ResponseException {
+        if(status != Status.LOGGEDINPLAYING) {
+            throw new ResponseException(400, "Error: must first join a game");
+        }
+    }
+
+    private void assertYourTurn() throws ResponseException {
+        if(currGame.game().getTeamTurn() != currColor) {
+            throw new ResponseException(400, "It is not your turn.");
         }
     }
 
@@ -425,6 +451,34 @@ public class ChessClient {
                 return  8;
             }
             default -> throw new ResponseException(400, "Error: bad request");
+        }
+    }
+
+    // there's no checking here for okayness bc that happens in the game logic
+    ChessPiece.PieceType getPieceFromString(String piece) {
+        piece = piece.toLowerCase();
+        switch (piece) {
+            case "king" -> {
+                return ChessPiece.PieceType.KING;
+            }
+            case "queen" -> {
+                return ChessPiece.PieceType.QUEEN;
+            }
+            case "rook" -> {
+                return ChessPiece.PieceType.ROOK;
+            }
+            case "bishop" -> {
+                return ChessPiece.PieceType.BISHOP;
+            }
+            case "knight" -> {
+                return ChessPiece.PieceType.KNIGHT;
+            }
+            case "pawn" -> {
+                return ChessPiece.PieceType.PAWN;
+            }
+            default -> {
+                return null;
+            }
         }
     }
 
