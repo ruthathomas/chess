@@ -142,6 +142,8 @@ public class ChessClient {
 
     private String logout() throws ResponseException {
         assertLoggedIn();
+        assertNotPlaying();
+        assertNotObserving();
         // you should probably make it so people can't log out in the middle of a game
         server.logout(authData.authToken());
         status = Status.LOGGEDOUT;
@@ -152,6 +154,8 @@ public class ChessClient {
 
     private String list() throws ResponseException {
         assertLoggedIn();
+        assertNotPlaying();
+        assertNotObserving();
         var games = server.listGames(authData.authToken());
         Map<Integer, GameData> gamesMap = new HashMap<>();
         for(var game : games.games()) {
@@ -172,8 +176,9 @@ public class ChessClient {
     }
 
     private String create(String[] params) throws ResponseException {
-        //you might want to make it so the names can have spaces? but I don't really want to
         assertLoggedIn();
+        assertNotPlaying();
+        assertNotObserving();
         if(params.length > 0) {
             String name = String.join(" ", params);
             GameData game = server.createGame(authData.authToken(), name);
@@ -185,6 +190,8 @@ public class ChessClient {
     private String join(String[] params) throws ResponseException {
         //FIXME when a player joins, must make a websocket connection
         assertLoggedIn();
+        assertNotPlaying();
+        assertNotObserving();
         if(params.length > 1) {
             // this is the requested id; doesn't align with actual ids
             int id = Integer.parseInt(params[0]);
@@ -212,6 +219,8 @@ public class ChessClient {
     private String observe(String[] params) throws ResponseException {
         //FIXME when a player joins, must make a websocket connection
         assertLoggedIn();
+        assertNotPlaying();
+        assertNotObserving(); //so you have to leave a game before you can start observing another
         if(params.length > 0) {
             int requestedId = Integer.parseInt(params[0]);
             setCurrGame(getIdFromRequestedId(requestedId));
@@ -233,6 +242,7 @@ public class ChessClient {
 
     private String leave() throws ResponseException {
         assertLoggedIn();
+        assertPlaying();
         return null;
     }
 
@@ -269,6 +279,7 @@ public class ChessClient {
 
     private String resign() throws ResponseException {
         assertLoggedIn();
+        assertPlaying();
         return null;
     }
 
@@ -304,6 +315,18 @@ public class ChessClient {
     private void assertPlaying() throws ResponseException {
         if(status != Status.LOGGEDINPLAYING) {
             throw new ResponseException(400, "Error: must first join a game");
+        }
+    }
+
+    private void assertNotPlaying() throws ResponseException {
+        if(status == Status.LOGGEDINPLAYING) {
+            throw new ResponseException(400, "Error: must first exit the game");
+        }
+    }
+
+    private void assertNotObserving() throws ResponseException {
+        if(status == Status.LOGGEDINOBSERVING) {
+            throw new ResponseException(400, "Error: must first exit the game");
         }
     }
 
