@@ -9,13 +9,14 @@ import java.net.URI;
 
 public class WebSocketFacade extends Endpoint {
 
-    Session session;
-    NotificationHandler notificationHandler;
+    private Session session;
+    private NotificationHandler notificationHandler;
+    private String websocketUrl = "ws://localhost:";
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(int port, NotificationHandler notificationHandler) throws ResponseException {
         try {
-            url = url.replace("http", "ws");
-            URI socketURI = new URI(url + "/ws");
+            websocketUrl += port;
+            URI socketURI = new URI(websocketUrl + "/ws");
             this.notificationHandler = notificationHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();

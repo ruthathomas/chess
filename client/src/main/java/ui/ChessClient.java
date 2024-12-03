@@ -1,10 +1,13 @@
 package ui;
 
+import com.google.gson.Gson;
+
 import chess.*;
 import model.*;
 import exceptionhandling.ResponseException;
 import requests.*;
 import ui.clienthelpers.*;
+import websocket.*;
 
 import java.util.*;
 
@@ -17,14 +20,15 @@ public class ChessClient {
     private GameData currGame;
     private ChessGame.TeamColor currColor;
     // in petShop, it has here a notif handler and a websocket facade
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
     private Status status = Status.LOGGEDOUT;
-    //private Gson serializer = new Gson();
-    //fixme I'm working on it
+    private Gson serializer = new Gson();
 
-    public ChessClient(int port) {
+    public ChessClient(int port, NotificationHandler notificationHandler) {
         this.port = port;
         server = new ServerFacade(port);
-        //probably you need to make a notification handler ;')
+        this.notificationHandler = notificationHandler;
     }
 
     public String evaluateInput(String input) {
@@ -120,6 +124,7 @@ public class ChessClient {
 
     private String register(String[] params) throws ResponseException {
         assertLoggedOut();
+        ws = new WebSocketFacade(port, notificationHandler);
         if(params.length > 2) {
             UserData user = new UserData(params[0], params[1], params[2]);
             authData = server.register(user);
@@ -131,6 +136,7 @@ public class ChessClient {
 
     private String login(String[] params) throws ResponseException {
         assertLoggedOut();
+        ws = new WebSocketFacade(port, notificationHandler);
         if(params.length > 1) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             authData = server.login(loginRequest);
@@ -144,6 +150,7 @@ public class ChessClient {
         assertLoggedIn();
         assertNotPlaying();
         assertNotObserving();
+        ws = null;
         // you should probably make it so people can't log out in the middle of a game
         server.logout(authData.authToken());
         status = Status.LOGGEDOUT;
@@ -207,6 +214,7 @@ public class ChessClient {
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
+            //FIXME ws.NOTIFICATION OF JOINING
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
             } else {
@@ -225,6 +233,7 @@ public class ChessClient {
             int requestedId = Integer.parseInt(params[0]);
             setCurrGame(getIdFromRequestedId(requestedId));
             status = Status.LOGGEDINOBSERVING;
+            //FIXME ws.NOTIFICATION OF OBSERVING
             return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");
@@ -243,6 +252,8 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         assertPlaying();
+        //FIXME CONT
+        //FIXME ws.NOTIFICATION OF LEAVING
         return WordArt.EXITING_GAME;
     }
 
@@ -270,6 +281,7 @@ public class ChessClient {
                         new ChessPosition(endRow, endCol), promotionPiece);
                 currGame.game().makeMove(moveRequest);
                 //fixme here is where we would do websocket notification?/update boards
+                //FIXME ws.NOTIFICATION OF MOVE BEING MADE
             }
             return redraw();
         } catch (Exception e) {
@@ -280,6 +292,8 @@ public class ChessClient {
     private String resign() throws ResponseException {
         assertLoggedIn();
         assertPlaying();
+        //FIXME CONT
+        //FIXME ws.NOTIFICATION OF RESIGNATION
         return null;
     }
 
