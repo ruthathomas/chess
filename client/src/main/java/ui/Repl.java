@@ -1,6 +1,8 @@
 package ui;
 
-import ui.clienthelpers.EscapeSequences;
+import server.Server;
+import static ui.clienthelpers.EscapeSequences.*;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
@@ -24,10 +26,10 @@ public class Repl {
             String input = scanner.nextLine();
             try {
                 result = client.evaluateInput(input);
-                System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + result);
+                System.out.print("\t" + RESET_TEXT_ITALIC + RESET_TEXT_COLOR + result);
             } catch (Exception e) {
                 var msg = "Error : " + e.getMessage();
-                System.out.print("\t" + EscapeSequences.RESET_TEXT_ITALIC + EscapeSequences.RESET_TEXT_COLOR + msg);
+                System.out.print("\t" + RESET_TEXT_ITALIC + RESET_TEXT_COLOR + msg);
             }
         }
         System.out.println();
@@ -35,7 +37,7 @@ public class Repl {
 
     private void printPrompt() {
         String status = client.getStatus();
-        String promptString = EscapeSequences.RESET_BG_COLOR + EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
+        String promptString = RESET_BG_COLOR + SET_TEXT_COLOR_LIGHT_GREY;
         if(status.equals("LOGGEDOUT")) {
             status = "LOGGED OUT";
         } else if(status.equals("LOGGEDINIDLE")) {
@@ -46,5 +48,10 @@ public class Repl {
             status = "OBSERVING";
         }
         System.out.print(promptString + "\u001b[3m\n["+ status +"] >>> ");
+    }
+
+    public void notify(ServerMessage notification) {
+        System.out.println(SET_TEXT_COLOR_RED + notification.toString() + RESET_TEXT_COLOR);
+        printPrompt();
     }
 }

@@ -243,7 +243,7 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         assertPlaying();
-        return null;
+        return WordArt.EXITING_GAME;
     }
 
     private String move(String[] params) throws ResponseException {
