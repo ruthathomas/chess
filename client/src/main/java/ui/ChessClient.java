@@ -124,7 +124,6 @@ public class ChessClient {
 
     private String register(String[] params) throws ResponseException {
         assertLoggedOut();
-        ws = new WebSocketFacade(port, notificationHandler);
         if(params.length > 2) {
             UserData user = new UserData(params[0], params[1], params[2]);
             authData = server.register(user);
@@ -136,7 +135,6 @@ public class ChessClient {
 
     private String login(String[] params) throws ResponseException {
         assertLoggedOut();
-        ws = new WebSocketFacade(port, notificationHandler);
         if(params.length > 1) {
             LoginRequest loginRequest = new LoginRequest(params[0], params[1]);
             authData = server.login(loginRequest);
@@ -214,6 +212,8 @@ public class ChessClient {
             server.joinGame(authData.authToken(), new JoinGameRequest(color, id));
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
+            ws = new WebSocketFacade(port, notificationHandler);
+            // ws.joinGame();
             //FIXME ws.NOTIFICATION OF JOINING
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
@@ -226,6 +226,7 @@ public class ChessClient {
 
     private String observe(String[] params) throws ResponseException {
         //FIXME when a player joins, must make a websocket connection
+        ws = new WebSocketFacade(port, notificationHandler);
         assertLoggedIn();
         assertNotPlaying();
         assertNotObserving(); //so you have to leave a game before you can start observing another

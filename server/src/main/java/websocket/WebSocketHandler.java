@@ -15,6 +15,8 @@ public class WebSocketHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
 
+    public WebSocketHandler() {}
+
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);

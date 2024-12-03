@@ -1,6 +1,5 @@
 package ui;
 
-import server.Server;
 import static ui.clienthelpers.EscapeSequences.*;
 
 import websocket.NotificationHandler;
@@ -8,13 +7,12 @@ import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     // class in which to implement your repl loop
     private ChessClient client;
-    private NotificationHandler notificationHandler;
 
     public Repl(int port) {
-        client = new ChessClient(port, notificationHandler);
+        client = new ChessClient(port, this);
     }
 
     public void run() {

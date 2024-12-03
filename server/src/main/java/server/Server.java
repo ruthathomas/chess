@@ -19,15 +19,18 @@ public class Server {
     // This feels more coupled than I would like it to be (server layer shouldn't
     // know about data layer). I want to come back later and rework, if possible.
     private DataAccessInterface dataAccess = new MemoryDataAccess();
-    private AuthService authService = new AuthService(dataAccess);
-    private GameService gameService = new GameService(dataAccess);
-    private UserService userService = new UserService(dataAccess);
+    private AuthService authService;
+    private GameService gameService;
+    private UserService userService;
     private WebSocketHandler webSocketHandler;
     private Gson serializer = new Gson();
 
     public Server(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
+        authService = new AuthService(dataAccess);
         webSocketHandler = new WebSocketHandler();
+        gameService = new GameService(dataAccess);
+        userService = new UserService(dataAccess);
     }
 
     public Server() {
