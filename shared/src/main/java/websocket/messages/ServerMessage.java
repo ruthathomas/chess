@@ -45,6 +45,11 @@ public class ServerMessage {
     }
 
     public String toString() {
+        switch(serverMessageType) {
+            case LOAD_GAME -> {
+                //:(
+            }
+        }
         return new Gson().toJson(this);
     }
 }

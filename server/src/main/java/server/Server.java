@@ -10,6 +10,7 @@ import records.*;
 import requests.*;
 import service.*;
 import spark.*;
+import websocket.WebSocketHandler;
 
 import java.util.Map;
 
@@ -21,10 +22,12 @@ public class Server {
     private AuthService authService = new AuthService(dataAccess);
     private GameService gameService = new GameService(dataAccess);
     private UserService userService = new UserService(dataAccess);
+    private WebSocketHandler webSocketHandler;
     private Gson serializer = new Gson();
 
     public Server(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
+        webSocketHandler = new WebSocketHandler();
     }
 
     public Server() {
@@ -45,6 +48,8 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
+        Spark.webSocket("/ws", webSocketHandler);
+
         // Register your endpoints and handle exceptions here.
         Spark.delete("/db", this::clear);
         Spark.post("/user", this::registerUser);
@@ -62,6 +67,8 @@ public class Server {
         Spark.stop();
         Spark.awaitStop();
     }
+
+    //FIXME consider places where you might need websocket stuff here??
 
     private Object registerUser(Request req, Response res) {
         AuthData result;

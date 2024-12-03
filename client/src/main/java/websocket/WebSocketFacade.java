@@ -11,10 +11,11 @@ public class WebSocketFacade extends Endpoint {
 
     private Session session;
     private NotificationHandler notificationHandler;
-    private String websocketUrl = "ws://localhost:";
+    private String websocketUrl = "http://localhost:";
 
     public WebSocketFacade(int port, NotificationHandler notificationHandler) throws ResponseException {
         try {
+            websocketUrl = websocketUrl.replace("http", "ws");
             websocketUrl += port;
             URI socketURI = new URI(websocketUrl + "/ws");
             this.notificationHandler = notificationHandler;
@@ -30,8 +31,8 @@ public class WebSocketFacade extends Endpoint {
                 }
             });
 
-        } catch (Exception e) {
-            throw new ResponseException(500, e.getMessage());
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
         }
     }
 
@@ -39,5 +40,37 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    //implement some things here; in petshop, it does enterPetShop and leavePetShop
+    public void joinGame() throws ResponseException {
+        try {
+            //fixme this is just basic garbage
+            var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void observeGame() throws ResponseException {
+
+    }
+
+    public void makeMove() throws ResponseException {
+
+    }
+
+    public void leaveGame() throws ResponseException {
+        try {
+            //fixme this is just basic garbage
+            var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+            this.session.close();
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void resignFromGame() throws ResponseException {
+
+    }
+
 }
