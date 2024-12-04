@@ -55,7 +55,7 @@ public class Repl implements NotificationHandler {
         String notifString = "\n\t" + SET_TEXT_COLOR_WHITE;
         switch(notification.getServerMessageType()) {
             case LOAD_GAME -> {
-                notifString += "GAME UPDATE: ";
+                notifString += "LOADING GAME: ";
             }
             case ERROR -> {
                 notifString += "ERROR: ";

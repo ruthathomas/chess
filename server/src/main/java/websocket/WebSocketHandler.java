@@ -26,13 +26,11 @@ public class WebSocketHandler {
         switch (command.userGameCommand().getCommandType()) {
             case CONNECT -> join(command.givenUser(), session);
             case MAKE_MOVE -> {
-                //have the make move logic
+                //have the make move logic; should take ChessMove move
             }
-            case LEAVE -> {
-                //have the leave logic
-            }
+            case LEAVE -> leave(command.givenUser(), session);
             case RESIGN -> {
-                //have the resign logic
+                //have the resign logic (ends game)
             }
             case OBSERVE -> observe(command.givenUser(), session);
             case null, default -> {
@@ -44,16 +42,41 @@ public class WebSocketHandler {
 
     private void join(String username, Session session) throws IOException {
         connections.add(username, session);
+        // include the color! update for that
         var message = String.format("User '%s' has joined the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
-        connections.broadcast(username, serverMessage);
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(null, serverMessage);
     }
 
+    private void makeMove(String username, Session session) throws IOException {
+        // message should include the player's name and descr of move made, plus board should update
+        //example of what the serialization should look like roughly
+//        {
+//            "commandType": "MAKE_MOVE",
+//                "authToken": "tokengoeshere",
+//                "gameID": "337",
+//                "move": { "start": { "row": 3, "col": 3 }, "end": { "row": 5, "col": 5 } }
+//        }
+    }
+
+    private void leave(String username, Session session) throws IOException {
+        var message = String.format("User '%s' has left the game.", username);
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(null, serverMessage);
+    }
+
+    private void resign(String username, Session session) throws IOException {
+        // resignation message
+    }
+
+    //maybe you should change this bc idk if you should've changed the enum
     private void observe(String username, Session session) throws IOException {
         connections.add(username, session);
         var message = String.format("User '%s' is now observing the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
-        connections.broadcast(username, serverMessage);
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(null, serverMessage);
     }
+
+    //FIXME notifs for check and checkmate (player name)
 
 }

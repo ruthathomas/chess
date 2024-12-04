@@ -251,14 +251,18 @@ public class ChessClient {
 
     private String leave() throws ResponseException {
         assertLoggedIn();
-        assertPlaying();
-        if(status == Status.LOGGEDINPLAYING) {
-            //different message
-        } else if (status == Status.LOGGEDINOBSERVING) {
-            //observer message
-        }
         //FIXME CONT
-        //FIXME ws.NOTIFICATION OF LEAVING
+        if(status == Status.LOGGEDINPLAYING) {
+            if(currGame.whiteUsername().equals(authData.username())) {
+
+            } else {
+
+            }
+        } else if (status == Status.LOGGEDINOBSERVING) {
+            currGame = null;
+        }
+        status = Status.LOGGEDINIDLE;
+        ws.leaveGame(authData, currGame.gameID());
         return WordArt.EXITING_GAME;
     }
 

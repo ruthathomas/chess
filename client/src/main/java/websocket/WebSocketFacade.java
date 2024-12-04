@@ -69,9 +69,9 @@ public class WebSocketFacade extends Endpoint {
 
     public void leaveGame(AuthData authData, int gameID) throws ResponseException {
         try {
-            //fixme this is just basic garbage
-            var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "you suck");
-            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
