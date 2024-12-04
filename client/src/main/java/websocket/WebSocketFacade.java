@@ -3,6 +3,7 @@ package websocket;
 import com.google.gson.Gson;
 import exceptionhandling.ResponseException;
 import model.AuthData;
+import model.GameData;
 import records.UserGameCommandRecord;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -43,20 +44,20 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame(AuthData authData, int gameID) throws ResponseException {
+    public void joinGame(AuthData authData, GameData game, String playerColor) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), game.gameID());
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void observeGame(AuthData authData, int gameID) throws ResponseException {
+    public void observeGame(AuthData authData, GameData game) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), game.gameID());
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -67,11 +68,10 @@ public class WebSocketFacade extends Endpoint {
 
     }
 
-    public void leaveGame(AuthData authData, int gameID) throws ResponseException {
+    public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
-            //FIXME do you need to do different things if the person is playing or not playing?
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {

@@ -1,8 +1,10 @@
 package websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.DataAccessInterface;
 import dataaccess.MemoryDataAccess;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -22,22 +24,23 @@ public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
 
     private DataAccessInterface dataAccess = new MemoryDataAccess();
+    private GameData currGame;
 
     public WebSocketHandler(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) throws IOException, DataAccessException {
         UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
         switch (command.userGameCommand().getCommandType()) {
             case CONNECT -> {
-                connect(command.givenUser(), session, command.isPlaying());
+                connect(command.givenUser(), session, command.isPlaying(), command.playerColor(), command.game());
             }
             case MAKE_MOVE -> {
                 //have the make move logic; should take ChessMove move
             }
-            case LEAVE -> leave(command.givenUser(), session);
+            case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor());
             case RESIGN -> {
                 //have the resign logic (ends game)
             }
@@ -48,13 +51,13 @@ public class WebSocketHandler {
         }
     }
 
-    private void connect(String username, Session session, boolean isPlaying) throws IOException {
-        // include the color! update for that
+    private void connect(String username, Session session, boolean isPlaying, String playerColor, GameData game) throws IOException {
         // fixme server should send a load_game message back to the root client here
         connections.add(username, session);
+        this.currGame = game;
         String message = "";
         if(isPlaying) {
-            message = String.format("User '%s' has joined the game.", username);
+            message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
         } else {
             message = String.format("User '%s' is now observing the game.", username);
         }
@@ -78,11 +81,26 @@ public class WebSocketHandler {
         // server sends check, checkmate, or stalemate notif if caused
     }
 
-    private void leave(String username, Session session) throws IOException {
-        //fixme: game updated to remove root client; game updated in database
-        var message = String.format("User '%s' has left the game.", username);
+    private void leave(String username, boolean isPlaying, String playerColor) throws IOException, DataAccessException {
+        String message = "";
+        if(isPlaying) {
+            GameData newGame;
+            //here is where you do the dataAccess stuff
+            if(playerColor.equalsIgnoreCase("white")) {
+                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), currGame.game());
+            } else {
+                //might need to make sure bad things don't happen here
+                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), currGame.game());
+            }
+            dataAccess.updateGame(currGame.gameID(), newGame);
+            message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
+        } else {
+            // if not playing, then no change must be made to the game
+            message = String.format("Observer '%s' has left the game.", username);
+        }
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
+        connections.remove(username);
     }
 
     private void resign(String username, Session session) throws IOException {

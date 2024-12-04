@@ -65,7 +65,7 @@ public class ChessClient {
                     return redraw();
                 }
                 case "leave" -> {
-                    return "leave";
+                    return leave();
                 }
                 case "move" -> {
                     return move(params);
@@ -213,7 +213,8 @@ public class ChessClient {
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
-            ws.joinGame(authData, id);
+            //currGame
+            ws.joinGame(authData, currGame, currColor.toString());
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
             } else {
@@ -233,7 +234,7 @@ public class ChessClient {
             int id = getIdFromRequestedId(requestedId);
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            ws.observeGame(authData, id);
+            ws.observeGame(authData, currGame);
             return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");
@@ -251,19 +252,14 @@ public class ChessClient {
 
     private String leave() throws ResponseException {
         assertLoggedIn();
-        //FIXME CONT
-
         if(status == Status.LOGGEDINPLAYING) {
-            if(currGame.whiteUsername().equals(authData.username())) {
-
-            } else {
-
-            }
+            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString());
         } else if (status == Status.LOGGEDINOBSERVING) {
+            ws.leaveGame(authData, currGame.gameID(), false, currColor.toString());
             currGame = null;
         }
         status = Status.LOGGEDINIDLE;
-        ws.leaveGame(authData, currGame.gameID());
+
         return WordArt.EXITING_GAME;
     }
 
