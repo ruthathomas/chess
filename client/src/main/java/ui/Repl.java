@@ -3,6 +3,8 @@ package ui;
 import static ui.clienthelpers.EscapeSequences.*;
 
 import websocket.NotificationHandler;
+import websocket.messages.ErrorMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -55,16 +57,23 @@ public class Repl implements NotificationHandler {
         String notifString = "\n\t" + SET_TEXT_COLOR_WHITE;
         switch(notification.getServerMessageType()) {
             case LOAD_GAME -> {
+                // send current game state; will redraw chess board
                 notifString += "LOADING GAME: ";
+                //FIXME do something here
             }
             case ERROR -> {
+                // invalid command
                 notifString += "ERROR: ";
+                notifString += ((ErrorMessage) notification).getErrorMessage();
             }
             case NOTIFICATION -> {
+                // another player made an action
                 notifString += "NOTIFICATION: ";
+                notifString += ((NotificationMessage) notification).getMessage();
             }
         }
-        notifString += notification.getMessage() + RESET_TEXT_COLOR;
+        // >:( need to fix what this thing takes
+        notifString += RESET_TEXT_COLOR;
         System.out.println(notifString);
         printPrompt();
     }

@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
 import websocket.commands.UserGameCommand;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class WebSocketHandler {
         connections.add(username, session);
         // include the color! update for that
         var message = String.format("User '%s' has joined the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, serverMessage);
     }
 
@@ -61,7 +62,7 @@ public class WebSocketHandler {
 
     private void leave(String username, Session session) throws IOException {
         var message = String.format("User '%s' has left the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, serverMessage);
     }
 
@@ -73,7 +74,7 @@ public class WebSocketHandler {
     private void observe(String username, Session session) throws IOException {
         connections.add(username, session);
         var message = String.format("User '%s' is now observing the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(null, serverMessage);
     }
 
