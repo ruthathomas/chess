@@ -62,7 +62,7 @@ public class Repl implements NotificationHandler {
                 //FIXME do something here
             }
             case ERROR -> {
-                // invalid command
+                // invalid command; should only be seen by user who caused error??
                 notifString += "ERROR: ";
                 notifString += ((ErrorMessage) notification).getErrorMessage();
             }

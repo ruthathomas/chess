@@ -1,12 +1,10 @@
 package websocket;
 
 import com.google.gson.Gson;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
-import websocket.commands.UserGameCommand;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
@@ -44,9 +42,10 @@ public class WebSocketHandler {
     private void join(String username, Session session) throws IOException {
         connections.add(username, session);
         // include the color! update for that
+        // fixme server should send a load_game message back to the root client here
         var message = String.format("User '%s' has joined the game.", username);
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(null, serverMessage);
+        connections.broadcast(username, serverMessage);
     }
 
     private void makeMove(String username, Session session) throws IOException {
@@ -58,16 +57,23 @@ public class WebSocketHandler {
 //                "gameID": "337",
 //                "move": { "start": { "row": 3, "col": 3 }, "end": { "row": 5, "col": 5 } }
 //        }
+        //FIXME follow these directions
+        //server verifies validity of move; game updates to represnt the move; game updated in database
+        //server sends load_game message to all clients
+        // server sends notif to all OTHER clients informing them of made move
+        // server sends check, checkmate, or stalemate notif if caused
     }
 
     private void leave(String username, Session session) throws IOException {
+        //fixme: game updated to remove root client; game updated in database
         var message = String.format("User '%s' has left the game.", username);
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(null, serverMessage);
+        connections.broadcast(username, serverMessage);
     }
 
     private void resign(String username, Session session) throws IOException {
         // resignation message
+        // fixme: server marks game as over; game updated in database; message to ALL clients that root client resigned
     }
 
     //maybe you should change this bc idk if you should've changed the enum
