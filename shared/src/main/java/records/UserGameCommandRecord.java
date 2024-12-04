@@ -2,5 +2,5 @@ package records;
 
 import websocket.commands.UserGameCommand;
 
-public record UserGameCommandRecord(String givenUser, UserGameCommand userGameCommand) {
+public record UserGameCommandRecord(String givenUser, UserGameCommand userGameCommand, Boolean isPlaying) {
 }

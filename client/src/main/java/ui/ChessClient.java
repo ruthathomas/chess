@@ -252,6 +252,7 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         //FIXME CONT
+
         if(status == Status.LOGGEDINPLAYING) {
             if(currGame.whiteUsername().equals(authData.username())) {
 

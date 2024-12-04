@@ -46,7 +46,7 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(AuthData authData, int gameID) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -55,8 +55,8 @@ public class WebSocketFacade extends Endpoint {
 
     public void observeGame(AuthData authData, int gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.OBSERVE, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -70,7 +70,8 @@ public class WebSocketFacade extends Endpoint {
     public void leaveGame(AuthData authData, int gameID) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            //FIXME do you need to do different things if the person is playing or not playing?
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {

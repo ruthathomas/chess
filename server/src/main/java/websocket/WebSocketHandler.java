@@ -1,6 +1,8 @@
 package websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessInterface;
+import dataaccess.MemoryDataAccess;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -13,17 +15,25 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
 
+    // MAKE THIS TAKE A DATA ACCESS OBJECT SO YOU CAN MAKE CHANGES HERE
+
     // This class is modeled after the sample code provided in the PetShop example.
 
     private final ConnectionManager connections = new ConnectionManager();
 
-    public WebSocketHandler() {}
+    private DataAccessInterface dataAccess = new MemoryDataAccess();
+
+    public WebSocketHandler(DataAccessInterface dataAccess) {
+        this.dataAccess = dataAccess;
+    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
         switch (command.userGameCommand().getCommandType()) {
-            case CONNECT -> join(command.givenUser(), session);
+            case CONNECT -> {
+                connect(command.givenUser(), session, command.isPlaying());
+            }
             case MAKE_MOVE -> {
                 //have the make move logic; should take ChessMove move
             }
@@ -31,7 +41,6 @@ public class WebSocketHandler {
             case RESIGN -> {
                 //have the resign logic (ends game)
             }
-            case OBSERVE -> observe(command.givenUser(), session);
             case null, default -> {
                 //throw something
             }
@@ -39,11 +48,16 @@ public class WebSocketHandler {
         }
     }
 
-    private void join(String username, Session session) throws IOException {
-        connections.add(username, session);
+    private void connect(String username, Session session, boolean isPlaying) throws IOException {
         // include the color! update for that
         // fixme server should send a load_game message back to the root client here
-        var message = String.format("User '%s' has joined the game.", username);
+        connections.add(username, session);
+        String message = "";
+        if(isPlaying) {
+            message = String.format("User '%s' has joined the game.", username);
+        } else {
+            message = String.format("User '%s' is now observing the game.", username);
+        }
         var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
     }
@@ -74,14 +88,6 @@ public class WebSocketHandler {
     private void resign(String username, Session session) throws IOException {
         // resignation message
         // fixme: server marks game as over; game updated in database; message to ALL clients that root client resigned
-    }
-
-    //maybe you should change this bc idk if you should've changed the enum
-    private void observe(String username, Session session) throws IOException {
-        connections.add(username, session);
-        var message = String.format("User '%s' is now observing the game.", username);
-        var serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(null, serverMessage);
     }
 
     //FIXME notifs for check and checkmate (player name)
