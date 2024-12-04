@@ -193,7 +193,6 @@ public class ChessClient {
     }
 
     private String join(String[] params) throws ResponseException {
-        //FIXME when a player joins, must make a websocket connection
         assertLoggedIn();
         assertNotPlaying();
         assertNotObserving();
@@ -213,8 +212,8 @@ public class ChessClient {
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
-            // ws.joinGame();
-            //FIXME ws.NOTIFICATION OF JOINING
+            // this may cause a problem; it's the actual id, not the requested
+            ws.joinGame(authData, id);
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
             } else {
@@ -225,16 +224,16 @@ public class ChessClient {
     }
 
     private String observe(String[] params) throws ResponseException {
-        //FIXME when a player joins, must make a websocket connection
         ws = new WebSocketFacade(port, notificationHandler);
         assertLoggedIn();
         assertNotPlaying();
         assertNotObserving(); //so you have to leave a game before you can start observing another
         if(params.length > 0) {
             int requestedId = Integer.parseInt(params[0]);
-            setCurrGame(getIdFromRequestedId(requestedId));
+            int id = getIdFromRequestedId(requestedId);
+            setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            //FIXME ws.NOTIFICATION OF OBSERVING
+            ws.observeGame(authData, id);
             return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");
@@ -253,6 +252,11 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         assertPlaying();
+        if(status == Status.LOGGEDINPLAYING) {
+            //different message
+        } else if (status == Status.LOGGEDINOBSERVING) {
+            //observer message
+        }
         //FIXME CONT
         //FIXME ws.NOTIFICATION OF LEAVING
         return WordArt.EXITING_GAME;

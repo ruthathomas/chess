@@ -52,7 +52,20 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.toString() + RESET_TEXT_COLOR);
+        String notifString = "\n\t" + SET_TEXT_COLOR_WHITE;
+        switch(notification.getServerMessageType()) {
+            case LOAD_GAME -> {
+                notifString += "GAME UPDATE: ";
+            }
+            case ERROR -> {
+                notifString += "ERROR: ";
+            }
+            case NOTIFICATION -> {
+                notifString += "NOTIFICATION: ";
+            }
+        }
+        notifString += notification.getMessage() + RESET_TEXT_COLOR;
+        System.out.println(notifString);
         printPrompt();
     }
 }

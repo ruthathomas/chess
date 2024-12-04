@@ -2,6 +2,9 @@ package websocket;
 
 import com.google.gson.Gson;
 import exceptionhandling.ResponseException;
+import model.AuthData;
+import records.UserGameCommandRecord;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -40,28 +43,34 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame() throws ResponseException {
+    public void joinGame(AuthData authData, int gameID) throws ResponseException {
         try {
-            //fixme this is just basic garbage
-            var message = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
-            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void observeGame() throws ResponseException {
+    public void observeGame(AuthData authData, int gameID) throws ResponseException {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.OBSERVE, authData.authToken(), gameID);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void makeMove(AuthData authData, int gameID) throws ResponseException {
 
     }
 
-    public void makeMove() throws ResponseException {
-
-    }
-
-    public void leaveGame() throws ResponseException {
+    public void leaveGame(AuthData authData, int gameID) throws ResponseException {
         try {
             //fixme this is just basic garbage
-            var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "you suck");
             this.session.getBasicRemote().sendText(new Gson().toJson(message));
             this.session.close();
         } catch (Exception ex) {
@@ -69,7 +78,7 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void resignFromGame() throws ResponseException {
+    public void resignFromGame(AuthData authData, int gameID) throws ResponseException {
 
     }
 

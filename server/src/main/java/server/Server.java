@@ -141,6 +141,7 @@ public class Server {
             //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
             var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);
+            //
         } catch (ResponseException e) {
             res.status(e.getStatus());
             return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));
