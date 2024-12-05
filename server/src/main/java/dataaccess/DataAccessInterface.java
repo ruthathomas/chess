@@ -20,6 +20,7 @@ public interface DataAccessInterface {
     public void addGame(GameData gameData) throws DataAccessException;
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException;
     public Map<Integer, GameData> getGames() throws DataAccessException;
+    public void endGame(GameData gameData) throws DataAccessException;
 
     public void clearAuthData() throws DataAccessException;
     public void clearGameData() throws DataAccessException;

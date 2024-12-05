@@ -87,7 +87,7 @@ public class WebSocketHandler {
 
     private void makeMove(String username, int gameID, GameData game, String move) throws IOException, DataAccessException {
         //fixme server sends load_game message to all clients, plus updates boards
-        // if a bad move is requested, this whole thing crashes. fix that
+        // if a bad move is requested, this whole thing crashes. fix that --> TRY CATCH THIS SUCKER
         String message = "";
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
         connections.broadcast(null, serverMessage);
@@ -95,6 +95,18 @@ public class WebSocketHandler {
         message = String.format("Player '%s' moved %s.", username, move);
         String statusMessage = getGameStatusMessage(game);
         message += " " + getGameStatusMessage(game);
+        //fixme there's probably a better way to do this
+        if (message.contains("Team WHITE is in")) {
+            if(message.contains("checkmate") || message.contains("stalemate")) {
+                dataAccess.endGame(game);
+                message += "Team BLACK has won. Thank you for playing!";
+            }
+        } else if(message.contains("Team BLACK is in")) {
+            if(message.contains("checkmate") || message.contains("stalemate")) {
+                dataAccess.endGame(game);
+                message += "Team WHITE has won. Thank you for playing!";
+            }
+        }
         serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
         // fixme server sends check, checkmate, or stalemate notif if caused
@@ -105,7 +117,6 @@ public class WebSocketHandler {
         String message = "";
         if(isPlaying) {
             GameData newGame;
-            //here is where you do the dataAccess stuff
             if(playerColor.equalsIgnoreCase("white")) {
                 newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), game.game(), currGame.isOver());
             } else {
@@ -123,9 +134,14 @@ public class WebSocketHandler {
         //connections.remove(username);
     }
 
-    private void resign(String username, Session session) throws IOException {
+    private void resign(String username, Session session) throws IOException, DataAccessException {
         // resignation message
         // fixme: server marks game as over; game updated in database; message to ALL clients that root client resigned
+        dataAccess.endGame(currGame);
+        dataAccess.updateGame(currGame.gameID(), currGame);
+        String message =String.format("Player '%s' has resigned from the game. Thank you for playing!", username);
+        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(null, serverMessage);
     }
 
     //FIXME notifs for check and checkmate (player name)

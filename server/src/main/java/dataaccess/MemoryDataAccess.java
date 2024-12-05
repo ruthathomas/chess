@@ -76,6 +76,12 @@ public class MemoryDataAccess implements DataAccessInterface {
     }
 
     @Override
+    public void endGame(GameData gameData) throws DataAccessException {
+        gameData.game().endGame();
+        updateGame(gameData.gameID(), gameData);
+    }
+
+    @Override
     public void clearAuthData() {
         authDataMap.clear();
     }
