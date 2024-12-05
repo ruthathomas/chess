@@ -65,7 +65,7 @@ public class Repl implements NotificationHandler {
                 // send current game state; will redraw chess board
                 notifString += "LOADING GAME..." + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
                 //fixme something about in check?? idk what it wants tbh
-                notifString += notification.getMessage();
+                //notifString += notification.getMessage();
                 //FIXME do something here
             }
             case ERROR -> {

@@ -3,9 +3,11 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccessException;
 import dataaccess.*;
 //import model.GameData;
+import model.AuthData;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
@@ -14,9 +16,11 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
 //import websocket.messages.NotificationMessage;
 import server.Server;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
@@ -36,24 +40,29 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
-        switch (command.userGameCommand().getCommandType()) {
-            case CONNECT -> {
-                //isPlaying
-                connect(command.givenUser(), session, command.isPlaying(), command.playerColor(), command.game());
+        try {
+            //>:( okay so the things aren't functioning because they expect you ONLY to have a UserGameCommand
+            UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+            //UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
+            String requestingUser = dataAccess.getAuth(command.getAuthToken()).username();
+            switch (command.getCommandType()) {
+                case CONNECT -> connect(requestingUser, command.getGameID(), session);
+                case MAKE_MOVE -> {
+                    //have the make move logic; should take ChessMove move
+                    //makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
+                }
+                case LEAVE -> {
+                    //leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
+                }
+                case RESIGN -> resign(requestingUser);
+                case null, default -> {
+                    //throw something
+                }
+                // in here you make the different things do different things
             }
-            case MAKE_MOVE -> {
-                //have the make move logic; should take ChessMove move
-                makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
-            }
-            case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
-            case RESIGN -> {
-                resign(command.givenUser());
-            }
-            case null, default -> {
-                //throw something
-            }
-            // in here you make the different things do different things
+        } catch (Exception e) {
+            //fixme
+            throw new IOException(e);
         }
     }
 
@@ -64,22 +73,31 @@ public class WebSocketHandler {
         System.out.println(throwable.getMessage() + "\n");
     }
 
-    //boolean isPlaying, String playerColor, GameData game
-    private void connect(String username, Session session, boolean isPlaying, String playerColor, GameData game)
+    //Session session, boolean isPlaying, String playerColor, GameData game
+    private void connect(String username, int gameID, Session session)
             throws IOException {
         try {
             connections.add(username, session);
-            String message = getGameStatusMessage(game);
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
-            connections.broadcastSelf(username,serverMessage);
-            currGame = game;
-            if(isPlaying) {
-                message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
+            GameData game = dataAccess.getGame(gameID);
+            if(game == null) {
+                connections.broadcastSelf(username, new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "invalid game ID requested."));
             } else {
-                message = String.format("User '%s' is now observing the game.", username);
+                String playerColor = getPlayerColor(username, game);
+                boolean isPlaying = getIsPlaying(username, game);
+                String message = "";
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+                connections.broadcastSelf(username, serverMessage);
+                currGame = game;
+                if(isPlaying) {
+                    message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
+                } else {
+                    message = String.format("User '%s' is now observing the game.", username);
+                }
+                serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(username, serverMessage);
             }
-            serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(username, serverMessage);
+
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.broadcastSelf(username, serverMessage);
@@ -93,7 +111,7 @@ public class WebSocketHandler {
         // if a bad move is requested, this whole thing crashes. fix that --> TRY CATCH THIS SUCKER
         try {
             String message = "";
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
             connections.broadcast(null, serverMessage);
             dataAccess.updateGame(gameID, game);
             message = String.format("Player '%s' moved %s.", username, move);
@@ -120,8 +138,12 @@ public class WebSocketHandler {
     }
 
     //there are some issues with leaving; it doesn't always work??
-    private void leave(String username, boolean isPlaying, String playerColor, GameData game) throws IOException{
+    //boolean isPlaying, String playerColor, GameData game
+    private void leave(String username, int gameID) throws IOException{
         try {
+            GameData game = dataAccess.getGame(gameID);
+            String playerColor = getPlayerColor(username, game);
+            boolean isPlaying = getIsPlaying(username, game);
             String message = "";
             if(isPlaying) {
                 GameData newGame;
@@ -180,6 +202,22 @@ public class WebSocketHandler {
             }
         }
         return message;
+    }
+
+    private String getPlayerColor(String username, GameData game) {
+        if(Objects.equals(username, game.whiteUsername())) {
+            return game.whiteUsername();
+        } else if(Objects.equals(username, game.blackUsername())) {
+            return game.blackUsername();
+        }
+        else return "";
+    }
+
+    private boolean getIsPlaying(String username, GameData game) {
+        if(Objects.equals(username, game.whiteUsername()) || Objects.equals(username, game.blackUsername())) {
+            return true;
+        }
+        return false;
     }
 
 }

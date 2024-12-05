@@ -51,8 +51,8 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(AuthData authData, int gameID, GameData game, String playerColor) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game, null);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+            //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -62,8 +62,8 @@ public class WebSocketFacade extends Endpoint {
     public void observeGame(AuthData authData, int gameID, GameData game) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game, null);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+            //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
@@ -84,8 +84,8 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
             //fixme is it okay for the gameData to be null here?
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, game, null);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+            //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, game, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
             this.session.close();
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());

@@ -16,6 +16,7 @@ public class ServerMessage {
 
     //delete me later
     private String message = "";
+    private String errorMessage = "";
     private GameData game;
 
     public enum ServerMessageType {
@@ -31,15 +32,20 @@ public class ServerMessage {
     //delete me
     public ServerMessage(ServerMessageType type, String message) {
         this.serverMessageType = type;
-        if(message != null) {
+        if(type == ServerMessageType.ERROR && message != null) {
+            this.errorMessage = message;
+            this.message = null;
+        } else if(message != null) {
             this.message = message;
+            this.errorMessage = null;
         }
     }
 
-    public ServerMessage(ServerMessageType type, GameData game, String gameString) {
+    public ServerMessage(ServerMessageType type, GameData game) {
         this.serverMessageType = type;
         this.game = game;
-        this.message = gameString;
+        this.message = null;
+        this.errorMessage = null;
     }
 
     public ServerMessageType getServerMessageType() {
@@ -69,6 +75,9 @@ public class ServerMessage {
 
     //delete me
     public String getMessage() {
+        if(serverMessageType == ServerMessageType.ERROR) {
+            return errorMessage;
+        }
         return message;
     }
 
