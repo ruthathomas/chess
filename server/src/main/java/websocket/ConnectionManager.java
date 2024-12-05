@@ -1,6 +1,9 @@
 package websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -24,11 +27,17 @@ public class ConnectionManager {
     }
 
     public void broadcast(String excludedUser, ServerMessage serverMessage) throws IOException {
+        String message = ">:(";
+        switch (serverMessage.getServerMessageType()) {
+            case NOTIFICATION -> message = ((NotificationMessage) serverMessage).getMessage();
+            case ERROR -> message = ((ErrorMessage) serverMessage).getErrorMessage();
+            case LOAD_GAME -> message = ((LoadGameMessage) serverMessage).toString();
+        }
         var unusedConnList = new ArrayList<Connection>();
         for(var connection : connections.values()) {
             if(connection.session.isOpen()) {
                 if(!connection.username.equals(excludedUser)) {
-                    connection.send(serverMessage.toString());
+                    connection.send(message);
                 }
             } else {
                 unusedConnList.add(connection);

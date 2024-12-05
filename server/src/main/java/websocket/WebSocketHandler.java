@@ -93,7 +93,7 @@ public class WebSocketHandler {
                 newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), currGame.game());
             }
             dataAccess.updateGame(currGame.gameID(), newGame);
-            message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
+            message = String.format("Player '%s' (%s) has left the game.", username, playerColor.toLowerCase());
         } else {
             // if not playing, then no change must be made to the game
             message = String.format("Observer '%s' has left the game.", username);
