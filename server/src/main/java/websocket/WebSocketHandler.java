@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.*;
@@ -11,6 +12,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
 //import websocket.messages.NotificationMessage;
+import server.Server;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -41,6 +43,7 @@ public class WebSocketHandler {
             }
             case MAKE_MOVE -> {
                 //have the make move logic; should take ChessMove move
+                makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
             }
             case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor());
             case RESIGN -> {
@@ -78,20 +81,13 @@ public class WebSocketHandler {
 
     // and then here was the observe function, but,,,
 
-    private void makeMove(String username, Session session) throws IOException {
-        // message should include the player's name and descr of move made, plus board should update
-        //example of what the serialization should look like roughly
-//        {
-//            "commandType": "MAKE_MOVE",
-//                "authToken": "tokengoeshere",
-//                "gameID": "337",
-//                "move": { "start": { "row": 3, "col": 3 }, "end": { "row": 5, "col": 5 } }
-//        }
-        //FIXME follow these directions
-        //server verifies validity of move; game updates to represnt the move; game updated in database
-        //server sends load_game message to all clients
-        // server sends notif to all OTHER clients informing them of made move
-        // server sends check, checkmate, or stalemate notif if caused
+    private void makeMove(String username, int gameID, GameData game, String move) throws IOException, DataAccessException {
+        //fixme server sends load_game message to all clients, plus updates boards
+        dataAccess.updateGame(gameID, game);
+        String message = String.format("Player '%s' moved %s.", username, move);
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        connections.broadcast(username, serverMessage);
+        // fixme server sends check, checkmate, or stalemate notif if caused
     }
 
     //, boolean isPlaying, String playerColor

@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exceptionhandling.ResponseException;
 import model.AuthData;
@@ -50,7 +51,7 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //isPlaying: true
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -63,15 +64,22 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //isPlaying: false
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void makeMove(AuthData authData, int gameID) throws ResponseException {
-
+    public void makeMove(AuthData authData, int gameID, GameData game, String move) throws ResponseException {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID);
+            //fixme might need to care about playerColor but might not idk
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, game, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
     public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor) throws ResponseException {
@@ -79,7 +87,7 @@ public class WebSocketFacade extends Endpoint {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
             //FIXME do you need to do different things if the person is playing or not playing?
             //fixme is it okay for the gameData to be null here?
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, null);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, null, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {

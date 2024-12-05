@@ -214,8 +214,6 @@ public class ChessClient {
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
             ws.joinGame(authData, id, currGame, currColor.toString());
-//            //currGame
-//            ws.joinGame(authData, currGame, currColor.toString());
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
             } else {
@@ -278,17 +276,21 @@ public class ChessClient {
                 String endRequest = params[1];
                 int endCol = getIntFromChar(endRequest.charAt(0));
                 int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
+                String piece = currGame.game().getBoard().getPiece(new ChessPosition(startRow, startCol)).getPieceType().toString();
+                String moveString = String.format("a %s from %s to %s", piece, startRequest, endRequest);
                 String promotionRequest;
                 ChessPiece.PieceType promotionPiece = null;
                 if (params.length > 2) {
                     promotionRequest = params[2];
                     promotionPiece = getPieceFromString(promotionRequest);
+                    moveString += " and promoted their pawn to a " + promotionRequest;
                 }
                 ChessMove moveRequest = new ChessMove(new ChessPosition(startRow, startCol),
                         new ChessPosition(endRow, endCol), promotionPiece);
                 currGame.game().makeMove(moveRequest);
                 //fixme here is where we would do websocket notification?/update boards
                 //FIXME ws.NOTIFICATION OF MOVE BEING MADE
+                ws.makeMove(authData, currGame.gameID(), currGame, moveString);
             }
             return redraw();
         } catch (Exception e) {
