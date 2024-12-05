@@ -30,7 +30,8 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    var notification = new Gson().fromJson(message, ServerMessage.class);
+                    //var
+                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     notificationHandler.notify(notification);
                 }
             });
@@ -44,20 +45,25 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame(AuthData authData, GameData game, String playerColor) throws ResponseException {
+//    GameData game, String playerColor
+    public void joinGame(AuthData authData, int gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), game.gameID());
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
+            //isPlaying: true
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void observeGame(AuthData authData, GameData game) throws ResponseException {
+    // GameData game
+    public void observeGame(AuthData authData, int gameID) throws ResponseException {
+        //connect was OBSERVE here, but that'll throw an error; leaving it as CONNECT for now
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), game.gameID());
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game);
+            var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
+            //isPlaying: false
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -68,11 +74,17 @@ public class WebSocketFacade extends Endpoint {
 
     }
 
-    public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor) throws ResponseException {
+    //, boolean isPlaying, String playerColor
+    public void leaveGame(AuthData authData, int gameID) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, null);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+            //delete me
+            var message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, "you suck");
+            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+//            var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
+//            //FIXME do you need to do different things if the person is playing or not playing?
+//            //isPlaying : false
+//            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+//            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());

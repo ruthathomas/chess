@@ -65,7 +65,7 @@ public class ChessClient {
                     return redraw();
                 }
                 case "leave" -> {
-                    return leave();
+                    return "leave";
                 }
                 case "move" -> {
                     return move(params);
@@ -213,8 +213,9 @@ public class ChessClient {
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
-            //currGame
-            ws.joinGame(authData, currGame, currColor.toString());
+            ws.joinGame(authData, id);
+//            //currGame
+//            ws.joinGame(authData, currGame, currColor.toString());
             if(currColor == ChessGame.TeamColor.WHITE) {
                 return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
             } else {
@@ -234,7 +235,8 @@ public class ChessClient {
             int id = getIdFromRequestedId(requestedId);
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            ws.observeGame(authData, currGame);
+            ws.observeGame(authData, id);
+            //currGame
             return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");
@@ -253,9 +255,11 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         if(status == Status.LOGGEDINPLAYING) {
-            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString());
+            //, true, currColor.toString()
+            ws.leaveGame(authData, currGame.gameID());
         } else if (status == Status.LOGGEDINOBSERVING) {
-            ws.leaveGame(authData, currGame.gameID(), false, currColor.toString());
+            //, false, currColor.toString()
+            ws.leaveGame(authData, currGame.gameID());
             currGame = null;
         }
         status = Status.LOGGEDINIDLE;

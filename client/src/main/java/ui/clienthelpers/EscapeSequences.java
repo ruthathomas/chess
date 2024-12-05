@@ -32,7 +32,8 @@ public class EscapeSequences {
     public static final String SET_TEXT_COLOR_YELLOW = SET_TEXT_COLOR + "226m";
     public static final String SET_TEXT_COLOR_BLUE = SET_TEXT_COLOR + "12m";
     public static final String SET_TEXT_COLOR_MAGENTA = SET_TEXT_COLOR + "5m";
-    public static final String SET_TEXT_COLOR_WHITE = SET_TEXT_COLOR + "15m";
+    public static final String SET_TEXT_COLOR_PIECE_WHITE = SET_TEXT_COLOR + "15m";
+    public static final String SET_TEXT_COLOR_WHITE = SET_TEXT_COLOR + "250m";
     public static final String RESET_TEXT_COLOR = UNICODE_ESCAPE + "[39m";
 
     public static final String SET_BG_COLOR_BLACK = SET_BG_COLOR + "0m";
@@ -59,12 +60,12 @@ public class EscapeSequences {
     public static final String BLACK_KNIGHT = " ♞ ";
     public static final String BLACK_ROOK = " ♜ ";
     public static final String BLACK_PAWN = " ♟ ";
-    public static final String WHITE_KING = SET_TEXT_COLOR_WHITE + BLACK_KING + RESET_TEXT_COLOR;
-    public static final String WHITE_QUEEN = SET_TEXT_COLOR_WHITE + BLACK_QUEEN + RESET_TEXT_COLOR;
-    public static final String WHITE_BISHOP = SET_TEXT_COLOR_WHITE + BLACK_BISHOP + RESET_TEXT_COLOR;
-    public static final String WHITE_KNIGHT = SET_TEXT_COLOR_WHITE + BLACK_KNIGHT + RESET_TEXT_COLOR;
-    public static final String WHITE_ROOK = SET_TEXT_COLOR_WHITE + BLACK_ROOK + RESET_TEXT_COLOR;
-    public static final String WHITE_PAWN = SET_TEXT_COLOR_WHITE + BLACK_PAWN + RESET_TEXT_COLOR;
+    public static final String WHITE_KING = SET_TEXT_COLOR_PIECE_WHITE + BLACK_KING + RESET_TEXT_COLOR;
+    public static final String WHITE_QUEEN = SET_TEXT_COLOR_PIECE_WHITE + BLACK_QUEEN + RESET_TEXT_COLOR;
+    public static final String WHITE_BISHOP = SET_TEXT_COLOR_PIECE_WHITE + BLACK_BISHOP + RESET_TEXT_COLOR;
+    public static final String WHITE_KNIGHT = SET_TEXT_COLOR_PIECE_WHITE + BLACK_KNIGHT + RESET_TEXT_COLOR;
+    public static final String WHITE_ROOK = SET_TEXT_COLOR_PIECE_WHITE + BLACK_ROOK + RESET_TEXT_COLOR;
+    public static final String WHITE_PAWN = SET_TEXT_COLOR_PIECE_WHITE + BLACK_PAWN + RESET_TEXT_COLOR;
     public static final String EMPTY = " \u2003 ";
 
     // IN CASE I WANT THEM LATER: " ♙ " " ♖ " " ♘ " " ♗ " " ♕ " " ♔ "

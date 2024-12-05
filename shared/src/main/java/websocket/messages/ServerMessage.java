@@ -13,6 +13,9 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
 
+    //delete me later
+    private String message = "";
+
     public enum ServerMessageType {
         LOAD_GAME,
         ERROR,
@@ -21,6 +24,14 @@ public class ServerMessage {
 
     public ServerMessage(ServerMessageType type) {
         this.serverMessageType = type;
+    }
+
+    //delete me
+    public ServerMessage(ServerMessageType type, String message) {
+        this.serverMessageType = type;
+        if(message != null) {
+            this.message = message;
+        }
     }
 
     public ServerMessageType getServerMessageType() {
@@ -46,6 +57,11 @@ public class ServerMessage {
 
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    //delete me
+    public String getMessage() {
+        return message;
     }
 
 }

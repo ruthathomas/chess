@@ -1,7 +1,8 @@
 package records;
 
-import model.GameData;
+//import model.GameData;
 import websocket.commands.UserGameCommand;
 
-public record UserGameCommandRecord(String givenUser, UserGameCommand userGameCommand, Boolean isPlaying, String playerColor, GameData game) {
+//boolean isPlaying, String playerColor, GameData game
+public record UserGameCommandRecord(String givenUser, UserGameCommand userGameCommand) {
 }
