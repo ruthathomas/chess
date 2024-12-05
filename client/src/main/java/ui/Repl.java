@@ -59,11 +59,11 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(ServerMessage notification) {
-        String notifString = "\n\t";
+        String notifString = "\n\t" + SET_TEXT_COLOR_LIGHT_GREY + SET_TEXT_ITALIC;
         switch(notification.getServerMessageType()) {
             case LOAD_GAME -> {
                 // send current game state; will redraw chess board
-                notifString += "LOADING GAME: " + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
+                notifString += "LOADING GAME..." + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
                 //fixme something about in check?? idk what it wants tbh
                 notifString += notification.getMessage();
                 //FIXME do something here
@@ -84,8 +84,9 @@ public class Repl implements NotificationHandler {
         System.out.println(notifString);
         // make the redraw work :((
         if(notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-            client.evaluateInput("redraw");
+            String tryMe = client.evaluateInput("redraw");
             //??? didn't work?? of course it didn't but
+            System.out.println(tryMe);
         }
         printPrompt();
     }

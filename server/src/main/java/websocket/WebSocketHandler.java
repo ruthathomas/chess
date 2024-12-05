@@ -46,7 +46,7 @@ public class WebSocketHandler {
                 //have the make move logic; should take ChessMove move
                 makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
             }
-            case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor());
+            case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
             case RESIGN -> {
                 //have the resign logic (ends game)
             }
@@ -87,27 +87,30 @@ public class WebSocketHandler {
 
     private void makeMove(String username, int gameID, GameData game, String move) throws IOException, DataAccessException {
         //fixme server sends load_game message to all clients, plus updates boards
-        String message = getGameStatusMessage(game);
+        // if a bad move is requested, this whole thing crashes. fix that
+        String message = " :0";
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
         connections.broadcast(null, serverMessage);
         dataAccess.updateGame(gameID, game);
         message = String.format("Player '%s' moved %s.", username, move);
+        String statusMessage = getGameStatusMessage(game);
+        message += " " + getGameStatusMessage(game);
         serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
         // fixme server sends check, checkmate, or stalemate notif if caused
     }
 
-    //, boolean isPlaying, String playerColor
-    private void leave(String username, boolean isPlaying, String playerColor) throws IOException, DataAccessException {
-                String message = "";
+    //there are some issues with leaving; it doesn't always work?? also, it seems to have reset?? try again
+    private void leave(String username, boolean isPlaying, String playerColor, GameData game) throws IOException, DataAccessException {
+        String message = "";
         if(isPlaying) {
             GameData newGame;
             //here is where you do the dataAccess stuff
             if(playerColor.equalsIgnoreCase("white")) {
-                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), currGame.game());
+                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), game.game());
             } else {
                 //might need to make sure bad things don't happen here
-                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), currGame.game());
+                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), game.game());
             }
             dataAccess.updateGame(currGame.gameID(), newGame);
             message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
@@ -141,7 +144,7 @@ public class WebSocketHandler {
             }
         }
         if(message.isEmpty()) {
-            message = "Game status okay (no team in check, checkmate, or stalemate).";
+            //message = "Game status okay (no team in check, checkmate, or stalemate).";
         }
         return message;
     }

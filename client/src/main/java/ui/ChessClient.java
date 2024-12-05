@@ -91,8 +91,11 @@ public class ChessClient {
                 }
             }
             //we can either check here that the state is correct, or do it within the function itself
-        } catch (ResponseException ex) {
+        } catch (Exception ex) {
             //fixme
+            if(ex.getMessage() == null) {
+                return "ERROR: invalid move request.";
+            }
             return ex.getMessage();
         }
     }
@@ -214,11 +217,13 @@ public class ChessClient {
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
             ws.joinGame(authData, id, currGame, currColor.toString());
-            if(currColor == ChessGame.TeamColor.WHITE) {
-                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
-            } else {
-                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK, getEmptyHighlightArray());
-            }
+            //should be able to change this to just return the wordArt I think?? I'll see if it works properly for black from the repl
+            return WordArt.ENTERING_GAME;
+//            if(currColor == ChessGame.TeamColor.WHITE) {
+//                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
+//            } else {
+//                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK, getEmptyHighlightArray());
+//            }
         }
         throw new ResponseException(400, "Error: expected game ID and player color");
     }
@@ -234,7 +239,8 @@ public class ChessClient {
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
             ws.observeGame(authData, id, currGame);
-            return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
+            //  + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray())
+            return WordArt.ENTERING_GAME;
         }
         throw new ResponseException(400, "Error: expected game ID");
     }
@@ -252,10 +258,11 @@ public class ChessClient {
 
     private String leave() throws ResponseException {
         assertLoggedIn();
+        setCurrGame(currGame.gameID());
         if(status == Status.LOGGEDINPLAYING) {
-            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString());
+            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString(), currGame);
         } else if (status == Status.LOGGEDINOBSERVING) {
-            ws.leaveGame(authData, currGame.gameID(), false, null);
+            ws.leaveGame(authData, currGame.gameID(), false, null, currGame);
             currGame = null;
         }
         status = Status.LOGGEDINIDLE;
@@ -295,7 +302,7 @@ public class ChessClient {
                 ws.makeMove(authData, currGame.gameID(), currGame, moveString);
             }
             //fixme at this point it hadn't updated the board??
-            return redraw();
+            return "";
         } catch (Exception e) {
             throw new ResponseException(400, e.getMessage());
         }

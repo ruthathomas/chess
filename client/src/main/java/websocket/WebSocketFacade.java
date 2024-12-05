@@ -82,12 +82,12 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor) throws ResponseException {
+    public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor, GameData game) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
             //FIXME do you need to do different things if the person is playing or not playing?
             //fixme is it okay for the gameData to be null here?
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, null, null);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
             this.session.close();
         } catch (Exception ex) {
