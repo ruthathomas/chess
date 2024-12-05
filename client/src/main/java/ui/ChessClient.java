@@ -213,7 +213,7 @@ public class ChessClient {
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
-            ws.joinGame(authData, id);
+            ws.joinGame(authData, id, currGame, currColor.toString());
 //            //currGame
 //            ws.joinGame(authData, currGame, currColor.toString());
             if(currColor == ChessGame.TeamColor.WHITE) {
@@ -235,8 +235,7 @@ public class ChessClient {
             int id = getIdFromRequestedId(requestedId);
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            ws.observeGame(authData, id);
-            //currGame
+            ws.observeGame(authData, id, currGame);
             return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
         }
         throw new ResponseException(400, "Error: expected game ID");

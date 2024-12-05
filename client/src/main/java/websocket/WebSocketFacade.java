@@ -46,11 +46,11 @@ public class WebSocketFacade extends Endpoint {
     }
 
 //    GameData game, String playerColor
-    public void joinGame(AuthData authData, int gameID) throws ResponseException {
+    public void joinGame(AuthData authData, int gameID, GameData game, String playerColor) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //isPlaying: true
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -58,12 +58,12 @@ public class WebSocketFacade extends Endpoint {
     }
 
     // GameData game
-    public void observeGame(AuthData authData, int gameID) throws ResponseException {
+    public void observeGame(AuthData authData, int gameID, GameData game) throws ResponseException {
         //connect was OBSERVE here, but that'll throw an error; leaving it as CONNECT for now
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //isPlaying: false
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());

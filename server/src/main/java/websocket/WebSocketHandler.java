@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 //import dataaccess.DataAccessException;
 import dataaccess.*;
 //import model.GameData;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -24,7 +25,7 @@ public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
 
     private DataAccessInterface dataAccess = new MemoryDataAccess();
-    //private GameData currGame;
+    private GameData currGame;
 
     public WebSocketHandler(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
@@ -36,7 +37,7 @@ public class WebSocketHandler {
         switch (command.userGameCommand().getCommandType()) {
             case CONNECT -> {
                 //isPlaying
-                connect(command.givenUser(), session);
+                connect(command.givenUser(), session, command.isPlaying(), command.playerColor(), command.game());
             }
             case MAKE_MOVE -> {
                 //have the make move logic; should take ChessMove move
@@ -60,25 +61,19 @@ public class WebSocketHandler {
     }
 
     //boolean isPlaying, String playerColor, GameData game
-    private void connect(String username, Session session) throws IOException {
-        // include the color! update for that
+    private void connect(String username, Session session, boolean isPlaying, String playerColor, GameData game)
+            throws IOException {
         // fixme server should send a load_game message back to the root client here
         connections.add(username, session);
-//        //this.currGame = game;
-//        String message = "";
-//        if(isPlaying) {
-//            message = String.format("User '%s' has joined the game.", username); // playing as %s, playerColor
-//        } else {
-//            message = String.format("User '%s' is now observing the game.", username);
-//        }
-        // can delete this dude vv later
-        var message = String.format("User '%s' has joined the game.", username);
+        currGame = game;
+        String message = "";
+        if(isPlaying) {
+            message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
+        } else {
+            message = String.format("User '%s' is now observing the game.", username);
+        }
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
-        // was a NotificationMessage
-        //TEST??
-//        serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-//        connections.broadcast(username, serverMessage);
     }
 
     // and then here was the observe function, but,,,
