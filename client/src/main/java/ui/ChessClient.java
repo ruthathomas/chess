@@ -65,7 +65,7 @@ public class ChessClient {
                     return redraw();
                 }
                 case "leave" -> {
-                    return "leave";
+                    return leave();
                 }
                 case "move" -> {
                     return move(params);
@@ -254,11 +254,9 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         if(status == Status.LOGGEDINPLAYING) {
-            //, true, currColor.toString()
-            ws.leaveGame(authData, currGame.gameID());
+            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString());
         } else if (status == Status.LOGGEDINOBSERVING) {
-            //, false, currColor.toString()
-            ws.leaveGame(authData, currGame.gameID());
+            ws.leaveGame(authData, currGame.gameID(), false, null);
             currGame = null;
         }
         status = Status.LOGGEDINIDLE;

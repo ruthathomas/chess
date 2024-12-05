@@ -1,7 +1,7 @@
 package websocket;
 
 import com.google.gson.Gson;
-//import dataaccess.DataAccessException;
+import dataaccess.DataAccessException;
 import dataaccess.*;
 //import model.GameData;
 import model.GameData;
@@ -32,7 +32,7 @@ public class WebSocketHandler {
     }
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) throws IOException, DataAccessException {
         UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
         switch (command.userGameCommand().getCommandType()) {
             case CONNECT -> {
@@ -42,7 +42,7 @@ public class WebSocketHandler {
             case MAKE_MOVE -> {
                 //have the make move logic; should take ChessMove move
             }
-            case LEAVE -> leave(command.givenUser(), session);
+            case LEAVE -> leave(command.givenUser(), command.isPlaying(), command.playerColor());
             case RESIGN -> {
                 //have the resign logic (ends game)
             }
@@ -95,25 +95,23 @@ public class WebSocketHandler {
     }
 
     //, boolean isPlaying, String playerColor
-    private void leave(String username, Session session) throws IOException {
-        //fixme: game updated to remove root client; game updated in database
-        var message = String.format("User '%s' has left the game.", username);
-        //        String message = "";
-//        if(isPlaying) {
-//            GameData newGame;
-//            //here is where you do the dataAccess stuff
-//            if(playerColor.equalsIgnoreCase("white")) {
-//                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), currGame.game());
-//            } else {
-//                //might need to make sure bad things don't happen here
-//                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), currGame.game());
-//            }
-//            dataAccess.updateGame(currGame.gameID(), newGame);
-//            message = String.format("Player '%s' (%s) has left the game.", username, playerColor.toLowerCase());
-//        } else {
-//            // if not playing, then no change must be made to the game
-//            message = String.format("Observer '%s' has left the game.", username);
-//        }
+    private void leave(String username, boolean isPlaying, String playerColor) throws IOException, DataAccessException {
+                String message = "";
+        if(isPlaying) {
+            GameData newGame;
+            //here is where you do the dataAccess stuff
+            if(playerColor.equalsIgnoreCase("white")) {
+                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), currGame.game());
+            } else {
+                //might need to make sure bad things don't happen here
+                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), currGame.game());
+            }
+            dataAccess.updateGame(currGame.gameID(), newGame);
+            message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
+        } else {
+            // if not playing, then no change must be made to the game
+            message = String.format("Observer '%s' has left the game.", username);
+        }
         var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
         //connections.remove(username);
