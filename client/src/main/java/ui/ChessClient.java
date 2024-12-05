@@ -71,7 +71,7 @@ public class ChessClient {
                     return move(params);
                 }
                 case "resign" -> {
-                    return "resign";
+                    return resign();
                 }
                 case "highlight" -> {
                     return highlight(params);
@@ -177,8 +177,14 @@ public class ChessClient {
             if(gameNumber > 1) {
                 buffer.append("\t");
             }
-            buffer.append(String.format("ID: %d\t|\tName: %s\t\t|\tWhite: %s\t\t|\tBlack: %s%n",
-                    gameNumber, value.gameName(),value.whiteUsername(), value.blackUsername()));
+            String ended;
+            if(value.game().isOver()) {
+                ended = "Yes";
+            } else {
+                ended = "No";
+            }
+            buffer.append(String.format("ID: %d\t|\tName: %s\t\t|\tWhite: %s\t\t|\tBlack: %s\t\t|\tEnded: %s%n",
+                    gameNumber, value.gameName(),value.whiteUsername(), value.blackUsername(), ended));
         }
         return buffer.toString();
     }
@@ -271,8 +277,6 @@ public class ChessClient {
     }
 
     private String move(String[] params) throws ResponseException {
-        // takes start and end
-        // will update for both users
         // make sure parameters don't cause an error; must have two characters
         assertLoggedIn();
         assertPlaying();
@@ -305,6 +309,7 @@ public class ChessClient {
             //fixme at this point it hadn't updated the board??
             return "";
         } catch (Exception e) {
+            // well this isn't right (I don't think); why am I assuming bad request?
             throw new ResponseException(400, e.getMessage());
         }
     }
@@ -312,9 +317,11 @@ public class ChessClient {
     private String resign() throws ResponseException {
         assertLoggedIn();
         assertPlaying();
+        setCurrGame(currGame.gameID());
         //FIXME CONT
         //FIXME ws.NOTIFICATION OF RESIGNATION
-        return null;
+        ws.resignFromGame(authData, currGame.gameID());
+        return "To leave the game, enter 'leave'.";
     }
 
     private String highlight(String[] params) throws ResponseException {

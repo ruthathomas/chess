@@ -23,15 +23,15 @@ public class DataAccessTests {
 
     // Define GameData values to be used in testing
     private GameData existingGame = new GameData(12, "existingUser", "", "",
-            new ChessGame());
+            new ChessGame(), false);
     private GameData validGame = new GameData(13, "", "", "validGame",
-            new ChessGame());
+            new ChessGame(), false);
     private GameData invalidNameGame = new GameData(16, "", "", null,
-            new ChessGame());
+            new ChessGame(), false);
     private GameData invalidGameGame = new GameData(117, "", "", "",
-            null);
+            null, false);
     private GameData updateGame = new GameData(12, "existingUser", "newPlayer",
-            "gameName", new ChessGame());
+            "gameName", new ChessGame(), false);
     private HashMap<Integer, GameData> gamesList = new HashMap<>();
 
     // Define UserData values to be used in testing

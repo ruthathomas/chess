@@ -27,8 +27,8 @@ public class Server {
 
     public Server(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
-        authService = new AuthService(dataAccess);
         webSocketHandler = new WebSocketHandler(dataAccess);
+        authService = new AuthService(dataAccess);
         gameService = new GameService(dataAccess);
         userService = new UserService(dataAccess);
     }
@@ -36,6 +36,7 @@ public class Server {
     public Server() {
         try {
             dataAccess = new SQLDataAccess();
+            webSocketHandler = new WebSocketHandler(dataAccess);
             authService = new AuthService(dataAccess);
             gameService = new GameService(dataAccess);
             userService = new UserService(dataAccess);

@@ -109,13 +109,13 @@ public class ServerFacadeTests {
     void createValidGame() throws ResponseException {
         var auth = facade.login(existingLoginReq).authToken();
         GameData sampleGame = new GameData(facade.listGames(auth).games().size()+1, null,
-                null, "sampleGame", new ChessGame());
+                null, "sampleGame", new ChessGame(), false);
         GameData actualGame = facade.createGame(auth, "sampleGame");
         assertEquals(sampleGame, actualGame);
         expectedGames.add(actualGame);
         assertDoesNotThrow(() -> {facade.createGame(auth, "");});
         expectedGames.add(new GameData(facade.listGames(auth).games().size()+1, null,
-                null, "", new ChessGame()));
+                null, "", new ChessGame(), false));
         facade.logout(auth);
     }
 
@@ -133,7 +133,7 @@ public class ServerFacadeTests {
         int id = validGame.gameID();
         assertDoesNotThrow(() -> {facade.joinGame(auth, new JoinGameRequest("white", id));});
         GameData expectedGame = new GameData(id, existingUser.username(), null, validGame.gameName(),
-                validGame.game());
+                validGame.game(), false);
         var games = facade.listGames(auth).games();
         GameData actualGame = null;
         for(var game : games) {

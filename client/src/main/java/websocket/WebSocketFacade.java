@@ -10,6 +10,7 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
+import java.io.IOException;
 import java.net.URI;
 
 public class WebSocketFacade extends Endpoint {
@@ -50,7 +51,6 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(AuthData authData, int gameID, GameData game, String playerColor) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            //isPlaying: true
             UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
@@ -60,10 +60,8 @@ public class WebSocketFacade extends Endpoint {
 
     // GameData game
     public void observeGame(AuthData authData, int gameID, GameData game) throws ResponseException {
-        //connect was OBSERVE here, but that'll throw an error; leaving it as CONNECT for now
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
-            //isPlaying: false
             UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
         } catch (Exception ex) {
@@ -85,7 +83,6 @@ public class WebSocketFacade extends Endpoint {
     public void leaveGame(AuthData authData, int gameID, boolean isPlaying, String playerColor, GameData game) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
-            //FIXME do you need to do different things if the person is playing or not playing?
             //fixme is it okay for the gameData to be null here?
             UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, isPlaying, playerColor, game, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
@@ -96,6 +93,13 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void resignFromGame(AuthData authData, int gameID) throws ResponseException {
+        try {
+            var command = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authData.authToken(), gameID);
+            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, null, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+        } catch (Exception ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
 
     }
 

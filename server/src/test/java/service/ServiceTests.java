@@ -24,9 +24,9 @@ public class ServiceTests {
 
     // Sample values for pre-existing data in the memory (database has not yet been set up)
     private AuthData existingAuth = new AuthData("testToken", "existingUser");
-    private GameData fullGame = new GameData(1234, "existingUser", "me", "fullGame", new ChessGame());
-    private GameData availableGameWhite = new GameData(4321, "", "testingUser", "availableGame", new ChessGame());
-    private GameData availableGameBlack = new GameData(2, "whiteUser", "", "availableGame", new ChessGame());
+    private GameData fullGame = new GameData(1234, "existingUser", "me", "fullGame", new ChessGame(), false);
+    private GameData availableGameWhite = new GameData(4321, "", "testingUser", "availableGame", new ChessGame(), false);
+    private GameData availableGameBlack = new GameData(2, "whiteUser", "", "availableGame", new ChessGame(), false);
     private UserData existingUser = new UserData("existingUser", "existingPassword", "existing@email.com");
     private Map<Integer, GameData> expectedData = new HashMap<>();
 
