@@ -9,7 +9,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
-import websocket.messages.NotificationMessage;
+//import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -55,8 +55,8 @@ public class WebSocketHandler {
     @OnWebSocketError
     public void tellMeWhatsUp(java.lang.Throwable throwable) {
         //fixme
-        System.out.println("There was a freaking error");
-        System.out.println(throwable.getMessage());
+        System.out.println("\nThere was a freaking error\n");
+        System.out.println(throwable.getMessage() + "\n");
     }
 
     //boolean isPlaying, String playerColor, GameData game
@@ -73,12 +73,12 @@ public class WebSocketHandler {
 //        }
         // can delete this dude vv later
         var message = String.format("User '%s' has joined the game.", username);
-        var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
         // was a NotificationMessage
         //TEST??
-        serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(username, serverMessage);
+//        serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+//        connections.broadcast(username, serverMessage);
     }
 
     // and then here was the observe function, but,,,

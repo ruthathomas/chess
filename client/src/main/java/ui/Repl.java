@@ -5,6 +5,7 @@ import static ui.clienthelpers.EscapeSequences.*;
 import websocket.NotificationHandler;
 //import websocket.messages.ErrorMessage;
 //import websocket.messages.NotificationMessage;
+//import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -54,26 +55,24 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(ServerMessage notification) {
-        String notifString = RESET_TEXT_ITALIC + "\n\t" + SET_TEXT_COLOR_WHITE;
+        String notifString = "\n\t";
         switch(notification.getServerMessageType()) {
             case LOAD_GAME -> {
                 // send current game state; will redraw chess board
-                notifString += "LOADING GAME: ";
+                notifString += "LOADING GAME: " + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
                 //FIXME do something here
             }
             case ERROR -> {
                 // invalid command; should only be seen by user who caused error??
-                notifString += "ERROR: ";
-                //notifString += ((ErrorMessage) notification).getErrorMessage();
+                notifString += "ERROR: " + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
+                notifString += notification.getMessage();
             }
             case NOTIFICATION -> {
                 // another player made an action
-                notifString += "NOTIFICATION: ";
-                //notifString += ((NotificationMessage) notification).getMessage();
+                notifString += "NOTIFICATION: " + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
+                notifString += notification.getMessage();
             }
         }
-        //get rid of this guy later
-        notifString += notification.getMessage();
         // >:( need to fix what this thing takes
         notifString += RESET_TEXT_COLOR;
         System.out.println(notifString);

@@ -340,7 +340,7 @@ public class WebSocketTests {
 
         assertCommandMessages(actualMessages, true, sender, types(), inGame, types(NOTIFICATION), otherClients);
     }
-    
+
     private Map<String, Integer> expectedMessages(WebsocketUser sender, int senderExpected,
                                                   Set<WebsocketUser> inGame, int inGameExpected, Set<WebsocketUser> otherClients) {
         Map<String, Integer> expectedMessages = new HashMap<>();
@@ -351,9 +351,9 @@ public class WebSocketTests {
     }
 
     private void assertCommandMessages(Map<String, List<TestMessage>> messages, boolean expectSuccess,
-                                            WebsocketUser user, ServerMessage.ServerMessageType[] userExpectedTypes,
-                                            Set<WebsocketUser> inGame, ServerMessage.ServerMessageType[] inGameExpectedTypes,
-                                            Set<WebsocketUser> otherClients) {
+                                       WebsocketUser user, ServerMessage.ServerMessageType[] userExpectedTypes,
+                                       Set<WebsocketUser> inGame, ServerMessage.ServerMessageType[] inGameExpectedTypes,
+                                       Set<WebsocketUser> otherClients) {
         if(!expectSuccess) {
             userExpectedTypes = new ServerMessage.ServerMessageType[]{ERROR};
             inGameExpectedTypes = new ServerMessage.ServerMessageType[0];
