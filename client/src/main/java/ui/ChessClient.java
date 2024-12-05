@@ -266,6 +266,7 @@ public class ChessClient {
     private String move(String[] params) throws ResponseException {
         // takes start and end
         // will update for both users
+        // make sure parameters don't cause an error; must have two characters
         assertLoggedIn();
         assertPlaying();
         assertYourTurn();
@@ -293,6 +294,7 @@ public class ChessClient {
                 //FIXME ws.NOTIFICATION OF MOVE BEING MADE
                 ws.makeMove(authData, currGame.gameID(), currGame, moveString);
             }
+            //fixme at this point it hadn't updated the board??
             return redraw();
         } catch (Exception e) {
             throw new ResponseException(400, e.getMessage());

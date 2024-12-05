@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -66,16 +67,19 @@ public class WebSocketHandler {
     //boolean isPlaying, String playerColor, GameData game
     private void connect(String username, Session session, boolean isPlaying, String playerColor, GameData game)
             throws IOException {
-        // fixme server should send a load_game message back to the root client here
+        // fixme server should send a load_game message back to the root client here; also, figure out with the
+        //concatenation of the strings and fix it up :( ; also, probably extract to its own function
         connections.add(username, session);
+        String message = getGameStatusMessage(game);
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
+        connections.broadcastSelf(username,serverMessage);
         currGame = game;
-        String message = "";
         if(isPlaying) {
             message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
         } else {
             message = String.format("User '%s' is now observing the game.", username);
         }
-        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
     }
 
@@ -83,9 +87,12 @@ public class WebSocketHandler {
 
     private void makeMove(String username, int gameID, GameData game, String move) throws IOException, DataAccessException {
         //fixme server sends load_game message to all clients, plus updates boards
+        String message = getGameStatusMessage(game);
+        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
+        connections.broadcast(null, serverMessage);
         dataAccess.updateGame(gameID, game);
-        String message = String.format("Player '%s' moved %s.", username, move);
-        ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        message = String.format("Player '%s' moved %s.", username, move);
+        serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(username, serverMessage);
         // fixme server sends check, checkmate, or stalemate notif if caused
     }
@@ -119,5 +126,24 @@ public class WebSocketHandler {
     }
 
     //FIXME notifs for check and checkmate (player name)
+
+    private String getGameStatusMessage(GameData game) {
+        String message = "";
+        for(var color : ChessGame.TeamColor.values()) {
+            if(game.game().isInCheck(color)) {
+                message += String.format("Team %s is in check. ", color.toString());
+            }
+            if(game.game().isInCheckmate(color)) {
+                message += String.format("Team %s is in checkmate. ", color.toString());
+            }
+            if(game.game().isInStalemate(color)) {
+                message += String.format("Team %s is in check. ", color.toString());
+            }
+        }
+        if(message.isEmpty()) {
+            message = "Game status okay (no team in check, checkmate, or stalemate).";
+        }
+        return message;
+    }
 
 }

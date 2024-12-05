@@ -45,4 +45,9 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastSelf(String user, ServerMessage serverMessage) throws IOException {
+        var connection = connections.get(user);
+        connection.send(serverMessage.toString());
+    }
+
 }

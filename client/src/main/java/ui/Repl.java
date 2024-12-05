@@ -82,6 +82,11 @@ public class Repl implements NotificationHandler {
         // >:( need to fix what this thing takes
         notifString += RESET_TEXT_COLOR;
         System.out.println(notifString);
+        // make the redraw work :((
+        if(notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            client.evaluateInput("redraw");
+            //??? didn't work?? of course it didn't but
+        }
         printPrompt();
     }
 
