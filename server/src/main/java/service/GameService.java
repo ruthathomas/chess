@@ -33,7 +33,7 @@ public class GameService {
                 throw new ResponseException(401, "Error: unauthorized");
             }
             GameData newGame = new GameData(generateGameID(), null, null, gameName,
-                    new ChessGame());
+                    new ChessGame(), false);
             dataAccess.addGame(newGame);
             return newGame;
         } catch (DataAccessException e) {
@@ -68,14 +68,14 @@ public class GameService {
             if(playerColor.equals("white")) {
                 if(currGame.whiteUsername() == null || currGame.whiteUsername() == "") {
                     dataAccess.updateGame(gameID, new GameData(gameID, authData.username(),
-                            currGame.blackUsername(), currGame.gameName(), currGame.game()));
+                            currGame.blackUsername(), currGame.gameName(), currGame.game(), currGame.isOver()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }
             } else {
                 if(currGame.blackUsername() == null || currGame.blackUsername() == "") {
                     dataAccess.updateGame (gameID, new GameData(gameID, currGame.whiteUsername(),
-                            authData.username(), currGame.gameName(), currGame.game()));
+                            authData.username(), currGame.gameName(), currGame.game(), currGame.isOver()));
                 } else {
                     throw new ResponseException(403, "Error: already taken");
                 }

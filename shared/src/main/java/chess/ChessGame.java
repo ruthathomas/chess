@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -15,6 +14,7 @@ public class ChessGame {
 
     private TeamColor teamTurn;
     private ChessBoard gameBoard = new ChessBoard();
+    private boolean isOver = false;
 
     public ChessGame() {
         // White always goes first
@@ -92,17 +92,19 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if(isOver) {
+            throw new InvalidMoveException("ERROR: game is over; no more moves may be made.");
+        }
         // work in progress;
         // do I still need to ensure it's your turn, or have I handled that elsewhere?
         if(gameBoard.getPiece(move.getStartPosition()) == null) {
-            // no piece on selected start position
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("ERROR: no piece on selected start position.");
         }
         if(gameBoard.getPiece(move.getStartPosition()).getTeamColor() != teamTurn) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("ERROR: the selected piece is not yours.");
         }
         if(!validMoves(move.getStartPosition()).contains(move)) {
-            throw new InvalidMoveException();
+            throw new InvalidMoveException("ERROR: invalid move request.");
         } else {
             // the move is valid
             ChessPosition start = move.getStartPosition();
@@ -271,5 +273,12 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return gameBoard;
+    }
+
+    public boolean isOver() {
+        return isOver;
+    }
+    public void endGame() {
+        isOver = true;
     }
 }

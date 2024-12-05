@@ -33,6 +33,7 @@ blackUsername varchar(255),
 gameName varchar(255) NOT NULL,
 game longtext NOT NULL,
 id int NOT NULL AUTO_INCREMENT,
+isOver boolean NOT NULL,
 PRIMARY KEY (id),
 index(gameID)
 )
@@ -139,7 +140,7 @@ INDEX (username)
                     var game = serializer.fromJson(rs2.getString("game"), ChessGame.class);
                     gamesList.put(rs2.getInt("gameID"), new GameData(rs2.getInt("gameID"),
                             rs2.getString("whiteUsername"), rs2.getString("blackUsername"),
-                            rs2.getString("gameName"), game));
+                            rs2.getString("gameName"), game, game.isOver()));
                 }
                 return gamesList;
             }
@@ -213,7 +214,8 @@ INDEX (username)
                     case SELECT_GAME -> {
                         var game = serializer.fromJson(rs.getString("game"), ChessGame.class);
                         return new GameData(rs.getInt("gameID"), rs.getString("whiteUsername"),
-                                rs.getString("blackUsername"), rs.getString("gameName"), game);
+                                rs.getString("blackUsername"), rs.getString("gameName"), game,
+                                game.isOver());
                         //deserialize the string that the game is and then make a new GameData object
                     }
                     case SELECT_USER -> {
@@ -234,8 +236,8 @@ INDEX (username)
         switch (query) {
             case ADD_AUTH -> queryStatement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
             case ADD_GAME -> {
-                queryStatement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) " +
-                        "VALUES (?, ?, ?, ?, ?)";
+                queryStatement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game, isOver) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
             }
             case ADD_USER -> queryStatement = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
             case null, default -> throw new DataAccessException("Unexpected query made.");
@@ -255,6 +257,7 @@ INDEX (username)
                         throw new DataAccessException("Insertion failed; cannot insert a null value");
                     }
                     preparedStatement.setString(5, gameString);
+                    preparedStatement.setBoolean(6, ((GameData) dataObject).isOver());
                 } else if(dataObject instanceof UserData && query == Query.ADD_USER) {
                     preparedStatement.setString(1, ((UserData) dataObject).username());
                     preparedStatement.setString(2, ((UserData) dataObject).password());

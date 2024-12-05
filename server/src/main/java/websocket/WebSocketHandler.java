@@ -107,10 +107,10 @@ public class WebSocketHandler {
             GameData newGame;
             //here is where you do the dataAccess stuff
             if(playerColor.equalsIgnoreCase("white")) {
-                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), game.game());
+                newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), game.game(), currGame.isOver());
             } else {
                 //might need to make sure bad things don't happen here
-                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), game.game());
+                newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), game.game(), currGame.isOver());
             }
             dataAccess.updateGame(currGame.gameID(), newGame);
             message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
