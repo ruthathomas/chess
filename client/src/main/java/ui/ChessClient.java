@@ -240,6 +240,7 @@ public class ChessClient {
     }
 
     private String redraw() throws ResponseException {
+        setCurrGame(currGame.gameID());
         assertLoggedIn();
         // null indicates no color assigned; observing
         if(currColor == null || currColor == ChessGame.TeamColor.WHITE) {

@@ -1,11 +1,15 @@
 package ui;
 
+import static ui.clienthelpers.BoardBuilder.buildBoard;
 import static ui.clienthelpers.EscapeSequences.*;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import model.GameData;
+import ui.clienthelpers.EscapeSequences;
 import websocket.NotificationHandler;
-//import websocket.messages.ErrorMessage;
-//import websocket.messages.NotificationMessage;
-//import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
@@ -60,6 +64,8 @@ public class Repl implements NotificationHandler {
             case LOAD_GAME -> {
                 // send current game state; will redraw chess board
                 notifString += "LOADING GAME: " + RESET_TEXT_ITALIC + SET_TEXT_COLOR_WHITE;
+                //fixme something about in check?? idk what it wants tbh
+                notifString += notification.getMessage();
                 //FIXME do something here
             }
             case ERROR -> {
@@ -78,4 +84,5 @@ public class Repl implements NotificationHandler {
         System.out.println(notifString);
         printPrompt();
     }
+
 }
