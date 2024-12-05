@@ -286,6 +286,7 @@ public class ChessClient {
                 int endCol = getIntFromChar(endRequest.charAt(0));
                 int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
                 String piece = currGame.game().getBoard().getPiece(new ChessPosition(startRow, startCol)).getPieceType().toString();
+                //fixme maybe something in here about if a piece was captured?
                 String moveString = String.format("a %s from %s to %s", piece, startRequest, endRequest);
                 String promotionRequest;
                 ChessPiece.PieceType promotionPiece = null;

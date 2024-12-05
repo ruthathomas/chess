@@ -88,7 +88,7 @@ public class WebSocketHandler {
     private void makeMove(String username, int gameID, GameData game, String move) throws IOException, DataAccessException {
         //fixme server sends load_game message to all clients, plus updates boards
         // if a bad move is requested, this whole thing crashes. fix that
-        String message = " :0";
+        String message = "";
         ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, message);
         connections.broadcast(null, serverMessage);
         dataAccess.updateGame(gameID, game);
@@ -142,9 +142,6 @@ public class WebSocketHandler {
             if(game.game().isInStalemate(color)) {
                 message += String.format("Team %s is in check. ", color.toString());
             }
-        }
-        if(message.isEmpty()) {
-            //message = "Game status okay (no team in check, checkmate, or stalemate).";
         }
         return message;
     }

@@ -27,8 +27,6 @@ public class ConnectionManager {
     }
 
     public void broadcast(String excludedUser, ServerMessage serverMessage) throws IOException {
-        //fixme I think there's a problem here with the part where it removes the connections??
-        // idk idk
         var unusedConnList = new ArrayList<Connection>();
         for(var connection : connections.values()) {
             if(connection.session.isOpen()) {
