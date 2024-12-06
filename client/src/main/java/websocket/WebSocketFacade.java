@@ -6,8 +6,7 @@ import exceptionhandling.ResponseException;
 import model.AuthData;
 import model.GameData;
 import records.UserGameCommandRecord;
-import websocket.commands.MoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -73,7 +72,7 @@ public class WebSocketFacade extends Endpoint {
     //GameData game,
     public void makeMove(AuthData authData, int gameID, ChessMove move) throws ResponseException {
         try {
-            MoveCommand command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID, move);
+            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID, move);
             //fixme might need to care about playerColor but might not idk
             //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, game, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));

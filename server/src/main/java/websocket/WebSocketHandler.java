@@ -1,7 +1,6 @@
 package websocket;
 
-import chess.ChessGame;
-import chess.ChessMove;
+import chess.*;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.*;
@@ -16,7 +15,6 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
 //import websocket.messages.NotificationMessage;
 import server.Server;
-import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -56,7 +54,7 @@ public class WebSocketHandler {
                     case CONNECT -> connect(requestingUser, command.getGameID(), session);
                     case MAKE_MOVE -> {
                         //have the make move logic; should take ChessMove move
-                        makeMove(requestingUser, command.getGameID(), ((MoveCommand) command).getMove());
+                        makeMove(requestingUser, command.getGameID(), command.fetchMove(), session);
                     }
                     case LEAVE -> leave(requestingUser, command.getGameID());
                     case RESIGN -> resign(requestingUser, session, command.getGameID());
@@ -115,34 +113,52 @@ public class WebSocketHandler {
     // and then here was the observe function, but,,,
 
     //took a game object
-    private void makeMove(String username, int gameID, ChessMove move) throws IOException {
+    private void makeMove(String username, int gameID, ChessMove move, Session session) throws IOException {
         //fixme server sends load_game message to all clients, plus updates boards
         // if a bad move is requested, this whole thing crashes. fix that --> TRY CATCH THIS SUCKER
         try {
             String message = "";
             GameData game = dataAccess.getGame(gameID);
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-            connections.broadcast(null, serverMessage);
-            // will this work??? idk idk
-            dataAccess.updateGame(gameID, game);
-            String moveString = "a " + game.game().getBoard().getPiece(move.getEndPosition()) + " from ";
-            message = String.format("Player '%s' moved %s.", username, moveString);
-            String statusMessage = getGameStatusMessage(game);
-            message += " " + getGameStatusMessage(game);
-            // fixme there's probably a better way to do this; server sends check, checkmate, or stalemate notif if caused
-            if (message.contains("WHITE is in")) {
-                if(message.contains("checkmate") || message.contains("stalemate")) {
-                    dataAccess.endGame(game);
-                    message += "Team BLACK has won. Thank you for playing!";
-                }
-            } else if(message.contains("BLACK is in")) {
-                if(message.contains("checkmate") || message.contains("stalemate")) {
-                    dataAccess.endGame(game);
-                    message += "Team WHITE has won. Thank you for playing!";
+            ChessPiece requestedPiece = game.game().getBoard().getPiece(move.getStartPosition());
+            String pieceString = requestedPiece.getPieceType().toString();
+            if(game.isOver()) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "the game is over; no more moves may be made.");
+                session.getRemote().sendString(serverMessage.toString());
+            } else if (!getPlayerColor(username, game).equalsIgnoreCase(requestedPiece.getTeamColor().toString())) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "that is not your piece.");
+                session.getRemote().sendString(serverMessage.toString());
+            } else if(!getPlayerColor(username, game).equalsIgnoreCase(game.game().getTeamTurn().toString())) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "it is not your turn.");
+                session.getRemote().sendString(serverMessage.toString());
+            } else {
+                try {
+                    game.game().makeMove(move);
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+                    connections.broadcast(null, serverMessage);
+                    dataAccess.updateGame(gameID, game);
+                    String moveString = String.format("a %s from %s to %s", pieceString,
+                            getBoardPosition(move.getStartPosition()), getBoardPosition(move.getEndPosition()));
+                    message = String.format("Player '%s' moved %s.", username, moveString);
+                    //String statusMessage = getGameStatusMessage(game);
+                    message += " " + getGameStatusMessage(game);
+                    // fixme there's probably a better way to do this; server sends check, checkmate, or stalemate notif if caused
+                    if (message.contains("white is in checkmate") || message.contains("white is in stalemate")) {
+                        dataAccess.endGame(game);
+                        message += "Team black has won. Thank you for playing!";
+                    } else if(message.contains("black is in checkmate") || message.contains("black is in stalemate")) {
+                        dataAccess.endGame(game);
+                        message += "Team white has won. Thank you for playing!";
+                    }
+                    serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                    connections.broadcast(username, serverMessage);
+                } catch (InvalidMoveException ex) {
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "invalid move.");
+                    session.getRemote().sendString(serverMessage.toString());
+                } catch (Exception ex) {
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+                    connections.broadcastSelf(username, serverMessage);
                 }
             }
-            serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(username, serverMessage);
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.broadcastSelf(username, serverMessage);
@@ -217,13 +233,13 @@ public class WebSocketHandler {
                 username = game.blackUsername();
             }
             if(game.game().isInCheck(color)) {
-                message += String.format("Player '%s' (%s) is in check. ", username, color.toString());
+                message += String.format("Player '%s' (%s) is in check. ", username, color.toString().toLowerCase());
             }
             if(game.game().isInCheckmate(color)) {
-                message += String.format("Player '%s' (%s) is in checkmate. ", username, color.toString());
+                message += String.format("Player '%s' (%s) is in checkmate. ", username, color.toString().toLowerCase());
             }
             if(game.game().isInStalemate(color)) {
-                message += String.format("Player '%s' (%s) is in check. ", username, color.toString());
+                message += String.format("Player '%s' (%s) is in stalemate. ", username, color.toString().toLowerCase());
             }
         }
         return message;
@@ -243,6 +259,23 @@ public class WebSocketHandler {
             return true;
         }
         return false;
+    }
+
+    private String getBoardPosition(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        String colString = "";
+        switch(col) {
+            case 1 -> colString = "a";
+            case 2 -> colString = "b";
+            case 3 -> colString = "c";
+            case 4 -> colString = "d";
+            case 5 -> colString = "e";
+            case 6 -> colString = "f";
+            case 7 -> colString = "g";
+            case 8 -> colString = "h";
+        }
+        return colString + row;
     }
 
 }

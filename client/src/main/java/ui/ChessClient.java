@@ -206,8 +206,18 @@ public class ChessClient {
         assertNotPlaying();
         assertNotObserving();
         if(params.length > 1) {
-            // this is the requested id; doesn't align with actual ids
-            int id = Integer.parseInt(params[0]);
+            // this is the requested id
+            int id;
+            var param0 = params[0];
+            if(!param0.isEmpty()) {
+                try {
+                    id = Integer.parseInt(param0);
+                } catch (NumberFormatException e) {
+                    throw new ResponseException(400, "Error: invalid game id provided.");
+                }
+            } else {
+                throw new ResponseException(400, "Error: invalid game id provided.");
+            }
             var color = params[1].toLowerCase();
             if(color.equalsIgnoreCase("white")) {
                 currColor = ChessGame.TeamColor.WHITE;
@@ -221,15 +231,8 @@ public class ChessClient {
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
-            // this may cause a problem; it's the actual id, not the requested
             ws.joinGame(authData, id);
-            //should be able to change this to just return the wordArt I think?? I'll see if it works properly for black from the repl
             return WordArt.ENTERING_GAME;
-//            if(currColor == ChessGame.TeamColor.WHITE) {
-//                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray());
-//            } else {
-//                return WordArt.ENTERING_GAME + getBoardString(ChessGame.TeamColor.BLACK, getEmptyHighlightArray());
-//            }
         }
         throw new ResponseException(400, "Error: expected game ID and player color");
     }
@@ -302,8 +305,6 @@ public class ChessClient {
                 ChessMove moveRequest = new ChessMove(new ChessPosition(startRow, startCol),
                         new ChessPosition(endRow, endCol), promotionPiece);
                 currGame.game().makeMove(moveRequest);
-                //fixme here is where we would do websocket notification?/update boards
-                //FIXME ws.NOTIFICATION OF MOVE BEING MADE
                 ws.makeMove(authData, currGame.gameID(), moveRequest);
             }
             //fixme at this point it hadn't updated the board??
