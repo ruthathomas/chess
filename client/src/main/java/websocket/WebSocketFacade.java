@@ -6,6 +6,7 @@ import exceptionhandling.ResponseException;
 import model.AuthData;
 import model.GameData;
 import records.UserGameCommandRecord;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -48,7 +49,7 @@ public class WebSocketFacade extends Endpoint {
     }
 
 //    GameData game, String playerColor
-    public void joinGame(AuthData authData, int gameID, GameData game, String playerColor) throws ResponseException {
+    public void joinGame(AuthData authData, int gameID) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, playerColor, game, null);
@@ -59,7 +60,7 @@ public class WebSocketFacade extends Endpoint {
     }
 
     // GameData game
-    public void observeGame(AuthData authData, int gameID, GameData game) throws ResponseException {
+    public void observeGame(AuthData authData, int gameID) throws ResponseException {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authData.authToken(), gameID);
             //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, false, null, game, null);
@@ -69,12 +70,13 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void makeMove(AuthData authData, int gameID, GameData game, String move) throws ResponseException {
+    //GameData game,
+    public void makeMove(AuthData authData, int gameID, ChessMove move) throws ResponseException {
         try {
-            var command = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID);
+            var command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID, move);
             //fixme might need to care about playerColor but might not idk
-            UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, game, move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommRec));
+            //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, game, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }

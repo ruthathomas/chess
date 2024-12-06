@@ -3,7 +3,6 @@ package websocket;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import dataaccess.DataAccessException;
 import dataaccess.*;
 //import model.GameData;
@@ -17,6 +16,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import records.UserGameCommandRecord;
 //import websocket.messages.NotificationMessage;
 import server.Server;
+import websocket.commands.MoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -56,12 +56,12 @@ public class WebSocketHandler {
                     case CONNECT -> connect(requestingUser, command.getGameID(), session);
                     case MAKE_MOVE -> {
                         //have the make move logic; should take ChessMove move
-                        //makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
+                        makeMove(requestingUser, command.getGameID(), ((MoveCommand) command).getMove());
                     }
                     case LEAVE -> {
                         //leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
                     }
-                    case RESIGN -> resign(requestingUser);
+                    case RESIGN -> resign(requestingUser, session, command.getGameID());
                     case null, default -> {
                         //throw something
                     }
@@ -116,15 +116,19 @@ public class WebSocketHandler {
 
     // and then here was the observe function, but,,,
 
-    private void makeMove(String username, int gameID, GameData game, String move) throws IOException {
+    //took a game object
+    private void makeMove(String username, int gameID, ChessMove move) throws IOException {
         //fixme server sends load_game message to all clients, plus updates boards
         // if a bad move is requested, this whole thing crashes. fix that --> TRY CATCH THIS SUCKER
         try {
             String message = "";
+            GameData game = dataAccess.getGame(gameID);
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
             connections.broadcast(null, serverMessage);
+            // will this work??? idk idk
             dataAccess.updateGame(gameID, game);
-            message = String.format("Player '%s' moved %s.", username, move);
+            String moveString = "a " + game.game().getBoard().getPiece(move.getEndPosition()) + " from ";
+            message = String.format("Player '%s' moved %s.", username, moveString);
             String statusMessage = getGameStatusMessage(game);
             message += " " + getGameStatusMessage(game);
             // fixme there's probably a better way to do this; server sends check, checkmate, or stalemate notif if caused
@@ -178,13 +182,26 @@ public class WebSocketHandler {
         }
     }
 
-    private void resign(String username) throws IOException {
+    private void resign(String username, Session session, int gameID) throws IOException {
         try {
-            dataAccess.endGame(currGame);
-            dataAccess.updateGame(currGame.gameID(), currGame);
-            String message =String.format("Player '%s' has resigned from the game. Thank you for playing!", username);
-            var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(null, serverMessage);
+            currGame = dataAccess.getGame(gameID);
+            if(currGame.isOver()) {
+                var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "the game is already over.");
+                session.getRemote().sendString(serverMessage.toString());
+            } else if(!username.equalsIgnoreCase(currGame.whiteUsername()) &&
+                    !username.equalsIgnoreCase(currGame.blackUsername())) {
+                var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "observers may not resign.");
+                        session.getRemote().sendString(serverMessage.toString());
+            } else {
+                dataAccess.endGame(currGame);
+                dataAccess.updateGame(currGame.gameID(), currGame);
+                String message =
+                        String.format("Player '%s' has resigned from the game. Thank you for playing!", username);
+                var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(null, serverMessage);
+            }
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.broadcastSelf(username, serverMessage);

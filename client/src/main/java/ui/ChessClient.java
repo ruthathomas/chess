@@ -304,7 +304,7 @@ public class ChessClient {
                 currGame.game().makeMove(moveRequest);
                 //fixme here is where we would do websocket notification?/update boards
                 //FIXME ws.NOTIFICATION OF MOVE BEING MADE
-                ws.makeMove(authData, currGame.gameID(), currGame, moveString);
+                ws.makeMove(authData, currGame.gameID(), moveRequest);
             }
             //fixme at this point it hadn't updated the board??
             return "";
