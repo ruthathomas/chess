@@ -72,7 +72,7 @@ public class Server {
         Spark.awaitStop();
     }
 
-    //FIXME consider places where you might need websocket stuff here??
+    // check back: you might need webscocket stuff here?
 
     private Object registerUser(Request req, Response res) {
         AuthData result;
@@ -142,7 +142,6 @@ public class Server {
             //var authToken = serializer.fromJson(req.headers("Authorization"), String.class);
             var joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             gameService.joinGame(joinGameRequest.gameID(), joinGameRequest.playerColor(), authToken);
-            //
         } catch (ResponseException e) {
             res.status(e.getStatus());
             return serializer.toJson(new ExceptionFailureRecord(e.getMessage()));

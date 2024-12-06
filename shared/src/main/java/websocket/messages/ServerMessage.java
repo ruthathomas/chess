@@ -14,7 +14,6 @@ import java.util.Objects;
 public class ServerMessage {
     ServerMessageType serverMessageType;
 
-    //delete me later
     private String message = "";
     private String errorMessage = "";
     private GameData game;
@@ -29,7 +28,6 @@ public class ServerMessage {
         this.serverMessageType = type;
     }
 
-    //delete me
     public ServerMessage(ServerMessageType type, String message) {
         this.serverMessageType = type;
         if(type == ServerMessageType.ERROR && message != null) {
@@ -73,16 +71,11 @@ public class ServerMessage {
         return new Gson().toJson(this);
     }
 
-    //delete me
     public String getMessage() {
         if(serverMessageType == ServerMessageType.ERROR) {
             return errorMessage;
         }
         return message;
-    }
-
-    public GameData fetchGame() {
-        return game;
     }
 
 }

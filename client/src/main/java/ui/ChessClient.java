@@ -19,11 +19,9 @@ public class ChessClient {
     private AuthData authData;
     private GameData currGame;
     private ChessGame.TeamColor currColor;
-    // in petShop, it has here a notif handler and a websocket facade
     private final NotificationHandler notificationHandler;
     private WebSocketFacade ws;
     private Status status = Status.LOGGEDOUT;
-    private Gson serializer = new Gson();
 
     public ChessClient(int port, NotificationHandler notificationHandler) {
         this.port = port;
@@ -40,45 +38,18 @@ public class ChessClient {
                 cmd = inputTokens[0];
             }
             switch(cmd) {
-                case "register" -> {
-                    return register(params);
-                }
-                case "login" -> {
-                    return login(params);
-                }
-                case "logout" -> {
-                    return logout();
-                }
-                case "list" -> {
-                    return list();
-                }
-                case "create" -> {
-                    return create(params);
-                }
-                case "join" -> {
-                    return join(params);
-                }
-                case "observe" -> {
-                    return observe(params);
-                }
-                case "redraw" -> {
-                    return redraw();
-                }
-                case "leave" -> {
-                    return leave();
-                }
-                case "move" -> {
-                    return move(params);
-                }
-                case "resign" -> {
-                    return resign();
-                }
-                case "highlight" -> {
-                    return highlight(params);
-                }
-                case "help" -> {
-                    return help();
-                }
+                case "register" -> { return register(params); }
+                case "login" -> { return login(params); }
+                case "logout" -> { return logout(); }
+                case "list" -> { return list(); }
+                case "create" -> { return create(params); }
+                case "join" -> { return join(params); }
+                case "observe" -> { return observe(params); }
+                case "redraw" -> { return redraw(); }
+                case "leave" -> { return leave(); }
+                case "move" -> { return move(params); }
+                case "resign" -> { return resign(); }
+                case "highlight" -> { return highlight(params); }
                 case "quit" -> {
                     if(status == Status.LOGGEDOUT) {
                         return "quit";
@@ -86,14 +57,12 @@ public class ChessClient {
                        return "Error: must log out";
                     }
                 }
-                case null, default -> {
-                    return help();
-                }
+                case null, default -> { return help(); }
             }
             //we can either check here that the state is correct, or do it within the function itself
         } catch (Exception ex) {
-            //fixme
             if(ex.getMessage() == null) {
+                // to be honest, I don't know why this is here?? but okay
                 return "ERROR: invalid move request.";
             }
             return ex.getMessage();
@@ -152,7 +121,6 @@ public class ChessClient {
         assertNotPlaying();
         assertNotObserving();
         ws = null;
-        // you should probably make it so people can't log out in the middle of a game
         server.logout(authData.authToken());
         status = Status.LOGGEDOUT;
         String result = String.format("Successfully logged out user %s", authData.username());
@@ -231,7 +199,7 @@ public class ChessClient {
             setCurrGame(id);
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
-            ws.joinGame(authData, id);
+            ws.connectToGame(authData, id);
             return WordArt.ENTERING_GAME;
         }
         throw new ResponseException(400, "Error: expected game ID and player color");
@@ -241,14 +209,13 @@ public class ChessClient {
         ws = new WebSocketFacade(port, notificationHandler);
         assertLoggedIn();
         assertNotPlaying();
-        assertNotObserving(); //so you have to leave a game before you can start observing another
+        assertNotObserving(); // you must leave a game before you can start observing another
         if(params.length > 0) {
             int requestedId = Integer.parseInt(params[0]);
             int id = getIdFromRequestedId(requestedId);
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            ws.observeGame(authData, id);
-            //  + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray())
+            ws.connectToGame(authData, id);
             return WordArt.ENTERING_GAME;
         }
         throw new ResponseException(400, "Error: expected game ID");
@@ -287,13 +254,19 @@ public class ChessClient {
         try {
             if(params.length > 1) {
                 String startRequest = params[0];
+                if(startRequest.length() < 2) {
+                    throw new ResponseException(400, "Error: bad starting square.");
+                }
                 int startCol = getIntFromChar(startRequest.charAt(0));
                 int startRow = Integer.parseInt(String.valueOf(startRequest.charAt(1)));
                 String endRequest = params[1];
+                if(endRequest.length()< 2) {
+                    throw new ResponseException(400, "Error: bad ending request.");
+                }
                 int endCol = getIntFromChar(endRequest.charAt(0));
                 int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
                 String piece = currGame.game().getBoard().getPiece(new ChessPosition(startRow, startCol)).getPieceType().toString();
-                //fixme maybe something in here about if a piece was captured?
+                // HEY, LISTEN: maybe something in here about if a piece was captured?/etc.
                 String moveString = String.format("a %s from %s to %s", piece, startRequest, endRequest);
                 String promotionRequest;
                 ChessPiece.PieceType promotionPiece = null;
@@ -307,7 +280,6 @@ public class ChessClient {
                 currGame.game().makeMove(moveRequest);
                 ws.makeMove(authData, currGame.gameID(), moveRequest);
             }
-            //fixme at this point it hadn't updated the board??
             return "";
         } catch (Exception e) {
             // well this isn't right (I don't think); why am I assuming bad request?
@@ -319,8 +291,6 @@ public class ChessClient {
         assertLoggedIn();
         assertPlaying();
         setCurrGame(currGame.gameID());
-        //FIXME CONT
-        //FIXME ws.NOTIFICATION OF RESIGNATION
         ws.resignFromGame(authData, currGame.gameID());
         return "To leave the game, enter 'leave'.";
     }
@@ -491,30 +461,14 @@ public class ChessClient {
 
     private int getIntFromChar(char c) throws ResponseException {
         switch (c) {
-            case 'a' -> {
-                return  1;
-            }
-            case 'b' -> {
-                return  2;
-            }
-            case 'c' -> {
-                return  3;
-            }
-            case 'd' -> {
-                return  4;
-            }
-            case 'e' -> {
-                return  5;
-            }
-            case 'f' -> {
-                return  6;
-            }
-            case 'g' -> {
-                return  7;
-            }
-            case 'h' -> {
-                return  8;
-            }
+            case 'a' -> { return  1; }
+            case 'b' -> { return  2; }
+            case 'c' -> { return  3; }
+            case 'd' -> { return  4; }
+            case 'e' -> { return  5; }
+            case 'f' -> { return  6; }
+            case 'g' -> { return  7; }
+            case 'h' -> { return  8; }
             default -> throw new ResponseException(400, "Error: bad request");
         }
     }
@@ -523,27 +477,13 @@ public class ChessClient {
     ChessPiece.PieceType getPieceFromString(String piece) {
         piece = piece.toLowerCase();
         switch (piece) {
-            case "king" -> {
-                return ChessPiece.PieceType.KING;
-            }
-            case "queen" -> {
-                return ChessPiece.PieceType.QUEEN;
-            }
-            case "rook" -> {
-                return ChessPiece.PieceType.ROOK;
-            }
-            case "bishop" -> {
-                return ChessPiece.PieceType.BISHOP;
-            }
-            case "knight" -> {
-                return ChessPiece.PieceType.KNIGHT;
-            }
-            case "pawn" -> {
-                return ChessPiece.PieceType.PAWN;
-            }
-            default -> {
-                return null;
-            }
+            case "king" -> { return ChessPiece.PieceType.KING; }
+            case "queen" -> { return ChessPiece.PieceType.QUEEN; }
+            case "rook" -> { return ChessPiece.PieceType.ROOK; }
+            case "bishop" -> { return ChessPiece.PieceType.BISHOP; }
+            case "knight" -> { return ChessPiece.PieceType.KNIGHT; }
+            case "pawn" -> { return ChessPiece.PieceType.PAWN; }
+            default -> { return null; }
         }
     }
 

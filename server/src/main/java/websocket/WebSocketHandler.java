@@ -37,13 +37,11 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
         try {
-            //>:( okay so the things aren't functioning because they expect you ONLY to have a UserGameCommand
             UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-            //??????????????
-            //FIXME vv
             AuthData authData = dataAccess.getAuth(command.getAuthToken());
             if(authData == null) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "authentication failed.");
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "authentication failed.");
                 session.getRemote().sendString(serverMessage.toString());
             } else {
                 String requestingUser = authData.username();
@@ -62,8 +60,7 @@ public class WebSocketHandler {
                 }
             }
         } catch (Exception ex) {
-            //fixme
-            //throw new IOException(e);
+            //take a look at this again later
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serverMessage.toString());
         }
@@ -71,12 +68,11 @@ public class WebSocketHandler {
 
     @OnWebSocketError
     public void tellMeWhatsUp(java.lang.Throwable throwable) {
-        //fixme
+        // probably change this, but it's fine for now
         System.out.println("\nThere was a freaking error\n");
         System.out.println(throwable.getMessage() + "\n");
     }
 
-    //Session session, boolean isPlaying, String playerColor, GameData game
     private void connect(String username, int gameID, Session session)
             throws IOException {
         try {
@@ -112,12 +108,8 @@ public class WebSocketHandler {
         }
     }
 
-    // and then here was the observe function, but,,,
-
     //took a game object
     private void makeMove(String username, int gameID, ChessMove move, Session session) throws IOException {
-        //fixme server sends load_game message to all clients, plus updates boards
-        // if a bad move is requested, this whole thing crashes. fix that --> TRY CATCH THIS SUCKER
         try {
             String message = "";
             GameData game = dataAccess.getGame(gameID);
@@ -125,13 +117,16 @@ public class WebSocketHandler {
             String pieceString = requestedPiece.getPieceType().toString();
             ConnectionManager currConnections = connections.get(gameID);
             if(game.isOver()) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "the game is over; no more moves may be made.");
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "the game is over; no more moves may be made.");
                 session.getRemote().sendString(serverMessage.toString());
             } else if (!getPlayerColor(username, game).equalsIgnoreCase(requestedPiece.getTeamColor().toString())) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "that is not your piece.");
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "that is not your piece.");
                 session.getRemote().sendString(serverMessage.toString());
             } else if(!getPlayerColor(username, game).equalsIgnoreCase(game.game().getTeamTurn().toString())) {
-                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "it is not your turn.");
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                        "it is not your turn.");
                 session.getRemote().sendString(serverMessage.toString());
             } else {
                 try {
@@ -144,7 +139,7 @@ public class WebSocketHandler {
                     message = String.format("Player '%s' moved %s.", username, moveString);
                     //String statusMessage = getGameStatusMessage(game);
                     message += " " + getGameStatusMessage(game);
-                    // fixme there's probably a better way to do this; server sends check, checkmate, or stalemate notif if caused
+                    // HEY, YOU: there's probably a better way to do this; server sends game state if changed
                     if (message.contains("white is in checkmate") || message.contains("white is in stalemate")) {
                         dataAccess.endGame(game);
                         message += "Team black has won. Thank you for playing!";
@@ -155,10 +150,12 @@ public class WebSocketHandler {
                     serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     currConnections.broadcast(username, serverMessage);
                 } catch (InvalidMoveException ex) {
-                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "invalid move.");
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                            "invalid move.");
                     session.getRemote().sendString(serverMessage.toString());
                 } catch (Exception ex) {
-                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
+                    ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                            ex.getMessage());
                     currConnections.broadcastSelf(username, serverMessage);
                 }
             }
@@ -168,8 +165,7 @@ public class WebSocketHandler {
         }
     }
 
-    //there are some issues with leaving; it doesn't always work??
-    //boolean isPlaying, String playerColor, GameData game
+    // this may not always work? check back in
     private void leave(String username, int gameID) throws IOException{
         try {
             GameData game = dataAccess.getGame(gameID);
@@ -180,10 +176,12 @@ public class WebSocketHandler {
             if(isPlaying) {
                 GameData newGame;
                 if(playerColor.equalsIgnoreCase("white")) {
-                    newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(), currGame.gameName(), game.game(), currGame.isOver());
+                    newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(),
+                            currGame.gameName(), game.game(), currGame.isOver());
                 } else {
                     //might need to make sure bad things don't happen here
-                    newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null, currGame.gameName(), game.game(), currGame.isOver());
+                    newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null,
+                            currGame.gameName(), game.game(), currGame.isOver());
                 }
                 dataAccess.updateGame(currGame.gameID(), newGame);
                 message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
@@ -227,7 +225,6 @@ public class WebSocketHandler {
     }
 
     private String getGameStatusMessage(GameData game) {
-        // why the string concatenation??? change to if/else
         String message = "";
         String username;
         for(var color : ChessGame.TeamColor.values()) {
@@ -237,13 +234,11 @@ public class WebSocketHandler {
                 username = game.blackUsername();
             }
             if(game.game().isInCheck(color)) {
-                message += String.format("Player '%s' (%s) is in check. ", username, color.toString().toLowerCase());
-            }
-            if(game.game().isInCheckmate(color)) {
-                message += String.format("Player '%s' (%s) is in checkmate. ", username, color.toString().toLowerCase());
-            }
-            if(game.game().isInStalemate(color)) {
-                message += String.format("Player '%s' (%s) is in stalemate. ", username, color.toString().toLowerCase());
+                message = String.format("Player '%s' (%s) is in check. ", username, color.toString().toLowerCase());
+            } else if(game.game().isInCheckmate(color)) {
+                message = String.format("Player '%s' (%s) is in checkmate. ", username, color.toString().toLowerCase());
+            } else if(game.game().isInStalemate(color)) {
+                message = String.format("Player '%s' (%s) is in stalemate. ", username, color.toString().toLowerCase());
             }
         }
         return message;
@@ -254,8 +249,7 @@ public class WebSocketHandler {
             return "white";
         } else if(Objects.equals(username, game.blackUsername())) {
             return "black";
-        }
-        else return "";
+        } else { return ""; }
     }
 
     private boolean getIsPlaying(String username, GameData game) {
