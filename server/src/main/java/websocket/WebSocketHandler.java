@@ -2,24 +2,21 @@ package websocket;
 
 import chess.*;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import dataaccess.*;
 //import model.GameData;
 import model.AuthData;
 import model.GameData;
-import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import records.UserGameCommandRecord;
 //import websocket.messages.NotificationMessage;
-import server.Server;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebSocket
 public class WebSocketHandler {
@@ -28,7 +25,7 @@ public class WebSocketHandler {
 
     // This class is modeled after the sample code provided in the PetShop example.
 
-    private final ConnectionManager connections = new ConnectionManager();
+    private final ConcurrentHashMap<Integer, ConnectionManager> connections = new ConcurrentHashMap<>();
 
     private DataAccessInterface dataAccess = new MemoryDataAccess();
     private GameData currGame;
@@ -83,17 +80,22 @@ public class WebSocketHandler {
     private void connect(String username, int gameID, Session session)
             throws IOException {
         try {
-            connections.add(username, session);
+            if(!connectionManagerExists(gameID)) {
+                connections.put(gameID, new ConnectionManager());
+            }
+            ConnectionManager currConnections = connections.get(gameID);
+            currConnections.add(username, session);
+            //connections.add(username, session);
             GameData game = dataAccess.getGame(gameID);
             if(game == null) {
-                connections.broadcastSelf(username, new ServerMessage(ServerMessage.ServerMessageType.ERROR,
+                currConnections.broadcastSelf(username, new ServerMessage(ServerMessage.ServerMessageType.ERROR,
                         "invalid game ID requested."));
             } else {
                 String playerColor = getPlayerColor(username, game);
                 boolean isPlaying = getIsPlaying(username, game);
                 String message = "";
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-                connections.broadcastSelf(username, serverMessage);
+                currConnections.broadcastSelf(username, serverMessage);
                 currGame = game;
                 if(isPlaying) {
                     message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
@@ -101,12 +103,12 @@ public class WebSocketHandler {
                     message = String.format("User '%s' is now observing the game.", username);
                 }
                 serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(username, serverMessage);
+                currConnections.broadcast(username, serverMessage);
             }
 
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-            connections.broadcastSelf(username, serverMessage);
+            connections.get(gameID).broadcastSelf(username, serverMessage);
         }
     }
 
@@ -121,6 +123,7 @@ public class WebSocketHandler {
             GameData game = dataAccess.getGame(gameID);
             ChessPiece requestedPiece = game.game().getBoard().getPiece(move.getStartPosition());
             String pieceString = requestedPiece.getPieceType().toString();
+            ConnectionManager currConnections = connections.get(gameID);
             if(game.isOver()) {
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "the game is over; no more moves may be made.");
                 session.getRemote().sendString(serverMessage.toString());
@@ -134,7 +137,7 @@ public class WebSocketHandler {
                 try {
                     game.game().makeMove(move);
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-                    connections.broadcast(null, serverMessage);
+                    currConnections.broadcast(null, serverMessage);
                     dataAccess.updateGame(gameID, game);
                     String moveString = String.format("a %s from %s to %s", pieceString,
                             getBoardPosition(move.getStartPosition()), getBoardPosition(move.getEndPosition()));
@@ -150,18 +153,18 @@ public class WebSocketHandler {
                         message += "Team white has won. Thank you for playing!";
                     }
                     serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                    connections.broadcast(username, serverMessage);
+                    currConnections.broadcast(username, serverMessage);
                 } catch (InvalidMoveException ex) {
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "invalid move.");
                     session.getRemote().sendString(serverMessage.toString());
                 } catch (Exception ex) {
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-                    connections.broadcastSelf(username, serverMessage);
+                    currConnections.broadcastSelf(username, serverMessage);
                 }
             }
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-            connections.broadcastSelf(username, serverMessage);
+            connections.get(gameID).broadcastSelf(username, serverMessage);
         }
     }
 
@@ -172,6 +175,7 @@ public class WebSocketHandler {
             GameData game = dataAccess.getGame(gameID);
             String playerColor = getPlayerColor(username, game);
             boolean isPlaying = getIsPlaying(username, game);
+            ConnectionManager currConnections = connections.get(gameID);
             String message = "";
             if(isPlaying) {
                 GameData newGame;
@@ -188,11 +192,11 @@ public class WebSocketHandler {
                 message = String.format("Observer '%s' has left the game.", username);
             }
             var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(username, serverMessage);
-            connections.remove(username);
+            currConnections.broadcast(username, serverMessage);
+            currConnections.remove(username);
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-            connections.broadcastSelf(username, serverMessage);
+            connections.get(gameID).broadcastSelf(username, serverMessage);
         }
     }
 
@@ -214,11 +218,11 @@ public class WebSocketHandler {
                 String message =
                         String.format("Player '%s' has resigned from the game. Thank you for playing!", username);
                 var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(null, serverMessage);
+                connections.get(gameID).broadcast(null, serverMessage);
             }
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
-            connections.broadcastSelf(username, serverMessage);
+            connections.get(gameID).broadcastSelf(username, serverMessage);
         }
     }
 
@@ -276,6 +280,11 @@ public class WebSocketHandler {
             case 8 -> colString = "h";
         }
         return colString + row;
+    }
+
+    private boolean connectionManagerExists(int key) {
+        // for my little brain: if there's a value associated with the key (!null), return true
+        return connections.get(key) != null;
     }
 
 }
