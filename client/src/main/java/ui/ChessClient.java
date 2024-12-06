@@ -222,7 +222,7 @@ public class ChessClient {
             status = Status.LOGGEDINPLAYING;
             ws = new WebSocketFacade(port, notificationHandler);
             // this may cause a problem; it's the actual id, not the requested
-            ws.joinGame(authData, id, currGame, currColor.toString());
+            ws.joinGame(authData, id);
             //should be able to change this to just return the wordArt I think?? I'll see if it works properly for black from the repl
             return WordArt.ENTERING_GAME;
 //            if(currColor == ChessGame.TeamColor.WHITE) {
@@ -244,7 +244,7 @@ public class ChessClient {
             int id = getIdFromRequestedId(requestedId);
             setCurrGame(id);
             status = Status.LOGGEDINOBSERVING;
-            ws.observeGame(authData, id, currGame);
+            ws.observeGame(authData, id);
             //  + getBoardString(ChessGame.TeamColor.WHITE, getEmptyHighlightArray())
             return WordArt.ENTERING_GAME;
         }
@@ -266,9 +266,9 @@ public class ChessClient {
         assertLoggedIn();
         setCurrGame(currGame.gameID());
         if(status == Status.LOGGEDINPLAYING) {
-            ws.leaveGame(authData, currGame.gameID(), true, currColor.toString(), currGame);
+            ws.leaveGame(authData, currGame.gameID());
         } else if (status == Status.LOGGEDINOBSERVING) {
-            ws.leaveGame(authData, currGame.gameID(), false, null, currGame);
+            ws.leaveGame(authData, currGame.gameID());
             currGame = null;
         }
         status = Status.LOGGEDINIDLE;

@@ -58,9 +58,7 @@ public class WebSocketHandler {
                         //have the make move logic; should take ChessMove move
                         makeMove(requestingUser, command.getGameID(), ((MoveCommand) command).getMove());
                     }
-                    case LEAVE -> {
-                        //leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
-                    }
+                    case LEAVE -> leave(requestingUser, command.getGameID());
                     case RESIGN -> resign(requestingUser, session, command.getGameID());
                     case null, default -> {
                         //throw something
@@ -71,7 +69,7 @@ public class WebSocketHandler {
         } catch (Exception ex) {
             //fixme
             //throw new IOException(e);
-            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "idk tbh");
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             session.getRemote().sendString(serverMessage.toString());
         }
     }
@@ -233,9 +231,9 @@ public class WebSocketHandler {
 
     private String getPlayerColor(String username, GameData game) {
         if(Objects.equals(username, game.whiteUsername())) {
-            return game.whiteUsername();
+            return "white";
         } else if(Objects.equals(username, game.blackUsername())) {
-            return game.blackUsername();
+            return "black";
         }
         else return "";
     }
