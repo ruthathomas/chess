@@ -9,6 +9,7 @@ import dataaccess.*;
 //import model.GameData;
 import model.AuthData;
 import model.GameData;
+import model.UserData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -43,26 +44,35 @@ public class WebSocketHandler {
         try {
             //>:( okay so the things aren't functioning because they expect you ONLY to have a UserGameCommand
             UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-            //UserGameCommandRecord command = new Gson().fromJson(message, UserGameCommandRecord.class);
-            String requestingUser = dataAccess.getAuth(command.getAuthToken()).username();
-            switch (command.getCommandType()) {
-                case CONNECT -> connect(requestingUser, command.getGameID(), session);
-                case MAKE_MOVE -> {
-                    //have the make move logic; should take ChessMove move
-                    //makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
+            //??????????????
+            //FIXME vv
+            AuthData authData = dataAccess.getAuth(command.getAuthToken());
+            if(authData == null) {
+                ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "authentication failed.");
+                session.getRemote().sendString(serverMessage.toString());
+            } else {
+                String requestingUser = authData.username();
+                switch (command.getCommandType()) {
+                    case CONNECT -> connect(requestingUser, command.getGameID(), session);
+                    case MAKE_MOVE -> {
+                        //have the make move logic; should take ChessMove move
+                        //makeMove(command.givenUser(), command.userGameCommand().getGameID(), command.game(), command.move());
+                    }
+                    case LEAVE -> {
+                        //leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
+                    }
+                    case RESIGN -> resign(requestingUser);
+                    case null, default -> {
+                        //throw something
+                    }
+                    // in here you make the different things do different things
                 }
-                case LEAVE -> {
-                    //leave(command.givenUser(), command.isPlaying(), command.playerColor(),command.game());
-                }
-                case RESIGN -> resign(requestingUser);
-                case null, default -> {
-                    //throw something
-                }
-                // in here you make the different things do different things
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
             //fixme
-            throw new IOException(e);
+            //throw new IOException(e);
+            ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "idk tbh");
+            session.getRemote().sendString(serverMessage.toString());
         }
     }
 
