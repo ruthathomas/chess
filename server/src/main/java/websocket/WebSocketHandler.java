@@ -189,7 +189,7 @@ public class WebSocketHandler {
             }
             var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             connections.broadcast(username, serverMessage);
-            //connections.remove(username);
+            connections.remove(username);
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.broadcastSelf(username, serverMessage);
