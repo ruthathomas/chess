@@ -73,7 +73,7 @@ public class WebSocketFacade extends Endpoint {
     //GameData game,
     public void makeMove(AuthData authData, int gameID, ChessMove move) throws ResponseException {
         try {
-            var command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID, move);
+            MoveCommand command = new MoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authData.authToken(), gameID, move);
             //fixme might need to care about playerColor but might not idk
             //UserGameCommandRecord userGameCommRec = new UserGameCommandRecord(authData.username(), command, true, null, game, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
