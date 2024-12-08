@@ -69,6 +69,7 @@ public class Repl implements NotificationHandler {
                 notifString += notification.getMessage();
             }
         }
+        //this part does not reliably work
         notifString += RESET_TEXT_COLOR;
         System.out.println(notifString);
         if(notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {

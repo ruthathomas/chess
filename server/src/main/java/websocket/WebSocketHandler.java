@@ -29,6 +29,7 @@ public class WebSocketHandler {
 
     private DataAccessInterface dataAccess = new MemoryDataAccess();
     private GameData currGame;
+    private String currColor;
 
     public WebSocketHandler(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
@@ -131,9 +132,11 @@ public class WebSocketHandler {
             } else {
                 try {
                     game.game().makeMove(move);
+                    dataAccess.updateGame(gameID, game);
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                     currConnections.broadcast(null, serverMessage);
-                    dataAccess.updateGame(gameID, game);
+                    //delete vv
+                    //dataAccess.updateGame(gameID, game);
                     String moveString = String.format("a %s from %s to %s", pieceString,
                             getBoardPosition(move.getStartPosition()), getBoardPosition(move.getEndPosition()));
                     message = String.format("Player '%s' moved %s.", username, moveString);
@@ -185,6 +188,7 @@ public class WebSocketHandler {
                 }
                 dataAccess.updateGame(currGame.gameID(), newGame);
                 message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
+                currGame = null;
             } else {
                 // if not playing, then no change must be made to the game
                 message = String.format("Observer '%s' has left the game.", username);

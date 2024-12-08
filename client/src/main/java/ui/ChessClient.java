@@ -235,12 +235,14 @@ public class ChessClient {
     private String leave() throws ResponseException {
         assertLoggedIn();
         setCurrGame(currGame.gameID());
-        if(status == Status.LOGGEDINPLAYING) {
-            ws.leaveGame(authData, currGame.gameID());
-        } else if (status == Status.LOGGEDINOBSERVING) {
-            ws.leaveGame(authData, currGame.gameID());
-            currGame = null;
-        }
+//        if(status == Status.LOGGEDINPLAYING) {
+//            ws.leaveGame(authData, currGame.gameID());
+//        } else if (status == Status.LOGGEDINOBSERVING) {
+//            ws.leaveGame(authData, currGame.gameID());
+//            currGame = null;
+//        }
+        ws.leaveGame(authData, currGame.gameID());
+        currGame = null;
         status = Status.LOGGEDINIDLE;
 
         return WordArt.EXITING_GAME;
@@ -255,13 +257,16 @@ public class ChessClient {
             if(params.length > 1) {
                 String startRequest = params[0];
                 if(startRequest.length() < 2) {
-                    throw new ResponseException(400, "Error: bad starting square.");
+                    return "Error: bad starting square.";
                 }
                 int startCol = getIntFromChar(startRequest.charAt(0));
                 int startRow = Integer.parseInt(String.valueOf(startRequest.charAt(1)));
+                if(currGame.game().getBoard().getPiece(new ChessPosition(startRow, startCol)) == null) {
+                    return "Error: starting square is empty.";
+                }
                 String endRequest = params[1];
                 if(endRequest.length()< 2) {
-                    throw new ResponseException(400, "Error: bad ending request.");
+                    return "Error: bad ending request.";
                 }
                 int endCol = getIntFromChar(endRequest.charAt(0));
                 int endRow = Integer.parseInt(String.valueOf(endRequest.charAt(1)));
@@ -277,8 +282,11 @@ public class ChessClient {
                 }
                 ChessMove moveRequest = new ChessMove(new ChessPosition(startRow, startCol),
                         new ChessPosition(endRow, endCol), promotionPiece);
-                currGame.game().makeMove(moveRequest);
+                // get rid of this for next time
+                //currGame.game().makeMove(moveRequest);
                 ws.makeMove(authData, currGame.gameID(), moveRequest);
+                // add update of game here
+                setCurrGame(currGame.gameID());
             }
             return "";
         } catch (Exception e) {
@@ -299,14 +307,16 @@ public class ChessClient {
         assertLoggedIn();
         String positionRequest = params[0];
         try {
+            if(positionRequest.length() < 2) { throw new ResponseException(400, "Error: bad square request."); }
             int col = getIntFromChar(positionRequest.charAt(0));
             int row = Integer.parseInt(String.valueOf(positionRequest.charAt(1)));
             ChessBoard currBoard = currGame.game().getBoard();
             ChessPiece selectedPiece = currBoard.getPiece(new ChessPosition(row, col));
             Collection<ChessMove> moves =
                     selectedPiece.pieceMoves(currBoard, new ChessPosition(row, col));
-            int[] highlightArray = getHighlightArray(moves);
-            return "\n" + getBoardString(ChessGame.TeamColor.WHITE, highlightArray);
+            int[] highlightArray = getHighlightArray(moves, row - 1, col - 1);
+            // this needs to be addressed; do they always want it from one perspective? if it doesn't incl start sq, add it!!
+            return "\n" + getBoardString(selectedPiece.getTeamColor(), highlightArray);
         } catch (Exception e) {
             throw new ResponseException(400, "Error: bad request");
         }
@@ -368,13 +378,18 @@ public class ChessClient {
         return trueId;
     }
 
+    // THERE APPEARS TO BE SOME SERVER ERROR OR SOMETHING OCCURING IN THE SETCURRGAME FUNCTION SO LOOK AT THAT
     private void setCurrGame(int requestedId) throws ResponseException {
-        var games = server.listGames(authData.authToken()).games();
-        for(var game : games) {
-            if(game.gameID() == requestedId) {
-                currGame = game;
-                break;
+        try {
+            var games = server.listGames(authData.authToken()).games();
+            for(var game : games) {
+                if(game.gameID() == requestedId) {
+                    currGame = game;
+                    break;
+                }
             }
+        } catch (ResponseException e) {
+            throw new ResponseException(500, e.getMessage());
         }
     }
 
@@ -421,15 +436,11 @@ public class ChessClient {
         return pieceArray;
     }
 
-    private int[] getHighlightArray(Collection<ChessMove> moves) {
+    private int[] getHighlightArray(Collection<ChessMove> moves, int startRow, int startCol) {
         int[] highlightArray = new int[64];
+        ChessPosition startPosition = new ChessPosition(startRow, startCol);
         ArrayList<ChessPosition> endPositions = new ArrayList<>();
-        ChessPosition startPosition = null;
         for(var move : moves) {
-            if (startPosition == null) {
-                startPosition = new ChessPosition(move.getStartPosition().getRow() - 1,
-                        move.getStartPosition().getColumn() - 1);
-            }
             ChessPosition endPosition = new ChessPosition(move.getEndPosition().getRow() - 1,
                     move.getEndPosition().getColumn() - 1);
             endPositions.add(endPosition);

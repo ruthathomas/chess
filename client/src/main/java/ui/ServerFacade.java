@@ -81,6 +81,9 @@ public class ServerFacade {
             var status = httpConn.getResponseCode();
             if(status != 200) {
                 String msg = httpConn.getResponseMessage();
+                if(request == null) {
+                    throw new ResponseException(500, "FIXME FIXME");
+                }
                 if(request.getClass() == UserData.class) {
                     msg = "requested username already taken; please try again with another username";
                 } else if(request.getClass() == LoginRequest.class) {

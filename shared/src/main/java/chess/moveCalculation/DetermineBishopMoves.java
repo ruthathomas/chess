@@ -79,9 +79,11 @@ public class DetermineBishopMoves implements DeterminePieceMoves {
             col++;
             ChessPosition endPos = new ChessPosition(row, col);
             if(board.getPiece(endPos) != null) {
-                if(board.getPiece(endPos).getTeamColor() != myColor) {
-                    // If colors were equal, player's team would be blocking movement
-                    // Opponent's piece is in the way; pos is added, but tiles beyond may not be accessed
+                // Piece of same color prevents movement
+                if(board.getPiece(endPos).getTeamColor() == myColor) {
+                    break;
+                    // Opponent's piece is in the way; further tiles blocked
+                } else {
                     validMoves.add(new ChessMove(myPosition, endPos, null));
                     break;
                 }

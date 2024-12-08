@@ -8,7 +8,6 @@ public class BoardBuilder {
             EscapeSequences.SET_TEXT_COLOR_BLACK + EscapeSequences.SET_TEXT_BOLD;
     private static final String RESET_FORMAT = EscapeSequences.RESET_BG_COLOR + EscapeSequences.RESET_TEXT_BOLD_FAINT;
 
-    //something weird is occurring here for highlight for black
     public static String buildBoard(String[] pieceArray, int[] highlightArray, ChessGame.TeamColor color) {
         String boardString = "";
         int row;
