@@ -131,7 +131,6 @@ public class WebSocketHandler {
                     dataAccess.updateGame(gameID, game); // check this out??
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                     currConnections.broadcast(null, serverMessage);
-                    // FIXME make the piecestring be to lowercase FIXME
                     String moveString = String.format("a %s from %s to %s", pieceString.toLowerCase(),
                             getBoardPosition(move.getStartPosition()), getBoardPosition(move.getEndPosition()));
                     if(move.getPromotionPiece() != null) {

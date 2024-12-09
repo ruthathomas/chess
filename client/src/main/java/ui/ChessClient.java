@@ -253,7 +253,7 @@ public class ChessClient {
         try {
             if(params.length > 1) {
                 String startRequest = params[0];
-                if(startRequest.length() < 2) {
+                if(startRequest.length() != 2) {
                     return "Error: bad starting square.";
                 }
                 int startCol = getIntFromChar(startRequest.charAt(0));
@@ -262,7 +262,7 @@ public class ChessClient {
                     return "Error: starting square is empty.";
                 }
                 String endRequest = params[1];
-                if(endRequest.length()< 2) {
+                if(endRequest.length() != 2) {
                     return "Error: bad ending request.";
                 }
                 int endCol = getIntFromChar(endRequest.charAt(0));
