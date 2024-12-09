@@ -131,23 +131,28 @@ public class WebSocketHandler {
                     dataAccess.updateGame(gameID, game); // check this out??
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                     currConnections.broadcast(null, serverMessage);
-                    //delete vv
-                    //dataAccess.updateGame(gameID, game);
-                    String moveString = String.format("a %s from %s to %s", pieceString,
+                    // FIXME make the piecestring be to lowercase FIXME
+                    String moveString = String.format("a %s from %s to %s", pieceString.toLowerCase(),
                             getBoardPosition(move.getStartPosition()), getBoardPosition(move.getEndPosition()));
+                    if(move.getPromotionPiece() != null) {
+                        moveString += String.format(" and promoted their pawn to a %s",
+                                move.getPromotionPiece().toString().toLowerCase());
+                    }
                     message = String.format("Player '%s' moved %s.", username, moveString);
-                    //String statusMessage = getGameStatusMessage(game);
-                    message += " " + getGameStatusMessage(game);
-                    // HEY, YOU: there's probably a better way to do this; server sends game state if changed
-                    if (message.contains("white is in checkmate") || message.contains("white is in stalemate")) {
+                    String endMessage = getGameStatusMessage(game);
+                    if (endMessage.contains("(white) is in checkmate") || endMessage.contains("(white) is in stalemate")) {
                         dataAccess.endGame(game);
-                        message += "Team black has won. Thank you for playing!";
-                    } else if(message.contains("black is in checkmate") || message.contains("black is in stalemate")) {
+                        endMessage += String.format("Player '%s' (black) has won. Thank you for playing!", game.blackUsername());
+                    } else if(endMessage.contains("(black) is in checkmate") ||endMessage.contains("(black) is in stalemate")) {
                         dataAccess.endGame(game);
-                        message += "Team white has won. Thank you for playing!";
+                        endMessage += String.format("Player '%s' (white) has won. Thank you for playing!", game.whiteUsername());
                     }
                     serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
                     currConnections.broadcast(username, serverMessage);
+                    if(!endMessage.isEmpty()) {
+                        serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, endMessage);
+                        currConnections.broadcast(null, serverMessage);
+                    }
                 } catch (InvalidMoveException ex) {
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
                             "invalid move.");
@@ -231,12 +236,12 @@ public class WebSocketHandler {
             } else {
                 username = game.blackUsername();
             }
-            if(game.game().isInCheck(color)) {
-                message = String.format("Player '%s' (%s) is in check. ", username, color.toString().toLowerCase());
-            } else if(game.game().isInCheckmate(color)) {
+            if(game.game().isInCheckmate(color)) {
                 message = String.format("Player '%s' (%s) is in checkmate. ", username, color.toString().toLowerCase());
             } else if(game.game().isInStalemate(color)) {
                 message = String.format("Player '%s' (%s) is in stalemate. ", username, color.toString().toLowerCase());
+            } else if(game.game().isInCheck(color)) {
+                message = String.format("Player '%s' (%s) is in check. ", username, color.toString().toLowerCase());
             }
         }
         return message;

@@ -234,13 +234,10 @@ public class ChessClient {
 
     private String leave() throws ResponseException {
         assertLoggedIn();
+        if(status == Status.LOGGEDINIDLE) {
+            throw new ResponseException(400, "You can't leave a game if you aren't in one.");
+        }
         setCurrGame(currGame.gameID());
-//        if(status == Status.LOGGEDINPLAYING) {
-//            ws.leaveGame(authData, currGame.gameID());
-//        } else if (status == Status.LOGGEDINOBSERVING) {
-//            ws.leaveGame(authData, currGame.gameID());
-//            currGame = null;
-//        }
         ws.leaveGame(authData, currGame.gameID());
         currGame = null;
         status = Status.LOGGEDINIDLE;
@@ -252,7 +249,7 @@ public class ChessClient {
         // make sure parameters don't cause an error; must have two characters
         assertLoggedIn();
         assertPlaying();
-        assertYourTurn();
+        //assertYourTurn();
         try {
             if(params.length > 1) {
                 String startRequest = params[0];
@@ -312,8 +309,8 @@ public class ChessClient {
             int row = Integer.parseInt(String.valueOf(positionRequest.charAt(1)));
             ChessBoard currBoard = currGame.game().getBoard();
             ChessPiece selectedPiece = currBoard.getPiece(new ChessPosition(row, col));
-            Collection<ChessMove> moves =
-                    selectedPiece.pieceMoves(currBoard, new ChessPosition(row, col));
+            Collection<ChessMove> moves = currGame.game().validMoves(new ChessPosition(row, col));
+//                    selectedPiece.pieceMoves(currBoard, new ChessPosition(row, col));
             int[] highlightArray = getHighlightArray(moves, row - 1, col - 1);
             // this needs to be addressed; do they always want it from one perspective? if it doesn't incl start sq, add it!!
             return "\n" + getBoardString(selectedPiece.getTeamColor(), highlightArray);
@@ -352,11 +349,11 @@ public class ChessClient {
         }
     }
 
-    private void assertYourTurn() throws ResponseException {
-        if(currGame.game().getTeamTurn() != currColor) {
-            throw new ResponseException(400, "It is not your turn.");
-        }
-    }
+//    private void assertYourTurn() throws ResponseException {
+//        if(currGame.game().getTeamTurn() != currColor) {
+//            throw new ResponseException(400, "It is not your turn.");
+//        }
+//    }
 
     private int getIdFromRequestedId(int requestedId) throws ResponseException {
         int trueId = 0;

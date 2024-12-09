@@ -110,12 +110,13 @@ INDEX (username)
     public GameData updateGame(int gameID, GameData gameData) throws DataAccessException {
         try(var conn = getConnection()) {
             try(var preparedStatement = conn.prepareStatement("UPDATE game SET whiteUsername = ?, blackUsername = ?," +
-                    " gameName = ?, game = ? WHERE gameID = ?")) {
+                    " gameName = ?, game = ?, isOver = ? WHERE gameID = ?")) {
                 preparedStatement.setString(1, gameData.whiteUsername());
                 preparedStatement.setString(2, gameData.blackUsername());
                 preparedStatement.setString(3, gameData.gameName());
                 preparedStatement.setString(4, serializer.toJson(gameData.game()));
-                preparedStatement.setInt(5, gameID);
+                preparedStatement.setBoolean(5, gameData.isOver());
+                preparedStatement.setInt(6, gameID);
                 preparedStatement.execute();
             }
         } catch (DataAccessException | SQLException e) {
