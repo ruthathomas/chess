@@ -28,8 +28,6 @@ public class WebSocketHandler {
     private final ConcurrentHashMap<Integer, ConnectionManager> connections = new ConcurrentHashMap<>();
 
     private DataAccessInterface dataAccess = new MemoryDataAccess();
-    private GameData currGame;
-    private String currColor;
 
     public WebSocketHandler(DataAccessInterface dataAccess) {
         this.dataAccess = dataAccess;
@@ -82,7 +80,6 @@ public class WebSocketHandler {
             }
             ConnectionManager currConnections = connections.get(gameID);
             currConnections.add(username, session);
-            //connections.add(username, session);
             GameData game = dataAccess.getGame(gameID);
             if(game == null) {
                 currConnections.broadcastSelf(username, new ServerMessage(ServerMessage.ServerMessageType.ERROR,
@@ -93,7 +90,6 @@ public class WebSocketHandler {
                 String message = "";
                 ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                 currConnections.broadcastSelf(username, serverMessage);
-                currGame = game;
                 if(isPlaying) {
                     message = String.format("User '%s' has joined the game playing as %s.", username, playerColor);
                 } else {
@@ -168,10 +164,8 @@ public class WebSocketHandler {
         }
     }
 
-    // this may not always work? check back in --> saying currGame is null?? why is this?
     private void leave(String username, int gameID) throws IOException{
         try {
-            // set currGame here instead of game --> make sure that it's updated (CURRGAME GETS SET TO NULL BY THE OTHER GUY SOMEHOW??)
             GameData game = dataAccess.getGame(gameID);
             String playerColor = getPlayerColor(username, game);
             boolean isPlaying = getIsPlaying(username, game);
@@ -189,14 +183,13 @@ public class WebSocketHandler {
                 }
                 dataAccess.updateGame(gameID, newGame); // maybe set the current game to be correct first?
                 message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
-                currGame = null;
             } else {
                 // if not playing, then no change must be made to the game
                 message = String.format("Observer '%s' has left the game.", username);
             }
             var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             currConnections.broadcast(username, serverMessage);
-            currConnections.remove(username); // THERE'S A NULL POINTER EXCEPTION HAPPENING HERE??
+            currConnections.remove(username);
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.get(gameID).broadcastSelf(username, serverMessage);
@@ -205,19 +198,19 @@ public class WebSocketHandler {
 
     private void resign(String username, Session session, int gameID) throws IOException {
         try {
-            currGame = dataAccess.getGame(gameID);
-            if(currGame.isOver()) {
+            GameData game = dataAccess.getGame(gameID);
+            if(game.isOver()) {
                 var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
                         "the game is already over.");
                 session.getRemote().sendString(serverMessage.toString());
-            } else if(!username.equalsIgnoreCase(currGame.whiteUsername()) &&
-                    !username.equalsIgnoreCase(currGame.blackUsername())) {
+            } else if(!username.equalsIgnoreCase(game.whiteUsername()) &&
+                    !username.equalsIgnoreCase(game.blackUsername())) {
                 var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR,
                         "observers may not resign.");
                         session.getRemote().sendString(serverMessage.toString());
             } else {
-                dataAccess.endGame(currGame);
-                dataAccess.updateGame(currGame.gameID(), currGame);
+                dataAccess.endGame(game);
+                dataAccess.updateGame(game.gameID(), game);
                 String message =
                         String.format("Player '%s' has resigned from the game. Thank you for playing!", username);
                 var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
