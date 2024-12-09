@@ -132,7 +132,7 @@ public class WebSocketHandler {
             } else {
                 try {
                     game.game().makeMove(move);
-                    dataAccess.updateGame(gameID, game);
+                    dataAccess.updateGame(gameID, game); // check this out??
                     ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
                     currConnections.broadcast(null, serverMessage);
                     //delete vv
@@ -168,9 +168,10 @@ public class WebSocketHandler {
         }
     }
 
-    // this may not always work? check back in
+    // this may not always work? check back in --> saying currGame is null?? why is this?
     private void leave(String username, int gameID) throws IOException{
         try {
+            // set currGame here instead of game --> make sure that it's updated (CURRGAME GETS SET TO NULL BY THE OTHER GUY SOMEHOW??)
             GameData game = dataAccess.getGame(gameID);
             String playerColor = getPlayerColor(username, game);
             boolean isPlaying = getIsPlaying(username, game);
@@ -179,14 +180,14 @@ public class WebSocketHandler {
             if(isPlaying) {
                 GameData newGame;
                 if(playerColor.equalsIgnoreCase("white")) {
-                    newGame = new GameData(currGame.gameID(), null, currGame.blackUsername(),
-                            currGame.gameName(), game.game(), currGame.isOver());
+                    newGame = new GameData(gameID, null, game.blackUsername(), game.gameName(),
+                            game.game(), game.isOver());
                 } else {
                     //might need to make sure bad things don't happen here
-                    newGame = new GameData(currGame.gameID(), currGame.whiteUsername(), null,
-                            currGame.gameName(), game.game(), currGame.isOver());
+                    newGame = new GameData(gameID, game.whiteUsername(), null, game.gameName(),
+                            game.game(), game.isOver());
                 }
-                dataAccess.updateGame(currGame.gameID(), newGame);
+                dataAccess.updateGame(gameID, newGame); // maybe set the current game to be correct first?
                 message = String.format("Player '%s' (%s) has left the game.", username, playerColor);
                 currGame = null;
             } else {
@@ -195,7 +196,7 @@ public class WebSocketHandler {
             }
             var serverMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
             currConnections.broadcast(username, serverMessage);
-            currConnections.remove(username);
+            currConnections.remove(username); // THERE'S A NULL POINTER EXCEPTION HAPPENING HERE??
         } catch (Exception ex) {
             ServerMessage serverMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR, ex.getMessage());
             connections.get(gameID).broadcastSelf(username, serverMessage);

@@ -66,6 +66,7 @@ public class WebSocketFacade extends Endpoint {
         try {
             var command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authData.authToken(), gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
+            //failure happening in handling due to null pointer exception; then, the session is still closed, which is causing you some errors
             this.session.close();
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
