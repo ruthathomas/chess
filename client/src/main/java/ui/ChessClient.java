@@ -349,12 +349,6 @@ public class ChessClient {
         }
     }
 
-//    private void assertYourTurn() throws ResponseException {
-//        if(currGame.game().getTeamTurn() != currColor) {
-//            throw new ResponseException(400, "It is not your turn.");
-//        }
-//    }
-
     private int getIdFromRequestedId(int requestedId) throws ResponseException {
         int trueId = 0;
         var games = server.listGames(authData.authToken()).games();
